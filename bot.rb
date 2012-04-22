@@ -10,6 +10,9 @@ require './plugins/memo'
 require './plugins/downforeveryone'
 require './plugins/title'
 require './plugins/key_value_store'
+require './plugins/translation_status'
+require './plugins/update_diaspora'
+require './plugins/pod_updated'
 
 bot = Cinch::Bot.new do
   configure do |c|
@@ -22,7 +25,16 @@ bot = Cinch::Bot.new do
     c.storage.basedir = "./yaml/"
     c.storage.autosave = true
 
-    c.plugins.plugins = [Google, Memo, Cinch::Plugins::DownForEveryone, Cinch::Plugins::Title, KeyValueStore]
+    c.plugins.plugins = [
+      Google,
+      Memo,
+      Cinch::Plugins::DownForEveryone,
+      Cinch::Plugins::Title,
+      KeyValueStore,
+      TranslationStatus,
+      UpdateDiaspora,
+      PodUpdated
+    ]
   end
   
   on :message, "hello" do |m|

@@ -10,12 +10,14 @@ require './settings'
 
 require './plugins/google'
 require './plugins/memo'
-require './plugins/downforeveryone'
+require './plugins/down_for_everyone'
 require './plugins/title'
 require './plugins/key_value_store'
 require './plugins/translation_status'
 require './plugins/update_diaspora'
 require './plugins/pod_updated'
+require './plugins/what_the_commit'
+require './plugins/russian_roulette'
 
 Settings.setup!
 
@@ -33,7 +35,7 @@ bot = Cinch::Bot.new do
 
     c.plugins.plugins = []
 
-    if Settings.identify.enabled || true
+    if Settings.identify.enabled
       c.plugins.plugins << Cinch::Plugins::Identify
       c.plugins.options[Cinch::Plugins::Identify] = {
         :username => Settings.nick,
@@ -50,7 +52,9 @@ bot = Cinch::Bot.new do
       KeyValueStore,
       TranslationStatus,
       UpdateDiaspora,
-      PodUpdated
+      PodUpdated,
+      WhatTheCommit,
+      RussianRoulette
     ]
   end
 end

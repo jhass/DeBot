@@ -7,13 +7,17 @@ class Google
   match /google (.+)/
 
   def search(query)
-    url = "https://www.google.com/search?q=#{CGI.escape(query)}"
-    res = Nokogiri::HTML(open(url)).at("h3.r")
-
-    title = res.text
-    link = res.at('a')[:href]
-    desc = res.at("./following::div").children.first.text
-    CGI.unescape_html "#{title} - #{desc} (#{link})"
+    answer = ""
+    open( "https://www.google.com/search?q=#{ CGI.escape( query ) }&safe=active" ) do |html|
+      counter = 0
+      html.read.scan /<a href="?\/url\?q=([^"&]+).*?".*?>(.+?)<\/a>/m do |match|
+        url, title = match
+        title.gsub!( /<.+?>/, "" )
+        ua = query.gsub( /-?site:\S+/, '' ).strip
+        answer = "[#{ua}]: #{url} - #{title}"
+      end
+    end
+    answer
   rescue
     "No results found"
   end

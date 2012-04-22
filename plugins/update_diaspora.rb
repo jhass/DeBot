@@ -4,6 +4,9 @@ require 'nokogiri'
 class UpdateDiaspora
   include Cinch::Plugin
 
+  set(:plugin_name => "oktoupdate",
+      :help => "Usage: !oktoupdate - Pulls the info of http://isitoktoupdatemydiaspora.tk right into the channel")
+  
   match /(?:isit)?(?:safe|ok|okay)to(?:update|pull)(?:my)?(?:diaspora)?/
 
   def execute(m)

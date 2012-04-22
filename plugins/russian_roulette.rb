@@ -17,6 +17,9 @@ class RussianRoulette
     @@chambers = CHAMBERS
   end
 
+  set(:plugin_name => "roulette",
+      :help => "Usage: !roul/!roulette takes the gun right to your head and pulls the trigger. There's one bullet in #{CHAMBERS} chambers")
+
   match /roul(?:ette)?/
 
   def execute(m)

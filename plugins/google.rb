@@ -4,6 +4,10 @@ require 'cgi'
 
 class Google
   include Cinch::Plugin
+
+  set(:plugin_name => "google",
+      :help => "Usage: !google serach terms")
+ 
   match /google (.+)/
 
   def search(query)

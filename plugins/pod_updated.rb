@@ -5,6 +5,9 @@ require 'uri'
 class PodUpdated
   include Cinch::Plugin
 
+  set(:plugin_name => "rev",
+      :help => "Usage: !rev diaspora.example.org - Try to guess which version the specified Diaspora pod runs on")
+
   match /rev (.+)/
 
   def execute(m, url)

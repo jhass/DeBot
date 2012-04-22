@@ -1,3 +1,8 @@
+yaml/*.y*ml
+
+
+
+# Thanks Github
 *.gem
 *.rbc
 .bundle

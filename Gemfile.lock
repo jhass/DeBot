@@ -1,0 +1,55 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    archive-tar-minitar (0.5.2)
+    cinch (2.0.2)
+    cinch-downforeveryone (1.0.2)
+      cinch (~> 2.0)
+      mechanize
+    cinch-title (0.3.1)
+      cinch
+      curb
+      nokogiri
+    columnize (0.3.6)
+    curb (0.8.0)
+    domain_name (0.5.3)
+      unf (~> 0.0.3)
+    linecache19 (0.5.12)
+      ruby_core_source (>= 0.1.4)
+    mechanize (2.4)
+      domain_name (~> 0.5, >= 0.5.1)
+      mime-types (~> 1.17, >= 1.17.2)
+      net-http-digest_auth (~> 1.1, >= 1.1.1)
+      net-http-persistent (~> 2.5, >= 2.5.2)
+      nokogiri (~> 1.4)
+      ntlm-http (~> 0.1, >= 0.1.1)
+      webrobots (~> 0.0, >= 0.0.9)
+    mime-types (1.18)
+    net-http-digest_auth (1.2)
+    net-http-persistent (2.6)
+    nokogiri (1.5.2)
+    ntlm-http (0.1.1)
+    ruby-debug-base19 (0.11.25)
+      columnize (>= 0.3.1)
+      linecache19 (>= 0.5.11)
+      ruby_core_source (>= 0.1.4)
+    ruby-debug19 (0.11.6)
+      columnize (>= 0.3.1)
+      linecache19 (>= 0.5.11)
+      ruby-debug-base19 (>= 0.11.19)
+    ruby_core_source (0.1.5)
+      archive-tar-minitar (>= 0.5.2)
+    unf (0.0.5)
+      unf_ext
+    unf_ext (0.0.4)
+    webrobots (0.0.13)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  cinch
+  cinch-downforeveryone
+  cinch-title
+  nokogiri
+  ruby-debug19

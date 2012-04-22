@@ -19,6 +19,7 @@ require './plugins/pod_updated'
 require './plugins/what_the_commit'
 require './plugins/russian_roulette'
 require './plugins/feeds'
+require './plugins/bot_utils'
 
 Settings.setup!
 
@@ -48,6 +49,13 @@ bot = Cinch::Bot.new do
     if Settings.feeds.keys.size > 0
       c.plugins.plugins << Feeds
       c.plugins.options[Feeds] = Settings.feeds
+    end
+
+    if Settings.admins && Settings.admins.size > 0
+      c.plugins.plugins << BotUtils
+      c.plugins.options[BotUtils] = {
+        :admins => Settings.admins
+      }
     end
 
     c.plugins.plugins += [

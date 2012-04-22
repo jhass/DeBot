@@ -6,6 +6,9 @@ identify:
   password: "123"
   type: nickserv
 
+admins:
+ - "MrZYX"
+
 channels:
   - "#diaspora-de"
 

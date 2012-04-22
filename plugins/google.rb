@@ -35,7 +35,7 @@ class Google
   end
 
   def self.search(query)
-    f = open( "https://www.google.com/search?q=#{ CGI.escape( query ) }&safe=active" )
+    f = open( "https://www.google.com/search?q=#{ CGI.escape( query ) }&safe=none" )
     html = f.read
     f.close
     html

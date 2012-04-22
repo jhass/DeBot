@@ -9,7 +9,7 @@ class RussianRoulette
     "That's gotta hurt..."
   ]
   ALSO_BAN = true
-  BAN_TIME = 60
+  BAN_TIME = 30
   CHAMBERS = 6
 
   def initialize(*args)
@@ -23,10 +23,10 @@ class RussianRoulette
   match /roul(?:ette)?/
 
   def execute(m)
-    m.reply "*spin*..."
+    m.reply "*pull*..."
     Timer(3, :shots => 1) do
-      has_bullet = (rand(@chambers) == 0)
-      if @@chambers == 0
+      has_bullet = (rand(@@chambers) == 0)
+      if @@chambers == 1
         has_bullet = true
         @@chambers = CHAMBERS
       end
@@ -42,6 +42,7 @@ class RussianRoulette
       else
         m.reply "-click-"
         @@chambers -= 1
+        m.reply "#{@@chambers} left"
       end
     end
   end

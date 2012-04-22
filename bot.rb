@@ -1,3 +1,4 @@
+# encoding: utf-8
 require 'cinch'
 require 'cinch/configuration/storage'
 require 'cinch/storage/yaml'
@@ -73,11 +74,12 @@ bot = Cinch::Bot.new do
     ]
   end
 
-  on :message do |m|
-    msgs = [ "Ich mag dich", "Hast recht,", "Genau,", "Richtig,", "Ihr redet alle blödsinn, Recht hat nur", "Jawohl," "Da stimme ich dir zu",
+  on :message do |m|	
+    msgs = [ "Ich mag dich", "Hast recht,", "Genau,", "Richtig,", "Ihr redet alle Blödsinn, Recht hat nur", "Jawohl,", "Da stimme ich dir zu",
              "Ich liebe dich so viel dass ich oft an dir in der dusche denk", "Ack ", "Aye", "Jo", "Wie geht's dir", "Denk ich auch,",
              "Schön,", "Du bist der Wind in meinen Flügeln", "Genau meine Meinung"]
-    m.reply "#{msgs[rand(msgs.size)]} #{m.user.nick}" if m.user.nick == "paddyez" && rand(30) == 0
+    nicks = ["paddyez", "paddy", "p[a]ddy"]
+    m.reply "#{msgs[rand(msgs.size)]} #{m.user.nick}" if nicks.include?(m.user.nick) && rand(20) == 0
   end
 end
 

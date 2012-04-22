@@ -14,3 +14,4 @@ My IRC Bot using Cinch ![Gemnasium](https://gemnasium.com/MrZYX/DeBot.png)
 ## Acknowledgements
 
 * [Chinch](https://github.com/cinchrb) for their great framework, plugins and examples.
+* [Mathetes](https://github.com/Pistos/Mathetes) where I shameless stole and adapted some plugin code

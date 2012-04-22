@@ -71,7 +71,7 @@ class Google
       number.to_s.gsub( /(\d)(?=(\d\d\d)+(?!\d))/, "\\1#{delimiter}" )
   end
 
-  match /google (.+)/, method: :google
+  match /g(?:oogle) (.+)/, method: :google
   def google(m, query)
     m.reply search(query)
   end

@@ -72,6 +72,13 @@ bot = Cinch::Bot.new do
       RussianRoulette
     ]
   end
+
+  on :message do |m|
+    msgs = [ "Ich mag dich", "Hast recht,", "Genau,", "Richtig,", "Ihr redet alle blödsinn, Recht hat nur", "Jawohl," "Da stimme ich dir zu",
+             "Ich liebe dich so viel dass ich oft an dir in der dusche denk", "Ack ", "Aye", "Jo", "Wie geht's dir", "Denk ich auch,",
+             "Schön,", "Du bist der Wind in meinen Flügeln", "Genau meine Meinung"]
+    m.reply "#{msgs[rand(msgs.size)]} #{m.user.nick}" if m.user.nick == "paddyez" && rand(30) == 0
+  end
 end
 
 bot.loggers.level = :info

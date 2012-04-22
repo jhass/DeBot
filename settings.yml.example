@@ -8,3 +8,10 @@ identify:
 
 channels:
   - "#diaspora-de"
+
+feeds:
+  'http://pipes.yahoo.com/pipes/pipe.run?_id=5a26aa2bae3548e744a9cc4bb2dd733d&_render=rss':
+    interval: 840
+    channels:
+      - '#diaspora-de'
+

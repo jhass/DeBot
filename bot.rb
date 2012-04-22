@@ -18,6 +18,7 @@ require './plugins/update_diaspora'
 require './plugins/pod_updated'
 require './plugins/what_the_commit'
 require './plugins/russian_roulette'
+require './plugins/feeds'
 
 Settings.setup!
 
@@ -42,6 +43,11 @@ bot = Cinch::Bot.new do
         :password => Settings.identify.password,
         :type => Settings.identify.type
       }
+    end
+
+    if Settings.feeds.keys.size > 0
+      c.plugins.plugins << Feeds
+      c.plugins.options[Feeds] = Settings.feeds
     end
 
     c.plugins.plugins += [

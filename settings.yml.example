@@ -6,6 +6,7 @@ identify:
   password: "123"
   type: nickserv
 
+superadmin: "MrZYX"
 admins:
  - "MrZYX"
 

@@ -54,7 +54,8 @@ bot = Cinch::Bot.new do
     if Settings.admins && Settings.admins.size > 0
       c.plugins.plugins << BotUtils
       c.plugins.options[BotUtils] = {
-        :admins => Settings.admins
+        :admins => Settings.admins,
+        :superadmin => Settings.superadmin
       }
     end
 
@@ -72,5 +73,7 @@ bot = Cinch::Bot.new do
     ]
   end
 end
+
+bot.loggers.level = :info
 
 bot.start

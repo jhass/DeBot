@@ -6,6 +6,8 @@ GEM
     cinch-downforeveryone (1.0.2)
       cinch (~> 2.0)
       mechanize
+    cinch-identify (1.1.2)
+      cinch (~> 2.0)
     cinch-title (0.3.1)
       cinch
       curb
@@ -39,6 +41,7 @@ GEM
       ruby-debug-base19 (>= 0.11.19)
     ruby_core_source (0.1.5)
       archive-tar-minitar (>= 0.5.2)
+    settingslogic (2.0.8)
     unf (0.0.5)
       unf_ext
     unf_ext (0.0.4)
@@ -50,6 +53,8 @@ PLATFORMS
 DEPENDENCIES
   cinch
   cinch-downforeveryone
+  cinch-identify
   cinch-title
   nokogiri
   ruby-debug19
+  settingslogic

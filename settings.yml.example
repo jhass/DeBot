@@ -1,0 +1,10 @@
+server: "chat.eu.freenode.net"
+port: 6667
+nick: "AnotherDeBot"
+identify:
+  enabled: false
+  password: "123"
+  type: nickserv
+
+channels:
+  - "#diaspora-de"

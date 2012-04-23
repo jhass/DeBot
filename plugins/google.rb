@@ -17,7 +17,7 @@ class Google
   ]
 
   set(:plugin_name => "google",
-      :help => "Usage: !google serach terms, !gf search terms vs search terms")
+      :help => "Usage: !google search terms, !gf search terms vs search terms")
  
   def search(query)
     answer = ""
@@ -27,7 +27,7 @@ class Google
       url, title = match
       title.gsub!( /<.+?>/, "" )
       ua = query.gsub( /-?site:\S+/, '' ).strip
-      answer = "[#{ua}]: #{url} - #{title}"
+      return answer = "[#{ua}]: #{url} - #{title}"
     end
     answer
   #rescue

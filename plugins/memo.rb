@@ -6,6 +6,7 @@ class Memo
   end
 
   include Cinch::Plugin
+  attr_reader :storage
 
   def initialize(*args)
     super
@@ -17,8 +18,9 @@ class Memo
       :help => "Usage: !memo nick message")
 
   listen_to :message
+  listen_to :join
+  listen_to :nick
   match /memo (.+?) (.+)/
-  attr_reader :storage
 
   def listen(m)
     if storage[:memos].has_key?(m.user.nick)

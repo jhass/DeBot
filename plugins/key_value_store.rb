@@ -9,12 +9,12 @@ class KeyValueStore
 
   attr_reader :storage
 
-  set(:plugin_name => "keyvaluestore",
-      :prefix => /^(?:!i |\?)/,
-      :help => "Usage: !i key/?key, !i key=val/?key=val, !i keys/?keys")
+  set(plugin_name: "keyvaluestore",
+      prefix: /^(?:!i |\?)/,
+      help: "Usage: !i key/?key, !i key=val/?key=val, !i keys/?keys")
 
-  match /([^=\s]+)/, method: :get
-  match /([^=\s]+)=(.+)/, method: :set
+  match /([\w_\-\d]+)\b/, method: :get
+  match /([\w_\-\d]+)=(.+)/, method: :set
 
 
   def get(m, key)

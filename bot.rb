@@ -22,14 +22,12 @@ require './plugins/russian_roulette'
 require './plugins/feeds'
 require './plugins/bot_utils'
 
-Settings.setup!
-
 bot = Cinch::Bot.new do
   configure do |c|
-    c.nick = Settings.nick
-    c.server = Settings.server
-    c.port = Settings.port
-    c.channels = Settings.channels
+    c.nick = settings.nick
+    c.server = settings.server
+    c.port = settings.port
+    c.channels = settings.channels
 
     c.storage = Cinch::Configuration::Storage.new
     c.storage.backend = Cinch::Storage::YAML
@@ -38,25 +36,25 @@ bot = Cinch::Bot.new do
 
     c.plugins.plugins = []
 
-    if Settings.identify.enabled
+    if settings.identify.enabled
       c.plugins.plugins << Cinch::Plugins::Identify
       c.plugins.options[Cinch::Plugins::Identify] = {
-        :username => Settings.nick,
-        :password => Settings.identify.password,
-        :type => Settings.identify.type
+        :username => settings.nick,
+        :password => settings.identify.password,
+        :type => settings.identify.type
       }
     end
 
-    if Settings.feeds.keys.size > 0
+    if settings.feeds.keys.any?
       c.plugins.plugins << Feeds
-      c.plugins.options[Feeds] = Settings.feeds
+      c.plugins.options[Feeds] = settings.feeds
     end
 
-    if Settings.admins && Settings.admins.size > 0
+    if settings.admins && settings.admins.any?
       c.plugins.plugins << BotUtils
       c.plugins.options[BotUtils] = {
-        :admins => Settings.admins,
-        :superadmin => Settings.superadmin
+        :admins => settings.admins,
+        :superadmin => settings.superadmin
       }
     end
 
@@ -79,10 +77,10 @@ bot = Cinch::Bot.new do
              "Ich liebe dich so viel dass ich oft an dir in der dusche denk", "Ack ", "Aye", "Jo", "Wie geht's dir", "Denk ich auch,",
              "Schön,", "Du bist der Wind in meinen Flügeln", "Genau meine Meinung"]
     nicks = ["paddyez", "paddy", "p[a]ddy"]
-    m.reply "#{msgs[rand(msgs.size)]} #{m.user.nick}" if nicks.include?(m.user.nick) && rand(20) == 0
+    m.reply "#{msgs[rand(msgs.size)]} #{m.user.nick}" if nicks.include?(m.user.nick) && rand(15) == 0
   end
 end
 
-bot.loggers.level = :info
+#bot.loggers.level = :info
 
 bot.start

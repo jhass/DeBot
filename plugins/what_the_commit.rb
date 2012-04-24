@@ -4,8 +4,8 @@ require 'nokogiri'
 class WhatTheCommit
   include Cinch::Plugin
 
-  set(:plugin_name => "commit",
-      :help => "Usage: !commit")
+  set(plugin_name: "commit",
+      help: "Usage: !commit")
 
   match /commit/
  

@@ -16,22 +16,20 @@ class Google
       [ 1.0, "barely beats" ],
   ]
 
-  set(:plugin_name => "google",
-      :help => "Usage: !google search terms, !gf search terms vs search terms")
+  set(plugin_name: "google",
+      help: "Usage: !google search terms, !gf search terms vs search terms")
  
   def search(query)
-    answer = ""
     html = self.class.search(query)
-    counter = 0
     html.scan /<a href="?\/url\?q=([^"&]+).*?".*?>(.+?)<\/a>/m do |match|
       url, title = match
       title.gsub!( /<.+?>/, "" )
       ua = query.gsub( /-?site:\S+/, '' ).strip
-      return answer = "[#{ua}]: #{url} - #{title}"
+      return "[#{ua}]: #{url} - #{title}"
     end
-    answer
-  #rescue
-  #  "No results found"
+    raise
+  rescue
+    "No results found"
   end
 
   def self.search(query)

@@ -10,8 +10,8 @@ class TranslationStatus
   API_KEY = "66c5e5731ada866d7a0be466f4fc4fb0abb22e76"
   PROJECT = "3020-Diaspora"
 
-  set(:plugin_name => "transstats",
-      :help => "Usage: !ts code -Get statistics about code at #{PROJECT.split('-').last} on WebTranslateIt")
+  set(plugin_name: "transstats",
+      help: "Usage: !ts code -Get statistics about code at #{PROJECT.split('-').last} on WebTranslateIt")
 
   match /(?:ts|trans(?:lation)?stati?s(?:tics)?) ([a-z0-9_-]+)/
 

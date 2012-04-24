@@ -6,7 +6,8 @@ gem 'cinch-downforeveryone'
 gem 'cinch-title'
 
 gem 'nokogiri'
-gem 'settingslogic'
+gem 'modalsettings'
 gem 'feedzirra'
+gem 'activesupport'
 
 gem 'ruby-debug19'

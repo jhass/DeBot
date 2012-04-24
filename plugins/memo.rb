@@ -14,8 +14,8 @@ class Memo
     storage[:memos] ||= {}
   end
 
-  set(:plugin_name => "memo",
-      :help => "Usage: !memo nick message")
+  set(plugin_name: "memo",
+      help: "Usage: !memo nick message")
 
   listen_to :message
   listen_to :join

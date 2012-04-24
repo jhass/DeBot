@@ -23,11 +23,13 @@ class Memo
   match /memo\s+([^ ]+?)\s+(.+)/
 
   def listen(m)
-    if storage[:memos].has_key?(m.user.nick)
-      storage[:memos][m.user.nick].each do |memo|
+    storage[:memos].each do |key, memo|
+      rexp = Regexp.new $1 if key =~ %r{^/(.+)/$}
+      next unless key == m.user.nick || (rexp && m.user.nick =~ rexp)
+      storage[:memos][key].each do |memo|
         m.user.send memo.to_s
       end
-      storage[:memos].delete(m.user.nick)
+      storage[:memos].delete(key)
       storage.save
     end
   end

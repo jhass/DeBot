@@ -75,7 +75,7 @@ class Google
   end
 
   match /g(?:oogle)?f(?:ight)?\s+([^,]+)\s+(?:vs\.?|,)\s+([^,]+)/, method: :google_fight
-  match /g(?:oogle)?f(?:ight)?\s+ ([^ ]+)\s+([^ ]+)/, method: :google_fight
+  match /g(?:oogle)?f(?:ight)?\s+([^ ]+)\s+([^ ]+)/, method: :google_fight
   def google_fight(m, a, b)
     return if b.start_with?("vs") || b == ","
     m.reply self.fight(a ,b)

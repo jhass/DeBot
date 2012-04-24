@@ -42,7 +42,6 @@ class RussianRoulette
       else
         m.reply "-click-"
         @@chambers -= 1
-        m.reply "#{@@chambers} left"
       end
     end
   end

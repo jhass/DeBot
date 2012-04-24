@@ -13,7 +13,7 @@ class KeyValueStore
       prefix: /^(?:!i\s+|\?)/,
       help: "Usage: !i key/?key, !i key=val/?key=val, !i keys/?keys")
 
-  match /([\w_\-\d]+)\b/, method: :get
+  match /([\w_\-\d]+)$/, method: :get
   match /([\w_\-\d]+)=(.+)/, method: :set
 
 

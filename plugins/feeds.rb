@@ -13,11 +13,11 @@ class Feeds
     @@feeds = {}
     @@timers = {}
     config.keys.each do |feed|
-      add_feed(feed)
+      add_feed!(feed)
     end
   end
 
-  def add_feed(feed)
+  def add_feed!(feed)
     options = config[feed]
      if options[:interval] && options[:channels]
        @@feeds[feed] = Feedzirra::Feed.fetch_and_parse feed.to_s
@@ -25,13 +25,13 @@ class Feeds
      end
   end
 
-  def remove_feed(feed)
+  def remove_feed!(feed)
     @@timers[feed].stop if @@timers.has_key?(feed)
   end
 
-  def update_feed(feed)
-    remove_feed(feed)
-    add_feed(feed)
+  def update_feed!(feed)
+    remove_feed!(feed)
+    add_feed!(feed)
   end
 
   def reload_feeds!
@@ -48,7 +48,7 @@ class Feeds
     
     synchronize(:feeds) do
       updated = Feedzirra::Feed.update @@feeds[feed]
-      @@feeds[feed].update_from_feed updated
+      @@feeds[feed].update_from_feed updated unless updated.is_a?(Array)
       new_entries = @@feeds[feed].new_entries
       updated.new_entries = []
       @@feeds[feed] = updated
@@ -90,7 +90,7 @@ class Feeds
         settings.feeds[url][:interval] = interval
         settings.save!
         config[url] = settings.feeds[url]
-        add_feed(url)
+        add_feed!(url)
       end
       m.reply "#{url} added, checked every #{interval} seconds"
     end
@@ -104,7 +104,7 @@ class Feeds
         settings.feeds[url][:interval] = interval
         settings.save!
         config[url] = settings.feeds[url]
-        update_feed(url)
+        update_feed!(url)
       end
       m.reply "#{url} is now checked every #{interval} seconds"
     else
@@ -125,7 +125,7 @@ class Feeds
           config[url].delete(url) if config[url] #TODO investigate
         end
         settings.save!
-        remove_feed(url)
+        remove_feed!(url)
       end
       m.reply "#{url} removed"
     else

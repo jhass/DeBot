@@ -27,8 +27,9 @@ bot = Cinch::Bot.new do
     c.nick = settings.nick
     c.server = settings.server
     c.port = settings.port
+    c.endcoding = :utf8
     c.channels = settings.channels
-
+ 
     c.storage = Cinch::Configuration::Storage.new
     c.storage.backend = Cinch::Storage::YAML
     c.storage.basedir = "./yaml/"

@@ -8,7 +8,7 @@ class PodUpdated
   set(plugin_name: "rev",
       help: "Usage: !rev diaspora.example.org - Try to guess which version the specified Diaspora pod runs on")
 
-  match /rev (.+)/
+  match /rev\s+([^ ]+)/
 
   def execute(m, url)
     url = "http://#{url}" unless url.start_with?("http")

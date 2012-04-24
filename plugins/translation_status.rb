@@ -13,7 +13,7 @@ class TranslationStatus
   set(plugin_name: "transstats",
       help: "Usage: !ts code -Get statistics about code at #{PROJECT.split('-').last} on WebTranslateIt")
 
-  match /(?:ts|trans(?:lation)?stati?s(?:tics)?) ([a-z0-9_-]+)/
+  match /(?:ts|trans(?:lation)?stati?s(?:tics)?)\s+([a-z0-9_-]+)/
 
   def execute(m, code)
     code.gsub!("_", "-")

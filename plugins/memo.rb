@@ -20,7 +20,7 @@ class Memo
   listen_to :message
   listen_to :join
   listen_to :nick
-  match /memo (.+?) (.+)/
+  match /memo\s+([^ ]+?)\s+(.+)/
 
   def listen(m)
     if storage[:memos].has_key?(m.user.nick)

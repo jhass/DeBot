@@ -10,7 +10,7 @@ class KeyValueStore
   attr_reader :storage
 
   set(plugin_name: "keyvaluestore",
-      prefix: /^(?:!i |\?)/,
+      prefix: /^(?:!i\s+|\?)/,
       help: "Usage: !i key/?key, !i key=val/?key=val, !i keys/?keys")
 
   match /([\w_\-\d]+)\b/, method: :get
@@ -19,6 +19,7 @@ class KeyValueStore
 
   def get(m, key)
     storage[:key_values][m.channel.name] ||= {}
+    return if key.start_with?("?") #TODO better regex instead
     if key == "keys"
       m.reply "I know the following keys for this channel: #{storage[:key_values][m.channel.name].keys.join(", ")}"
     elsif storage[:key_values][m.channel.name].has_key?(key)

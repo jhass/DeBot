@@ -4,7 +4,7 @@ module Cinch
       set(plugin_name: "up",
           help: "Usage: !up/!down example.org")
 
-      match /(?:up|down)\?? (.+)/
+      match /(?:up|down)\??\s+(.+)/
     end
   end
 end

@@ -62,8 +62,8 @@ class Feeds
     end
   end
 
-  match /addfeed (http\S+)/, method: :add_feed
-  match /addfeed (http\S+) (\d+)/, method: :add_feed
+  match /addfeed\s+(http\S+)/, method: :add_feed
+  match /addfeed\s+(http\S+) (\d+)/, method: :add_feed
   def add_feed(m, url, interval=300)
     url = url.to_sym
     if has_feed?(url, m.channel.name)
@@ -82,7 +82,7 @@ class Feeds
     end
   end
 
-  match /setinterval (http\S+) (\d+)/, method: :set_interval
+  match /setinterval\s+(http\S+) (\d+)/, method: :set_interval
   def set_interval(m, url, interval)
     url = url.to_sym
     if has_feed?(url, m.channel.name)
@@ -98,7 +98,7 @@ class Feeds
     end
   end
 
-  match /rmfeed (http\S+)/, method: :rm_feed
+  match /rmfeed\s+(http\S+)/, method: :rm_feed
   def rm_feed(m, url)
     url = url.to_sym
     if has_feed?(url, m.channel.name)

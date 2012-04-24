@@ -1,7 +1,7 @@
 class BotUtils
   include Cinch::Plugin
 
-  match /join (#[#\w\d_-]+)/, method: :join
+  match /join\s+(#[#\w\d_-]+)/, method: :join
   def join(m, channel)
     return unless admin?(m.user.nick)
     if bot.channels.include?(channel)
@@ -15,7 +15,7 @@ class BotUtils
     end
   end
 
-  match /part (#[#\w\d_-]+)/, method: :part
+  match /part\s+(#[#\w\d_-]+)/, method: :part
   def part(m, channel)
     return unless admin?(m.user.nick)
     if bot.channels.include?(channel)
@@ -29,7 +29,7 @@ class BotUtils
     end
   end
 
-  match /msg ([^ ]+) (.+)/, method: :msg
+  match /msg\s+([^ ]+)\s+(.+)/, method: :msg
   def msg(m, dst, msg)
     return unless admin?(m.user.nick)
     if dst.start_with?('#')
@@ -43,7 +43,7 @@ class BotUtils
     end
   end
 
-  match /addadmin ([^ ]+)/, method: :add_admin
+  match /addadmin\s+([^ ]+)/, method: :add_admin
   def add_admin(m, nick)
     return unless superadmin?(m.user.nick)
     if settings.admins.include?(nick)
@@ -58,7 +58,7 @@ class BotUtils
     end
   end
 
-  match /rmadmin ([^ ]+)/, method: :rm_admin
+  match /rmadmin\s+([^ ]+)/, method: :rm_admin
   def rm_admin(m, nick)
     return unless superadmin?(m.user.nick)
     if settings.admins.include?(nick)

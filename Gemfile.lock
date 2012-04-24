@@ -70,7 +70,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activesupport
   cinch
   cinch-downforeveryone
   cinch-identify

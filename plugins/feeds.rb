@@ -11,17 +11,31 @@ class Feeds
 
   def load_feeds!
     @@feeds = {}
-    @@timers = []
-    config.each do |feed, options|
-     if options[:interval] && options[:channels]
-       @@feeds[feed] = Feedzirra::Feed.fetch_and_parse feed.to_s
-       @@timers << Timer(options[:interval]) { check_feed(feed, options[:channels]) }
-     end
+    @@timers = {}
+    config.keys.each do |feed|
+      add_feed(feed)
     end
   end
 
+  def add_feed(feed)
+    options = config[feed]
+     if options[:interval] && options[:channels]
+       @@feeds[feed] = Feedzirra::Feed.fetch_and_parse feed.to_s
+       @@timers[feed] = Timer(options[:interval]) { check_feed(feed, options[:channels]) }
+     end
+  end
+
+  def remove_feed(feed)
+    @@timers[feed].stop if @@timers.has_key?(feed)
+  end
+
+  def update_feed(feed)
+    remove_feed(feed)
+    add_feed(feed)
+  end
+
   def reload_feeds!
-    @@timers.each {|timer| timer.stop }
+    @@timers.each {|feed,timer| timer.stop }
     load_feeds!
   end
 
@@ -62,8 +76,8 @@ class Feeds
     end
   end
 
-  match /addfeed\s+(http\S+)/, method: :add_feed
-  match /addfeed\s+(http\S+) (\d+)/, method: :add_feed
+  match /addfeed\s+(http\S+)\s*$/, method: :add_feed
+  match /addfeed\s+(http\S+)\s+(\d+)/, method: :add_feed
   def add_feed(m, url, interval=300)
     url = url.to_sym
     if has_feed?(url, m.channel.name)
@@ -76,7 +90,7 @@ class Feeds
         settings.feeds[url][:interval] = interval
         settings.save!
         config[url] = settings.feeds[url]
-        reload_feeds!
+        add_feed(url)
       end
       m.reply "#{url} added, checked every #{interval} seconds"
     end
@@ -90,7 +104,7 @@ class Feeds
         settings.feeds[url][:interval] = interval
         settings.save!
         config[url] = settings.feeds[url]
-        reload_feeds!
+        update_feed(url)
       end
       m.reply "#{url} is now checked every #{interval} seconds"
     else
@@ -111,7 +125,7 @@ class Feeds
           config[url].delete(url) if config[url] #TODO investigate
         end
         settings.save!
-        reload_feeds!
+        remove_feed(url)
       end
       m.reply "#{url} removed"
     else

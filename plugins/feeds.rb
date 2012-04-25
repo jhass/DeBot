@@ -10,8 +10,8 @@ class Feeds
   end
 
   def load_feeds!
-    @@feeds = {}
-    @@timers = {}
+    shared[:feeds] = {}
+    shared[:timers] = {}
     config.keys.each do |feed|
       add_feed!(feed)
     end
@@ -20,13 +20,13 @@ class Feeds
   def add_feed!(feed)
     options = config[feed]
      if options[:interval] && options[:channels]
-       @@feeds[feed] = Feedzirra::Feed.fetch_and_parse feed.to_s
-       @@timers[feed] = Timer(options[:interval]) { check_feed(feed, options[:channels]) }
+       shared[:feed][feed] = Feedzirra::Feed.fetch_and_parse feed.to_s
+       shared[:timers][feed] = Timer(options[:interval]) { check_feed(feed, options[:channels]) }
      end
   end
 
   def remove_feed!(feed)
-    @@timers[feed].stop if @@timers.has_key?(feed)
+    shared[:timers][feed].stop if @@timers.has_key?(feed)
   end
 
   def update_feed!(feed)
@@ -35,7 +35,7 @@ class Feeds
   end
 
   def reload_feeds!
-    @@timers.each {|feed,timer| timer.stop }
+    shared[:timers].each {|feed,timer| timer.stop }
     load_feeds!
   end
 
@@ -48,10 +48,10 @@ class Feeds
     
     synchronize(:feeds) do
       updated = Feedzirra::Feed.update @@feeds[feed]
-      @@feeds[feed].update_from_feed updated unless updated.is_a?(Array)
-      new_entries = @@feeds[feed].new_entries
+      shared[:feeds][feed].update_from_feed updated unless updated.is_a?(Array)
+      new_entries = shared[:feeds][feed].new_entries
       updated.new_entries = []
-      @@feeds[feed] = updated
+      shared[:feeds][feed] = updated
      
       new_entries.each do |entry|
         channels.each do |channel|

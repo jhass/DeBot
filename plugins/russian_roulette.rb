@@ -14,7 +14,7 @@ class RussianRoulette
 
   def initialize(*args)
     super
-    @@chambers = CHAMBERS
+    shared[:chambers] = CHAMBERS
   end
 
   set(plugin_name: "roulette",
@@ -26,9 +26,9 @@ class RussianRoulette
     m.reply "*pull*..."
     Timer(3, :shots => 1) do
       has_bullet = (rand(@@chambers) == 0)
-      if @@chambers == 1
+      if shared[:chambers] == 1
         has_bullet = true
-        @@chambers = CHAMBERS
+        shared[:chambers] = CHAMBERS
       end
   
       if has_bullet
@@ -41,7 +41,7 @@ class RussianRoulette
         end
       else
         m.reply "-click-"
-        @@chambers -= 1
+        shared[:chambers] -= 1
       end
     end
   end

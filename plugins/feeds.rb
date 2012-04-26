@@ -1,16 +1,17 @@
-require 'active_support'
-require 'feedzirra'
+require 'feedtosis'
+require 'htmlentities'
 
 class Feeds
   include Cinch::Plugin
 
   def initialize(*args)
     super
+    shared[:feeds] = {}
+    shared[:feeds][:cleaner] = HTMLEntities.new
     load_feeds!
   end
 
   def load_feeds!
-    shared[:feeds] = {}
     shared[:feeds][:feeds] = {}
     shared[:feeds][:timers] = {}
     config.keys.each do |feed|
@@ -21,7 +22,8 @@ class Feeds
   def add_feed!(feed)
     options = config[feed]
      if options[:interval] && options[:channels]
-       shared[:feeds][:feeds][feed] = Feedzirra::Feed.fetch_and_parse feed.to_s
+       shared[:feeds][:feeds][feed] = Feedtosis::Client.new feed.to_s
+       shared[:feeds][:feeds][feed].fetch # invalidate existing entries on startup
        shared[:feeds][:timers][feed] = Timer(options[:interval]) { check_feed(feed, options[:channels]) }
      end
   end
@@ -48,16 +50,13 @@ class Feeds
     return if channels.empty?
     
     synchronize(:feeds) do
-      updated = Feedzirra::Feed.update shared[:feeds][:feeds][feed]
-      shared[:feeds][:feeds][feed].update_from_feed updated #unless updated.is_a?(Array)
-      new_entries = shared[:feeds][:feeds][feed].new_entries #unless updated.is_a?(Array)
-      updated.new_entries = []
-      shared[:feeds][:feeds][feed] = updated
-     
-      new_entries.each do |entry|
+      result =  shared[:feeds][:feeds][feed].fetch
+      result.new_entries && result.new_entries.each do |entry|
         channels.each do |channel|
-          author = "<#{entry.author}>" unless entry.author.strip.empty?
-          channel.send "[feed] #{author} #{entry.title} - #{entry.url}".gsub("\n", "")
+          author = entry.author
+          author = author[0..(author.index("http")-1)] if author.include?("http")
+          author = "<#{author}>" unless author.strip.empty?
+          channel.send shared[:feeds][:cleaner].decode "[feed] #{author} #{entry.title} - #{entry.url}".gsub("\n", "")
         end
       end
     end
@@ -85,6 +84,7 @@ class Feeds
       m.reply "#{url} is already registered, checked every #{config[url][:interval]} seconds"
     else
       synchronize(:settings) do
+        settings.feeds ||= {}
         settings.feeds[url] ||= {}
         settings.feeds[url][:channels] ||= []
         settings.feeds[url][:channels] << m.channel.name
@@ -143,6 +143,3 @@ class Feeds
     config.select {|k, v| v[:channels].include?(channel) }
   end
 end
-
-
-     

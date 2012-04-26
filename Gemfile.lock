@@ -1,11 +1,18 @@
+GIT
+  remote: https://github.com/jschoolcraft/feedtosis
+  revision: 8895a253357a6397a4bc5f4ae1e1e483e609006b
+  specs:
+    feedtosis (0.0.3.6)
+      curb
+      feed-normalizer
+      http_headers
+      moneta
+
 GEM
   remote: https://rubygems.org/
+  remote: http://gems.github.com/
   specs:
-    activesupport (3.2.3)
-      i18n (~> 0.6)
-      multi_json (~> 1.0)
     archive-tar-minitar (0.5.2)
-    builder (3.0.0)
     cinch (2.0.2)
     cinch-downforeveryone (1.0.2)
       cinch (~> 2.0)
@@ -20,18 +27,14 @@ GEM
     curb (0.8.0)
     domain_name (0.5.3)
       unf (~> 0.0.3)
-    feedzirra (0.0.24)
-      activesupport (>= 2.3.8)
-      builder (>= 2.1.2)
-      curb (>= 0.2.3)
-      loofah (>= 0.3.1)
-      nokogiri (> 0.0.0)
-      sax-machine (>= 0.0.12)
-    i18n (0.6.0)
+    feed-normalizer (1.5.2)
+      hpricot (>= 0.6)
+      simple-rss (>= 1.1)
+    hpricot (0.8.6)
+    htmlentities (4.3.1)
+    http_headers (0.0.2.3)
     linecache19 (0.5.12)
       ruby_core_source (>= 0.1.4)
-    loofah (1.2.1)
-      nokogiri (>= 1.4.4)
     mechanize (2.4)
       domain_name (~> 0.5, >= 0.5.1)
       mime-types (~> 1.17, >= 1.17.2)
@@ -44,7 +47,7 @@ GEM
     modalsettings (1.0.0)
       modalsupport (>= 0.8.1)
     modalsupport (0.8.3)
-    multi_json (1.3.2)
+    moneta (0.6.0)
     net-http-digest_auth (1.2)
     net-http-persistent (2.6)
     nokogiri (1.5.2)
@@ -59,8 +62,7 @@ GEM
       ruby-debug-base19 (>= 0.11.19)
     ruby_core_source (0.1.5)
       archive-tar-minitar (>= 0.5.2)
-    sax-machine (0.1.0)
-      nokogiri (> 0.0.0)
+    simple-rss (1.2.3)
     unf (0.0.5)
       unf_ext
     unf_ext (0.0.4)
@@ -74,7 +76,8 @@ DEPENDENCIES
   cinch-downforeveryone
   cinch-identify
   cinch-title
-  feedzirra
+  feedtosis!
+  htmlentities
   modalsettings
   nokogiri
   ruby-debug19

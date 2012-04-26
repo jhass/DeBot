@@ -51,7 +51,7 @@ class Feeds
     
     synchronize(:feeds) do
       result =  shared[:feeds][:feeds][feed].fetch
-      result.new_entries && result.new_entries.each do |entry|
+      result && result.new_entries && result.new_entries.each do |entry|
         channels.each do |channel|
           author = entry.author
           author = author[0..(author.index("http")-1)] if author.include?("http")

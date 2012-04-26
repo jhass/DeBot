@@ -1,6 +1,6 @@
 GIT
-  remote: https://github.com/jschoolcraft/feedtosis
-  revision: 8895a253357a6397a4bc5f4ae1e1e483e609006b
+  remote: https://github.com/MrZYX/feedtosis
+  revision: c5c7a27325dd51158cafa22a5ab58fd7cf31bddd
   specs:
     feedtosis (0.0.3.6)
       curb

@@ -8,7 +8,7 @@ gem 'cinch-title'
 
 gem 'nokogiri'
 gem 'modalsettings'
-gem 'feedtosis', :git => "https://github.com/jschoolcraft/feedtosis"
+gem 'feedtosis', :git => "https://github.com/MrZYX/feedtosis"
 gem 'htmlentities'
 
 gem 'ruby-debug19'

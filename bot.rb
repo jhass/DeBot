@@ -86,7 +86,7 @@ bot = Cinch::Bot.new do
 end
 
 if settings.identify.enabled
-  bot.plugins.load_plugin :identify, :require => 'cinch/plugins/identify', :class => 'Chinch::Plugins::DownForEveryone',
+  bot.plugins.load_plugin :identify, :require => 'cinch/plugins/identify', :class => 'Cinch::Plugins::Identify',
     :username => settings.nick,
     :password => settings.identify.password,
     :type => settings.identify.type

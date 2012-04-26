@@ -25,7 +25,7 @@ class RussianRoulette
   def execute(m)
     m.reply "*pull*..."
     Timer(3, :shots => 1) do
-      has_bullet = (rand(@@chambers) == 0)
+      has_bullet = (rand(shared[:chambers]) == 0)
       if shared[:chambers] == 1
         has_bullet = true
         shared[:chambers] = CHAMBERS

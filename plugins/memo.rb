@@ -36,14 +36,14 @@ class Memo
 
   def execute(m, nick, message)
     if nick == m.user.nick
-      m.reply "You can't leave memos for yourself.."
+      m.reply "#{m.user.nick}: You can't leave memos for yourself.."
     elsif nick == bot.nick
-      m.reply "You can't leave memos for me.."
+      m.reply "#{m.user.nick}: You can't leave memos for me.."
     else
       storage[:memos][nick] ||=  []
       storage[:memos][nick] << MemoStruct.new(m.user.name, m.channel.name, message, Time.now)
       storage.save
-      m.reply "Added memo for #{nick}"
+      m.reply "#{m.user.nick}: Added memo for #{nick}"
     end
   end
 end

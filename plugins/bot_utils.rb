@@ -105,6 +105,19 @@ class BotUtils
     m.reply "#{plugin} couldn't be #{loaded}"
     raise
   end
+
+  match /loglevel (\w+)/, method: :log_level
+  def log_level(m, level)
+    return unless superadmin?(m.user.nick)
+    levels = [:debug, :log, :info, :warn, :error, :fatal]
+    level = level.to_sym
+    unless levels.include?(level)
+      m.reply "#{level} is not a valid log level. Valid ones are: #{levels.join(", ")}"
+      return
+    end
+    bot.loggers.level = level
+    m.reply "ok"
+  end
   
   private
   def admin?(nick)

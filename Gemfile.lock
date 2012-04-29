@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/MrZYX/feedtosis
-  revision: 8599565ffe11836fd4366d09aae93c30d1c842a4
+  revision: dfe5a947bae8017742658dd47ae750f277ff3f3a
   specs:
     feedtosis (0.0.3.6)
       curb

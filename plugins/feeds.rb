@@ -54,8 +54,8 @@ class Feeds
       result && result.new_entries && result.new_entries.each do |entry|
         channels.each do |channel|
           author = entry.author
-          author = author[0..(author.index("http")-1)] if author.include?("http")
-          author = "<#{author}>" unless author.strip.empty?
+          author = author[0..(author.index("http")-1)] if author && author.include?("http")
+          author = "<#{author}>" unless author || author.strip.empty?
           channel.send shared[:feeds][:cleaner].decode "[feed] #{author} #{entry.title} - #{entry.url}".gsub("\n", "")
         end
       end

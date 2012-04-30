@@ -118,7 +118,24 @@ class BotUtils
     bot.loggers.level = level
     m.reply "ok"
   end
-  
+
+  match /((?:de)?op)$/, method: :op
+  match /((?:de)?op) (\w+)/, method: :op
+  def op(m, mode, nick=nil)
+    return unless admin?(m.user.nick)
+    nick ||= bot.nick
+    mode.upcase!
+    if !m.channel.has_user? nick
+      m.reply "#{nick} isn't in this channel"
+    elsif (m.channel.opped?(nick) && mode == "OP") || (!m.channel.opped?(nick) && mode == "DEOP")
+      m.reply "No change necessary"
+    elsif m.channel.opped? bot
+      (mode == "OP") ? m.channel.op(nick) : m.channel.deop(nick)
+    else
+      User("ChanServ").send "#{mode} #{m.channel.name} #{nick}"
+    end
+  end
+
   private
   def admin?(nick)
     config[:admins].include?(nick) || superadmin?(nick)

@@ -3,8 +3,8 @@ require 'cinch'
 require 'cinch/configuration/storage'
 require 'cinch/storage/yaml'
 
-require './settings'
-require './plugin_manager'
+require './lib/settings'
+require './lib/plugin_manager'
 
 bot = Cinch::Bot.new do
   @plugins = PluginManager.new(self)

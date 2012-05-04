@@ -11,9 +11,10 @@ bot = Cinch::Bot.new do
   
   configure do |c|
     c.nick = settings.nick
+    c.realname = settings.nick
+    c.user = settings.nick.downcase
     c.server = settings.server
     c.port = settings.port
-    c.endcoding = :utf8
     c.channels = settings.channels
  
     c.storage = Cinch::Configuration::Storage.new

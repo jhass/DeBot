@@ -10,6 +10,4 @@ gem 'modalsettings', '~> 1.0'
 gem 'feedtosis', :git => "https://github.com/MrZYX/feedtosis"
 gem 'htmlentities', '~> 4.3'
 
-group :development do
-  gem 'ruby-debug19'
-end
+gem 'debugger'

@@ -71,12 +71,12 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  cinch
-  cinch-downforeveryone
-  cinch-identify
-  cinch-title
+  cinch (~> 2.0)
+  cinch-downforeveryone (~> 1.0)
+  cinch-identify (~> 1.1)
+  cinch-title (~> 0.3)
   feedtosis!
-  htmlentities
-  modalsettings
-  nokogiri
+  htmlentities (~> 4.3)
+  modalsettings (~> 1.0)
+  nokogiri (~> 1.5.2)
   ruby-debug19

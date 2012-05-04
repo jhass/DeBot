@@ -12,6 +12,7 @@ class Feeds
   end
 
   def load_feeds!
+    debug "[Feeds] Initialize all feeds..."
     shared[:feeds][:feeds] = {}
     shared[:feeds][:timers] = {}
     config.keys.each do |feed|
@@ -20,15 +21,19 @@ class Feeds
   end
 
   def add_feed!(feed)
+    debug "[Feeds] Initialize #{feed}"
     options = config[feed]
-     if options[:interval] && options[:channels]
+     if options && options[:interval] && options[:channels]
        shared[:feeds][:feeds][feed] = Feedtosis::Client.new feed.to_s
        shared[:feeds][:feeds][feed].fetch # invalidate existing entries on startup
        shared[:feeds][:timers][feed] = Timer(options[:interval]) { check_feed(feed, options[:channels]) }
+     else
+       warn "[Feeds] configuration for #{feed} incomplete or not found!"
      end
   end
 
   def remove_feed!(feed)
+    debug "[Feeds] Stopping timer for #{feed}"
     shared[:feeds][:timers][feed].stop if shared[:feeds][:timers].has_key?(feed)
   end
 
@@ -38,6 +43,7 @@ class Feeds
   end
 
   def reload_feeds!
+    debug "[Feeds] Stopping timers for all feeds"
     shared[:feeds][:timers].each {|feed,timer| timer.stop }
     load_feeds!
   end
@@ -50,6 +56,7 @@ class Feeds
     return if channels.empty?
     
     synchronize(:feeds) do
+      debug "[Feeds] Checking #{feed} for new entries"
       result =  shared[:feeds][:feeds][feed].fetch
       result && result.new_entries && result.new_entries.each do |entry|
         channels.each do |channel|

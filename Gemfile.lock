@@ -10,7 +10,6 @@ GIT
 
 GEM
   remote: https://rubygems.org/
-  remote: http://gems.github.com/
   specs:
     archive-tar-minitar (0.5.2)
     cinch (2.0.2)

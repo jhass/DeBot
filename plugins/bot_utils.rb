@@ -3,7 +3,7 @@ class BotUtils
 
   match /join\s+(#[#\w\d_-]+)/, method: :join
   def join(m, channel)
-    return unless admin?(m.user.nick)
+    return unless admin?(m.user)
     if bot.channels.include?(channel)
       m.reply "I think I'm already in #{channel} ;)"
     else
@@ -17,7 +17,7 @@ class BotUtils
 
   match /part\s+(#[#\w\d_-]+)/, method: :part
   def part(m, channel)
-    return unless admin?(m.user.nick)
+    return unless admin?(m.user)
     if bot.channels.include?(channel)
       bot.part channel
       synchronize(:settings) do
@@ -31,7 +31,7 @@ class BotUtils
 
   match /msg\s+([^ ]+)\s+(.+)/, method: :msg
   def msg(m, dst, msg)
-    return unless admin?(m.user.nick)
+    return unless admin?(m.user)
     if dst.start_with?('#')
       if bot.channels.include?(dst)
         Channel(dst).send msg
@@ -45,7 +45,7 @@ class BotUtils
 
   match /addadmin\s+([^ ]+)/, method: :add_admin
   def add_admin(m, nick)
-    return unless superadmin?(m.user.nick)
+    return unless superadmin?(m.user)
     if settings.admins.include?(nick)
       m.reply "#{nick} is already controlling me."
     else
@@ -60,7 +60,7 @@ class BotUtils
 
   match /rmadmin\s+([^ ]+)/, method: :rm_admin
   def rm_admin(m, nick)
-    return unless superadmin?(m.user.nick)
+    return unless superadmin?(m.user)
     if settings.admins.include?(nick)
       synchronize(:settings) do
         settings.admins.delete nick
@@ -75,13 +75,13 @@ class BotUtils
 
   match /listplugins/, method: :list_plugins
   def list_plugins(m)
-    return unless admin?(m.user.nick)
+    return unless admin?(m.user)
     m.reply bot.plugins.map {|plugin| plugin.class.plugin_name }.join(", ")
   end
   
   match /unloadplugin (\w+)/, method: :unload_plugin
   def unload_plugin(m, plugin)
-    return unless admin?(m.user.nick)
+    return unless admin?(m.user)
     if plugin = plugin_instance(plugin)
       bot.plugins.unload_plugin plugin_instance(plugin).class
       m.reply "#{plugin} unloaded"
@@ -92,7 +92,7 @@ class BotUtils
   
   match /(?:re)?loadplugin (\w+)/, method: :reload_plugin
   def reload_plugin(m, plugin)
-    return unless admin?(m.user.nick)
+    return unless admin?(m.user)
     loaded = "loaded"
     if plugin_loaded?(plugin)
       loaded = "reloaded"
@@ -108,7 +108,7 @@ class BotUtils
 
   match /loglevel (\w+)/, method: :log_level
   def log_level(m, level)
-    return unless superadmin?(m.user.nick)
+    return unless superadmin?(m.user)
     levels = [:debug, :log, :info, :warn, :error, :fatal]
     level = level.to_sym
     unless levels.include?(level)
@@ -122,7 +122,7 @@ class BotUtils
   match /((?:de)?op)$/, method: :op
   match /((?:de)?op) (\w+)/, method: :op
   def op(m, mode, nick=nil)
-    return unless admin?(m.user.nick)
+    return unless admin?(m.user)
     nick ||= bot.nick
     mode.upcase!
     if !m.channel.has_user? nick
@@ -137,12 +137,12 @@ class BotUtils
   end
 
   private
-  def admin?(nick)
-    config[:admins].include?(nick) || superadmin?(nick)
+  def admin?(user)
+    config[:admins].include?(User(user).nick) || superadmin?(user)
   end
 
-  def superadmin?(nick)
-    config[:superadmin] == nick
+  def superadmin?(user)
+    config[:superadmin] == User(user).nick
   end
   
   def plugin_loaded?(plugin)

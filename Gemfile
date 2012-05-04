@@ -1,5 +1,4 @@
 source "https://rubygems.org"
-source "http://gems.github.com"
 
 gem 'cinch'
 gem 'cinch-identify'

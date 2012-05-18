@@ -68,7 +68,6 @@ bot.plugins.load_plugins([
   :what_the_commit,
   :russian_roulette,
   :meme,
-  :debug
 ])
 
 

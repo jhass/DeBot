@@ -28,7 +28,7 @@ bot = Cinch::Bot.new do
              "Ich liebe dich so viel dass ich oft an dir in der dusche denk", "Ack ", "Aye", "Jo", "Wie geht's dir", "Denk ich auch,",
              "Schön,", "Du bist der Wind in meinen Flügeln", "Genau meine Meinung"]
     nicks = ["paddyez", "paddy", "p[a]ddy", "DeusFigendi"]
-    m.reply "#{msgs[rand(msgs.size)]} #{m.user.nick}" if nicks.include?(m.user.nick) && rand(15) == 0
+    m.reply "#{msgs[rand(msgs.size)]} #{m.user.nick}" if nicks.include?(m.user.nick) && rand(25) == 0
   end
 
 end
@@ -68,6 +68,7 @@ bot.plugins.load_plugins([
   :what_the_commit,
   :russian_roulette,
   :meme,
+  :password
 ])
 
 

@@ -22,7 +22,7 @@ class KeyValueStore
     return if key.start_with?("?") #TODO better regex instead
     nick = "#{nick}: " if nick
     if key == "keys"
-      m.reply "I know the following keys for this channel: #{storage[:key_values][m.channel.name].keys.join(", ").sort}"
+      m.reply "I know the following keys for this channel: #{storage[:key_values][m.channel.name].keys.sort.join(", ")}"
     elsif storage[:key_values][m.channel.name].has_key?(key)
       m.reply "#{nick}#{storage[:key_values][m.channel.name][key]}"
     else

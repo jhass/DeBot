@@ -15,7 +15,7 @@ GEM
     cinch-downforeveryone (1.0.2)
       cinch (~> 2.0)
       mechanize
-    cinch-identify (1.1.2)
+    cinch-identify (1.2.0)
       cinch (~> 2.0)
     cinch-title (0.3.1)
       cinch
@@ -67,7 +67,7 @@ PLATFORMS
 DEPENDENCIES
   cinch (~> 2.0)
   cinch-downforeveryone (~> 1.0)
-  cinch-identify (~> 1.1)
+  cinch-identify (~> 1.2)
   cinch-title (~> 0.3)
   debugger
   feedtosis!

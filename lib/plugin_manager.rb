@@ -17,12 +17,14 @@ class PluginManager < Cinch::PluginList
   
   def load_plugin(plugin_name, opts={})
     load_opts = opts.dup
-    load_path = opts.delete(:require) || load_path_from_name(plugin_name)
+    load_path = opts.delete(:require) if opts.has_key?(:require)
+    load_path ||= load_path_from_name(plugin_name)
     load_path += ".rb" unless load_path.end_with?(".rb")
     raise ArgumentError, "#{load_path} already loaded" if @loaded_paths.values.include?(load_path)
     Kernel.load load_path
     Kernel.load opts.delete(:patch) if opts.has_key?(:patch)
-    plugin_sym = opts.delete(:class) || plugin_name_to_sym(plugin_name)
+    plugin_sym = opts.delete(:class) if opts.has_key?(:class)
+    plugin_sym ||= plugin_name_to_sym(plugin_name)
     begin
       plugin = const_get plugin_sym.to_sym
     rescue NameError

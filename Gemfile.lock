@@ -1,4 +1,11 @@
 GIT
+  remote: git://github.com/MrZYX/cinch.git
+  revision: 7ec7721537d7adbf11226dc1fc20c6bdda61b2d0
+  branch: name_threads
+  specs:
+    cinch (2.0.2)
+
+GIT
   remote: https://github.com/MrZYX/feedtosis
   revision: 13c0d870516e1439658d167b403679dce76b8fd6
   specs:
@@ -11,7 +18,6 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    cinch (2.0.2)
     cinch-downforeveryone (1.0.2)
       cinch (~> 2.0)
       mechanize
@@ -65,7 +71,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  cinch (~> 2.0)
+  cinch!
   cinch-downforeveryone (~> 1.0)
   cinch-identify (~> 1.2)
   cinch-title (~> 0.3)

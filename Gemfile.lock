@@ -1,9 +1,9 @@
 GIT
   remote: git://github.com/MrZYX/cinch.git
-  revision: 7ec7721537d7adbf11226dc1fc20c6bdda61b2d0
+  revision: 12d71417e6b0e000b6961a0ab59943e3eac3c2d3
   branch: name_threads
   specs:
-    cinch (2.0.2)
+    cinch (2.0.3)
 
 GIT
   remote: https://github.com/MrZYX/feedtosis

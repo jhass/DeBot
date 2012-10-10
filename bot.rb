@@ -22,15 +22,6 @@ bot = Cinch::Bot.new do
     c.storage.basedir = "./yaml/"
     c.storage.autosave = true
   end
-
-  on :message do |m|	
-    msgs = [ "Ich mag dich", "Hast recht,", "Genau,", "Richtig,", "Ihr redet alle Blödsinn, Recht hat nur", "Jawohl,", "Da stimme ich dir zu",
-             "Ich liebe dich so viel dass ich oft an dir in der dusche denk", "Ack ", "Aye", "Jo", "Wie geht's dir", "Denk ich auch,",
-             "Schön,", "Du bist der Wind in meinen Flügeln", "Genau meine Meinung"]
-    nicks = ["paddyez", "paddy", "p[a]ddy", "DeusFigendi"]
-    m.reply "#{msgs[rand(msgs.size)]} #{m.user.nick}" if nicks.include?(m.user.nick) && rand(25) == 0
-  end
-
 end
 
 

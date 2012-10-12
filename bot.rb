@@ -22,6 +22,13 @@ bot = Cinch::Bot.new do
     c.storage.basedir = "./yaml/"
     c.storage.autosave = true
   end
+
+  on :message, /^DeBot\s?[:,].+/ do |msg|
+    sleep 2
+    msg.reply "#{msg.user.nick}"
+    sleep 2
+    msg.reply "You're talking to a bot."
+  end
 end
 
 
@@ -43,9 +50,13 @@ bot.plugins.load_plugin :down_for_everyone,
   :require => 'cinch/plugins/downforeveryone',
   :class => 'Cinch::Plugins::DownForEveryone',
   :patch => './plugins/down_for_everyone.rb'
-bot.plugins.load_plugin :title, :require => 'cinch/plugins/title',
+bot.plugins.load_plugin :title,
+  :require => 'cinch/plugins/title',
   :class => 'Cinch::Plugins::Title',
   :patch => './plugins/title.rb'
+bot.plugins.load_plugin :fortune,
+  :require => 'cinch/plugins/fortune',
+  :class => 'Cinch::Plugins::Fortune'
 
 bot.plugins.load_plugin :feeds, (settings.feeds || {})
 

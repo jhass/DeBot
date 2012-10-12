@@ -4,6 +4,7 @@ gem 'cinch', :git => "git://github.com/MrZYX/cinch.git", :branch => "name_thread
 gem 'cinch-identify', '~> 1.2'
 gem 'cinch-downforeveryone', '~> 1.0'
 gem 'cinch-title', '~> 0.3' 
+gem 'cinch-fortune'
 
 gem 'nokogiri', '~> 1.5.2'
 gem 'modalsettings', '~> 1.0'

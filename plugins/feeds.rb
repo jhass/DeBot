@@ -26,7 +26,7 @@ class Feeds
      if options && options[:interval] && options[:channels]
        shared[:feeds][:feeds][feed] = Feedtosis::Client.new feed.to_s
        shared[:feeds][:feeds][feed].fetch # invalidate existing entries on startup
-       shared[:feeds][:timers][feed] = Timer(options[:interval]) { check_feed(feed, options[:channels]) }
+       setup_timer(feed, options)
      else
        warn "[Feeds] configuration for #{feed} incomplete or not found!"
      end
@@ -48,8 +48,12 @@ class Feeds
     load_feeds!
   end
 
-  def check_feed(feed, channels)
-    channels = channels.map { |channel|
+  def setup_timer(feed, options)
+    shared[:feeds][:timers][feed] = Timer(options[:interval], :shots => 1) { check_feed(feed, options) }
+  end
+
+  def check_feed(feed, options)
+    channels = options[:channels].map { |channel|
       Channel(channel) if bot.channels.include?(channel)
     }.compact
    
@@ -67,6 +71,9 @@ class Feeds
         end
       end
     end
+
+    shared[:feeds][:timers][feed].stop
+    setup_timer(feed, options)
   end
 
   set(plugin_name: "feeds",

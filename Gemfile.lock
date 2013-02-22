@@ -1,9 +1,9 @@
 GIT
   remote: git://github.com/MrZYX/cinch.git
-  revision: 12d71417e6b0e000b6961a0ab59943e3eac3c2d3
+  revision: cc8d152459519ba13e0b28a36de7e6c990df9b32
   branch: name_threads
   specs:
-    cinch (2.0.3)
+    cinch (2.0.4)
 
 GIT
   remote: https://github.com/MrZYX/feedtosis
@@ -48,11 +48,11 @@ GEM
       nokogiri (~> 1.4)
       ntlm-http (~> 0.1, >= 0.1.1)
       webrobots (~> 0.0, >= 0.0.9)
-    mime-types (1.19)
+    mime-types (1.21)
     modalsettings (1.0.0)
       modalsupport (>= 0.8.1)
     modalsupport (0.9.2)
-    moneta (0.7.6)
+    moneta (0.7.14)
     net-http-digest_auth (1.2.1)
     net-http-persistent (2.8)
     nokogiri (1.5.6)
@@ -60,8 +60,8 @@ GEM
     simple-rss (1.2.3)
     unf (0.0.5)
       unf_ext
-    unf_ext (0.0.5)
-    webrobots (0.0.13)
+    unf_ext (0.0.6)
+    webrobots (0.1.0)
 
 PLATFORMS
   ruby

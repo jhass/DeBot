@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-gem 'cinch', :git => "git://github.com/MrZYX/cinch.git", :branch => "name_threads" #'~> 2.0'
+gem 'cinch', '~> 2.0'
 gem 'cinch-identify', '~> 1.4'
 gem 'cinch-downforeveryone', '~> 1.0'
 gem 'cinch-title', '~> 0.3' 

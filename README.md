@@ -1,7 +1,7 @@
 DeBot
 =====
 
-My IRC Bot using Cinch ![Gemnasium](https://gemnasium.com/MrZYX/DeBot.png)
+My IRC Bot using Cinch [![Gemnasium](https://gemnasium.com/MrZYX/DeBot.png)](https://gemnasium.com/MrZYX/DeBot)
 
 ## Install
 

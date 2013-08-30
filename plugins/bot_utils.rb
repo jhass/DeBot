@@ -29,7 +29,7 @@ class BotUtils
     end
   end
 
-  match /msg\s+([^ ]+)\s+(.+)/, method: :msg
+  match /(?:msg|sayto)\s+([^ ]+)\s+(.+)/, method: :msg
   def msg(m, dst, msg)
     return unless admin?(m.user)
     if dst.start_with?('#')
@@ -78,7 +78,7 @@ class BotUtils
     return unless admin?(m.user)
     m.reply bot.plugins.map {|plugin| plugin.class.plugin_name }.join(", ")
   end
-  
+
   match /unloadplugin (\w+)/, method: :unload_plugin
   def unload_plugin(m, plugin)
     return unless admin?(m.user)
@@ -89,7 +89,7 @@ class BotUtils
       m.reply "#{plugin} doesn't seem to be loaded"
     end
   end
-  
+
   match /(?:re)?loadplugin (\w+)/, method: :reload_plugin
   def reload_plugin(m, plugin)
     return unless admin?(m.user)
@@ -144,11 +144,11 @@ class BotUtils
   def superadmin?(user)
     config[:superadmin] == User(user).nick
   end
-  
+
   def plugin_loaded?(plugin)
     plugin_instance(plugin) != nil
   end
-  
+
   def plugin_instance(plugin)
     (bot.plugins.select {|p| p.class.plugin_name == plugin }).first
   end

@@ -44,7 +44,7 @@ class TranslationStatus
       if stats['count_strings_done'] == stats['count_strings']
         m.reply  "The translation for #{code} is complete :)."
       else
-        m.reply "The translation for #{code} has #{stats['count_strings_done']}/#{stats['count_strings']} keys done, with #{stats['count_strings_to_translate']} untranslated and #{stats['count_strings_to_proofread']} to proofread."
+        m.reply "The translation for #{code} has #{stats['count_strings_done']}/#{stats['count_strings']} keys done, with #{stats['count_strings_to_translate']} untranslated, #{stats['count_strings_to_proofread']} to proofread and #{stats['count_strings_to_verify']} to verify."
       end
       m.reply " Join the team at https://webtranslateit.com/en/projects/#{PROJECTS[project][:slug]} to further improve it!"
     else

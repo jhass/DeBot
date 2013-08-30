@@ -25,7 +25,7 @@ GEM
       curb
       nokogiri
     curb (0.8.4)
-    domain_name (0.5.12)
+    domain_name (0.5.13)
       unf (>= 0.0.5, < 1.0.0)
     feed-normalizer (1.5.2)
       hpricot (>= 0.6)

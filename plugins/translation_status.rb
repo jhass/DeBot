@@ -19,7 +19,7 @@ class TranslationStatus
   }
   DEFAULT = 'diaspora'
   COMMAND = /(?:ts|trans(?:lation)?stati?s(?:tics)?)/
-  CODE = /([a-z0-9_-]+)/
+  CODE = /([a-zA-Z0-9_-]+)/
 
   set(plugin_name: "transstats",
       help: "Usage: !ts [project] code -Get statistics about code at project (Default=diaspora) on WebTranslateIt")

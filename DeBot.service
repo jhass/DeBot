@@ -1,0 +1,14 @@
+[Unit]
+Description=Yet another IRC bot
+After=network.target
+
+[Service]
+User=mrzyx
+WorkingDirectory=/home/mrzyx/DeBot
+ExecStart=/bin/bash -lc "bundle exec ruby bot.rb"
+CPUAccounting=true
+MemoryAccounting=true
+BlockIOAccounting=true
+
+[Install]
+WantedBy=multi-user.target

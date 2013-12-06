@@ -1,2 +1,2 @@
 #!/bin/bash
-bundle exec ruby -Ku bot.rb
+bundle exec ruby bot.rb

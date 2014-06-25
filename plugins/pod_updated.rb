@@ -13,7 +13,7 @@ class PodUpdated
   def execute(m, url)
     url = "http://#{url}" unless url.start_with?("http")
     uri = URI.parse url
-    open "http://podversion.tk/#{uri.host}/text" do |io|
+    open "http://version.diaspora.social/#{uri.host}/text" do |io|
       n = Nokogiri::HTML(io)
       m.reply n.css('p').text.strip
     end

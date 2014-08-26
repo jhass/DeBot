@@ -5,10 +5,11 @@ After=network.target
 [Service]
 User=mrzyx
 WorkingDirectory=/home/mrzyx/DeBot
-ExecStart=/bin/bash -lc "bundle exec ruby bot.rb"
+ExecStart=/usr/bin/bundle exec ruby bot.rb
 CPUAccounting=true
 MemoryAccounting=true
 BlockIOAccounting=true
+Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target

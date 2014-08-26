@@ -8,7 +8,7 @@ require './lib/plugin_manager'
 
 bot = Cinch::Bot.new do
   @plugins = PluginManager.new(self)
-  
+
   configure do |c|
     c.nick = settings.nick
     c.realname = settings.nick
@@ -16,7 +16,7 @@ bot = Cinch::Bot.new do
     c.server = settings.server
     c.port = settings.port
     c.channels = settings.channels
- 
+
     c.storage = Cinch::Configuration::Storage.new
     c.storage.backend = Cinch::Storage::YAML
     c.storage.basedir = "./yaml/"
@@ -70,7 +70,8 @@ bot.plugins.load_plugins([
   :what_the_commit,
   :russian_roulette,
   :meme,
-  :password
+  :password,
+  :wiki
 ])
 
 

@@ -71,7 +71,8 @@ bot.plugins.load_plugins([
   :russian_roulette,
   :meme,
   :password,
-  :wiki
+  :wiki,
+  :issues
 ])
 
 

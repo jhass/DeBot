@@ -3,9 +3,11 @@ class Issues
 
   PROJECTS = { '#diaspora-dev' => 'https://github.com/diaspora/diaspora/issues/' }
 
-  match /(?:^|\s+)#(\d{4,5})(?:\s+|$)/, prefix: nil
-  def execute(m, issue)
+  listen_to :channel
+  def listen(m)
     return unless PROJECTS.has_key? m.channel.name
-    m.reply "#{PROJECTS[m.channel.name]}#{issue}"
+    issues = m.message.scan(/(?:^|\s+)#(\d{4,5})(?:\s+|$)/).map(&:first)
+    return if issues.empty?
+    m.reply issues.map {|issue| "#{PROJECTS[m.channel.name]}#{issue}" }.join(' | ')
   end
 end

@@ -1,19 +1,13 @@
 require 'modalsettings'
 require 'yaml'
 
-class Settings
+class Settings < OpenStruct
+  attr_accessor :source
+
   def self.load(filename, root=nil)
     s = self[YAML.load_file "settings.yml"]
     s.source = filename
     s
-  end
-
-  def source
-    @source
-  end
-
-  def source=(file)
-    @source = file
   end
 
   def save!

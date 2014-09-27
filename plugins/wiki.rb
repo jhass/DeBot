@@ -1,6 +1,9 @@
 class Wiki
   include Cinch::Plugin
 
+  set(plugin_name: 'wiki',
+      help: 'Usage: !wiki page title')
+
   WIKIS = {}
   %w[#diaspora #diaspora-de #diaspora-dev].each do |channel|
     WIKIS[channel] = "https://wiki.diasporafoundation.org/"

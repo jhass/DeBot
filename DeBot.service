@@ -3,8 +3,8 @@ Description=Yet another IRC bot
 After=network.target
 
 [Service]
-User=mrzyx
-WorkingDirectory=/home/mrzyx/DeBot
+User=jhass
+WorkingDirectory=/home/jhass/DeBot
 ExecStart=/usr/bin/bundle exec ruby bot.rb
 CPUAccounting=true
 MemoryAccounting=true

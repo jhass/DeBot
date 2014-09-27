@@ -18,7 +18,7 @@ class Google
 
   set(plugin_name: "google",
       help: "Usage: !google search terms, !gf search terms vs search terms")
- 
+
   def search(query)
     html = self.class.search(query)
     html.scan /<a href="?\/url\?q=([^"&]+).*?".*?>(.+?)<\/a>/m do |match|
@@ -33,16 +33,13 @@ class Google
   end
 
   def self.search(query)
-    f = open( "https://www.google.com/search?q=#{ CGI.escape( query ) }&safe=none" )
-    html = f.read
-    f.close
-    html
+    open "https://www.google.com/search?q=#{ CGI.escape( query ) }&safe=none", &:read
   end
 
   def result_count(query, html=nil)
     html ||= self.class.search(query)
     doc = Nokogiri::HTML html
-    doc.css("#subform_ctrl > div:last").text.gsub(",", "").gsub(".", "").scan(/\d+/).first.to_i
+    doc.css("#resultStats").text.delete(",.")[/\d+/].to_i
   end
 
   def fight(a, b)
@@ -52,8 +49,8 @@ class Google
     ratio2 = ( count1 != 0 ) ? count2.to_f / count1 : 99
     ratio = [ ratio1, ratio2 ].max
     verb = GOOGLEFIGHT_VERBS.find { |x| ratio > x[ 0 ] }[ 1 ]
-    c1 = number_with_delimiter count1 
-    c2 = number_with_delimiter count2 
+    c1 = number_with_delimiter count1
+    c2 = number_with_delimiter count2
 
     if count1 > count2
       msg = "#{a} #{verb} #{b}! (#{c1} to #{c2})"
@@ -66,7 +63,7 @@ class Google
   end
 
   def number_with_delimiter( number, delimiter = ',' )
-      number.to_s.gsub( /(\d)(?=(\d\d\d)+(?!\d))/, "\\1#{delimiter}" )
+    number.to_s.gsub( /(\d)(?=(\d\d\d)+(?!\d))/, "\\1#{delimiter}" )
   end
 
   match /g(?:oogle)?\s+(.+)/, method: :google

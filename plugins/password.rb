@@ -14,7 +14,7 @@ class Password
     lang ||= "default"
     dict = AVAILABLE_DICTS[lang.strip]
     dict ||= AVAILABLE_DICTS["default"]
-    password = `echo "$(shuf -n4 #{dict} | tr '\n' ' ')"`
+    password = `echo "$(shuf -n4 #{dict} | tr '\n' ' ')"`.delete("'")
     m.reply password.downcase
   rescue
     m.reply "I'm out of passwords currently :("

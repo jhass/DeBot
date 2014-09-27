@@ -1,11 +1,11 @@
 DeBot
 =====
 
-My IRC Bot using Cinch [![Gemnasium](https://gemnasium.com/MrZYX/DeBot.png)](https://gemnasium.com/MrZYX/DeBot)
+My IRC Bot using Cinch
 
 ## Install
 
-1. Clone repo: `git clone git://github.com/MrZYX/DeBot.git`
+1. Clone repo: `git clone git://github.com/jhass/DeBot.git`
 2. Copy over settings.yml.example to settings.yml and edit it.
 3. If you don't have bundler yet run `gem install bundler`
 4. Run `bundle`

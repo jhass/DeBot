@@ -1,6 +1,9 @@
 class Issues
   include Cinch::Plugin
 
+  set(plugin_name: "issues",
+      help: "Announces links for issue mentions")
+
   PROJECTS = { '#diaspora-dev' => 'https://github.com/diaspora/diaspora/issues/' }
 
   listen_to :channel

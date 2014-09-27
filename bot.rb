@@ -1,10 +1,12 @@
 # encoding: utf-8
+$LOAD_PATH.unshift File.join(__dir__, 'lib')
+
 require 'cinch'
 require 'cinch/configuration/storage'
 require 'cinch/storage/yaml'
 
-require './lib/settings'
-require './lib/plugin_manager'
+require 'settings_patch'
+require 'plugin_manager'
 
 bot = Cinch::Bot.new do
   @plugins = PluginManager.new(self)
@@ -34,29 +36,31 @@ end
 
 
 if settings.identify.enabled
-  bot.plugins.load_plugin :identify, :require => 'cinch/plugins/identify', :class => 'Cinch::Plugins::Identify',
-    :username => settings.nick,
-    :password => settings.identify.password,
-    :type => settings.identify.type
+  bot.plugins.load_plugin :identify,
+    require: 'cinch/plugins/identify',
+    class: 'Cinch::Plugins::Identify',
+    username: settings.nick,
+    password: settings.identify.password,
+    type: settings.identify.type
 end
 
 if settings.admins && settings.admins.any?
   bot.plugins.load_plugin :bot_utils,
-    :admins => settings.admins,
-    :superadmin => settings.superadmin
+    admins: settings.admins,
+    superadmin: settings.superadmin
 end
 
 bot.plugins.load_plugin :down_for_everyone,
-  :require => 'cinch/plugins/downforeveryone',
-  :class => 'Cinch::Plugins::DownForEveryone',
-  :patch => './plugins/down_for_everyone.rb'
+  require: 'cinch/plugins/downforeveryone',
+  class: 'Cinch::Plugins::DownForEveryone',
+  patch: './plugins/down_for_everyone.rb'
 bot.plugins.load_plugin :title,
-  :require => 'cinch/plugins/title',
-  :class => 'Cinch::Plugins::Title',
-  :patch => './plugins/title.rb'
+  require: 'cinch/plugins/title',
+  class: 'Cinch::Plugins::Title',
+  patch: './plugins/title.rb'
 bot.plugins.load_plugin :fortune,
-  :require => 'cinch/plugins/fortune',
-  :class => 'Cinch::Plugins::Fortune'
+  require: 'cinch/plugins/fortune',
+  class: 'Cinch::Plugins::Fortune'
 
 bot.plugins.load_plugin :feeds, (settings.feeds || {})
 
@@ -72,10 +76,11 @@ bot.plugins.load_plugins([
   :meme,
   :password,
   :wiki,
-  :issues
+  :issues,
+  :diaspora_stats
 ])
 
 
-#bot.loggers.level = :info
+bot.loggers.level = :warn
 
 bot.start

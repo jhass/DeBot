@@ -4,7 +4,12 @@ class Issues
   set(plugin_name: "issues",
       help: "Announces links for issue mentions")
 
-  PROJECTS = { '#diaspora-dev' => 'https://github.com/diaspora/diaspora/issues/' }
+  PROJECTS = {
+    '#diaspora'     => 'https://github.com/diaspora/diaspora/issues/',
+    '#diaspora-dev' => 'https://github.com/diaspora/diaspora/issues/',
+    '#diaspora-de'  => 'https://github.com/diaspora/diaspora/issues/',
+    '#diaspora-fr'  => 'https://github.com/diaspora/diaspora/issues/'
+  }
 
   listen_to :channel
   def listen(m)

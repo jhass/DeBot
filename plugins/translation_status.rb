@@ -15,6 +15,10 @@ class TranslationStatus
     'website' => {
       api_key: "2h1Yw5ZUkdxf1Kx3vImONA",
       slug: "7017-Website"
+    },
+    'jsxc' => {
+      api_key: "yaL4zA7OuczXRau3JoeU4A",
+      slug: "10365-JSXC"
     }
   }
   DEFAULT = 'diaspora'

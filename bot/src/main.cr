@@ -4,6 +4,7 @@ require "./plugins/key_value_store"
 require "./plugins/diaspora_version"
 require "./plugins/crystal_eval"
 require "./plugins/admin"
+require "./plugins/google"
 
 bot = Framework::Bot.create do |config|
   config.server   = "chat.freenode.net"
@@ -16,6 +17,7 @@ bot = Framework::Bot.create do |config|
   config.add_plugin DiasporaVersion.new, ["#cebot", "#diaspora-de"]
   config.add_plugin CrystalEval.new, ["#cebot", "#diaspora-de", "#crystal-lang"]
   config.add_plugin Admin.new({"jhass"})
+  config.add_plugin Google.new
 end
 
 bot.start

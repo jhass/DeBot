@@ -10,6 +10,11 @@ def run prog
   [stderr, $?.exitstatus]
 end
 
+def needed? prog
+  stderr, exitstatus = run prog
+  exitstatus != 0 || stderr.include?("Bad system call")
+end
+
 syscalls = File.readlines(ARGV[0] || "all_syscalls64").map(&:chomp).sort
 
 needed_calls = syscalls
@@ -26,15 +31,12 @@ syscalls.each do |call|
   if stderr.start_with? "playpen"
     exitstatus = stderr[/with signal (\d+)/, 1].to_i
     needed = true if exitstatus == 31 || stderr.include?("timeout triggered!")
-  elsif stderr.include?("10 Bad system call")
-    exitstatus = -1
+  elsif stderr.include?("Bad system call")
     needed  = true
   end
 
-  stderr, exitstatus = run "puts \"hi\""
-  needed = true unless exitstatus == 0
-  stderr, exitstatus = run "`ls -al`"
-  needed = true unless exitstatus == 0
+  needed ||= needed? "puts \"hi\""
+  needed ||= needed? "`ls -al`"
 
   unless needed
     needed_calls = tmp_calls

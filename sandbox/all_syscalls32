@@ -1,5 +1,5 @@
-_exit
 _llseek
+_newselect
 _sysctl
 accept
 accept4
@@ -132,19 +132,6 @@ iopl
 ioprio_get
 ioprio_set
 ipc
-ipc_subcall
-ipc_subcall
-ipc_subcall
-ipc_subcall
-ipc_subcall
-ipc_subcall
-ipc_subcall
-ipc_subcall
-ipc_subcall
-ipc_subcall
-ipc_subcall
-ipc_subcall
-ipc_subcall
 kcmp
 kexec_load
 keyctl
@@ -199,14 +186,10 @@ name_to_handle_at
 nanosleep
 nfsservctl
 nice
-old_getrlimit
-old_mmap
 oldfstat
 oldlstat
 oldolduname
-oldselect
 oldstat
-oldumount
 olduname
 open
 open_by_handle_at
@@ -332,7 +315,6 @@ sigprocmask
 sigreturn
 sigsuspend
 socket
-socket_subcall
 socketcall
 socketpair
 splice
@@ -368,6 +350,7 @@ times
 tkill
 truncate
 truncate64
+ugetrlimit
 ulimit
 umask
 umount

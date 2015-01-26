@@ -10,7 +10,7 @@ def run prog
   [stderr, $?.exitstatus]
 end
 
-syscalls = File.readlines("all_syscalls").map(&:chomp).sort
+syscalls = File.readlines(ARGV[0] || "all_syscalls64").map(&:chomp).sort
 
 needed_calls = syscalls
 

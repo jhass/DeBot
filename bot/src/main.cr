@@ -6,6 +6,7 @@ require "./plugins/crystal_eval"
 require "./plugins/admin"
 require "./plugins/google"
 require "./plugins/diaspora_stats"
+require "./plugins/down_for_everyone"
 
 bot = Framework::Bot.create do |config|
   config.server   = "chat.freenode.net"
@@ -20,6 +21,8 @@ bot = Framework::Bot.create do |config|
   config.add_plugin CrystalEval.new, ["#cebot", "#diaspora-de", "#crystal-lang"]
   config.add_plugin Admin.new({"jhass"})
   config.add_plugin Google.new
+  config.add_plugin DownForEveryone.new
+
 end
 
 bot.start

@@ -8,6 +8,7 @@ require "./plugins/google"
 require "./plugins/diaspora_stats"
 require "./plugins/down_for_everyone"
 require "./plugins/github_issues"
+require "./plugins/password"
 
 bot = Framework::Bot.create do |config|
   config.server   = "chat.freenode.net"
@@ -30,6 +31,7 @@ bot = Framework::Bot.create do |config|
     "#diaspora-fr"  => "diaspora/diaspora",
     "#cebot"        => "jhass/CeBot"
   })
+  config.add_plugin Password.new, ["#cebot", "#diaspora-de", "#diaspora", "#diaspora-dev"]
 
 end
 

@@ -23,6 +23,7 @@ END
     stderr = run.stderr
     pp stderr
     pp output
+    pp run.exit
 
     if stderr && !stderr.strip.empty?
       playpen, crystal = separate_playpen stderr
@@ -33,12 +34,13 @@ END
     if reply.nil? && output && !output.strip.empty?
       reply = run.success? ? output.lines.first : find_error_message(output)
     elsif run.success?
-      reply = output # Return the empty string
+      reply ||= output # Return the empty string
     end
 
     reply ||= "Failed to run your code, sorry!"
 
     reply = strip_ansi_codes reply
+    reply = prettify_error reply
     reply = limit_size reply
 
     msg.reply "#{msg.sender.nick}: #{reply}"
@@ -75,6 +77,14 @@ END
 
   def strip_ansi_codes text
     text.gsub(/\e\[(?:\d\d;)?[01]m/, "")
+  end
+
+  def prettify_error text
+    if text.includes?("Bad system call") || text.includes?(": 31")
+      "Sorry, I can't let you do that."
+    else
+      text
+    end
   end
 
   def limit_size text, limit=350

@@ -10,6 +10,7 @@ require "./plugins/down_for_everyone"
 require "./plugins/github_issues"
 require "./plugins/password"
 require "./plugins/what_the_commit"
+require "./plugins/wiki"
 
 bot = Framework::Bot.create do |config|
   config.server   = "chat.freenode.net"
@@ -34,6 +35,11 @@ bot = Framework::Bot.create do |config|
     "#diaspora-de"  => "diaspora/diaspora",
     "#diaspora-fr"  => "diaspora/diaspora",
     "#cebot"        => "jhass/CeBot"
+  })
+  config.add_plugin Wiki.new({
+    "#diaspora"     => "https://wiki.diasporafoundation.org/",
+    "#diaspora-de"  => "https://wiki.diasporafoundation.org/",
+    "#diaspora-dev" => "https://wiki.diasporafoundation.org/"
   })
 end
 

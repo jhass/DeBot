@@ -1,6 +1,7 @@
 require "irc/message"
 require "./user"
 require "./channel"
+require "./bot"
 
 module Framework
   class Message
@@ -9,17 +10,25 @@ module Framework
     getter sender
     getter context
 
+    def initialize @context : Bot, @target : String, @message : String
+      @sender = context.user
+    end
+
     def initialize @context : Bot, message = IRC::Message
       @target, @message = message.parameters
       prefix = message.prefix
       if prefix
-        @sender = User.find_or_create_by_mask(prefix)
+        @sender = User.from_mask(prefix, @context)
       else
-        @sender = User.none
+        @sender = @context.user
       end
     end
 
     def reply text
+      Message.new(@context, @sender.nick, text).send
+    end
+
+    def send
       userhost = @context.connection.userhost?
       nick = @context.connection.nick
       prefix = "PRIVMSG #{@target} :"
@@ -28,7 +37,7 @@ module Framework
       # userhost fallback: hostname(63)+nickname(9)+@(1) = 73
       limit = 510 - 3 - nick.size - prefix.size - (userhost ? userhost.size : 73)
 
-      text.lines.each do |line|
+      @message.lines.each do |line|
         sent = 0
         while sent < line.size
           @context.connection.send "#{prefix}#{line[sent, limit]}"
@@ -38,7 +47,7 @@ module Framework
     end
 
     def channel?
-      @channel ||= Channel.new(@target) if @target.starts_with? '#'
+      @channel ||= Channel.from_name(@target, @context) if @target.starts_with? '#'
     end
 
     def channel

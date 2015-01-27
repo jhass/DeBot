@@ -8,14 +8,16 @@ module Framework
   class Bot
     getter! connection
     getter channels
+    property! user
 
     class Configuration
-      property! :server
-      property :port
-      property :channels
-      property :user
-      property :nick
-      getter :plugins
+      property! server
+      property  port
+      property  channels
+      property  user
+      property! nick
+      property  realname
+      getter    plugins
 
       def initialize
         @plugins = [] of {Plugin, Array(String)}
@@ -23,6 +25,7 @@ module Framework
         @channels = Tuple.new
         @user = "cebot"
         @nickname = "CeBot"
+        @realname = "CeBot"
       end
 
       def add_plugin plugin : Plugin, channel_whitelist = [] of String
@@ -33,10 +36,12 @@ module Framework
     def self.create
       new.tap do |bot|
         yield bot.config
+        bot.user = User.from_nick bot.config.nick, bot, bot.config.realname
+        bot.user.mask.user = bot.config.user
       end
     end
 
-    def initialize
+    private def initialize
       @channels = Synchronized.new [] of String
     end
 
@@ -67,13 +72,37 @@ module Framework
     def start
       connection = IRC::Connection.new config.server, config.port, config.nick, config.user
       @connection = connection
-      connection.connect
-      config.nick = connection.nick
 
       connection.on_query do |message|
         message = Message.new self, message
         config.plugins.each &.[0].handle_message(message)
       end
+
+      connection.on(IRC::Message::NICK) do |message|
+        if prefix = message.prefix
+          User.from_mask(prefix, self).nick = message.parameters.first
+        end
+      end
+
+      connection.on(IRC::Message::RPL_NAMREPLY) do |reply|
+        # TODO: we get away status for free here, track it
+        nicks = reply.parameters.last.split(' ').map {|nick|
+          nick.starts_with?('@') || nick.starts_with?('+') ? nick[1..-1] : nick
+        }
+
+        # TODO: update channel user list
+      end
+
+      connection.on(IRC::Message::RPL_WHOISUSER) do |reply|
+        nick, user, host, _unused, realname = reply.parameters
+        user = User.from_nick(nick, self)
+        user.mask.user = user
+        user.mask.host = host
+        user.realname = realname
+      end
+
+      connection.connect
+      config.nick = connection.nick
 
       config.channels.each do |channel|
         join channel

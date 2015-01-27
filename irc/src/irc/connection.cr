@@ -9,11 +9,12 @@ require "./workers"
 
 module IRC
   class Connection
-    property! nick
+    property nick
+    property user
     property! userhost
     property? connected
 
-    def initialize @server : String, @port=6667, @nick="Crystal", @user="crystal", @realname="Crystal", processors = 2
+    def initialize @server : String, @port=6667, @nick="Crystal" : String, @user="crystal" : String, @realname="Crystal", processors = 2
       @send_queue = Queue(String|Symbol).new
       @channels = {} of String => Channel
       @processor = ProcessorPool.new(processors)
@@ -42,13 +43,17 @@ module IRC
     end
 
     def send type : String, *parameters : Array(String)
+      send type, parameters.to_a
+    end
+
+    def send type : String, parameters : Array(String)
       if parameters.empty?
         message = Message.from(type)
         unless message
           raise Message::Malformed.new "#{type} does not parse as an IRC message"
         end
       else
-        message = Message.new(type, parameters.to_a)
+        message = Message.new(type, parameters)
       end
 
       send message
@@ -137,16 +142,18 @@ module IRC
 
       on Message::JOIN do |message|
         if prefix = message.prefix
-          nick, _rest = prefix.split("!")
-          self.userhost = prefix if nick == self.nick
+          nick, rest = prefix.split('!')
+          user, _rest = rest.split('@')
+          if nick == self.nick
+            self.userhost = prefix
+            self.user = user
+          end
         end
       end
 
       await(Message::RPL_WELCOME)
 
-
-
-      @threads = {reader, sender, processor}
+      @threads = {processor, reader, sender}
     end
 
     def block

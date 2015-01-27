@@ -1,38 +1,43 @@
 require "./repository"
+require "./mask"
+require "./bot"
 
 module Framework
   class User
-    getter nick
-    getter user
-    getter host
     getter mask
+    property realname
+    delegate nick, mask
+    delegate user, mask
+    delegate host, mask
 
-    @@users ||= Repository(String, User).new
+    @@users = Repository(String, User).new
 
-    def self.none
-      @@none ||= new(nil, nil, nil, nil)
+    def self.from_mask mask : String, context : Bot, realname=nil
+      from_mask Mask.parse(mask), context, realname
     end
 
-    def self.find_or_create_by_mask mask
-      @@users.not_nil!.fetch(mask) { User.parse(mask) }
+    def self.from_mask mask : Mask, context : Bot, realname=nil
+      @@users.fetch(mask.nick) { new(mask, context, realname) }
     end
 
-    def self.parse mask
-      local, host = mask.split '@'
-      if host
-        nick, user = local.split '!'
-        user = user[1..-1] if user.starts_with? '~'
-        new(nick, user, host, mask)
-      else
-        new(nil, nil, host, mask)
-      end
+    def self.from_nick nick : String, context : Bot, realname=nil
+      @@users.fetch(nick) { new(Mask.new(nick, nil, nil), context, realname) }
     end
 
-    def initialize(@nick, @user, @host, @mask)
+    private def initialize(@mask : Mask, @context : Bot, @realname=nil)
     end
 
     def name
-      @nick || @user || @host
+      nick || user || host
+    end
+
+    def nick= nick
+      @@users.rename mask.nick, nick
+      mask.nick = nick
+    end
+
+    def send text : String
+      Message.new(@context, nick, text).send
     end
   end
 end

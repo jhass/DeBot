@@ -8,11 +8,7 @@ module Framework
     end
 
     def fetch key : K
-      exists = @lock.read_lock do
-        @store.has_key?(key)
-      end
-
-      if exists
+      if exists? key
         @lock.read_lock do
           @store[key]
         end
@@ -20,6 +16,23 @@ module Framework
         @lock.write_lock do
           @store[key] ||= yield
         end
+      end
+    end
+
+    def exists? key
+      @lock.read_lock do
+        @store.has_key?(key)
+      end
+    end
+
+    def rename oldkey, newkey
+      unless exists? oldkey
+        raise ArgumentError.new "#{oldkey.inspect} not present in repository"
+      end
+
+      @lock.write_lock do
+        @store[newkey] = @store[oldkey]
+        @store.delete oldkey
       end
     end
   end

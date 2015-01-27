@@ -14,14 +14,20 @@ class KeyValueStore
     @store = Framework::JsonStore(String, Hash(String, String)).new path
   end
 
-  match /^!(keys)/
+  match /^!(keys)\s+(#[^ ]+)?/
   match /^\?((?:[^\s=]+))\s*([\w\[\]\\`\^\{\}\|][\w\[\]\\`\^\{\}|\d\-]{0,8})?\s*$/
   match /^\?((?:[^\s=]+)=)(.+)/
 
   def execute msg, match
     if match[1] == "keys"
-      msg.reply "I know the following keys: #{known_keys(msg.channel.name).join(", ")}"
+      channel = match[2] unless match[2].empty?
+      channel ||= msg.channel.name if msg.channel?
+      return unless channel
+
+      msg.reply "I know the following keys: #{known_keys(channel).join(", ")}"
     else
+      return unless msg.channel?
+
       if match[1].ends_with? '='
         key = match[1][0..-2]
         set_key msg.channel.name, key, match[2]

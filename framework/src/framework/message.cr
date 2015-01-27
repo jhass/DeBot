@@ -25,7 +25,8 @@ module Framework
     end
 
     def reply text
-      Message.new(@context, @sender.nick, text).send
+      target =  @target.starts_with?('#') ? @target : @sender.nick
+      Message.new(@context, target, text).send
     end
 
     def send

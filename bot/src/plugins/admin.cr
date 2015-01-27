@@ -28,7 +28,11 @@ class Admin
   end
 
   def with_channel msg, match
-    channel = match[2].empty? ? msg.channel.name : match[2]
+    channel = match[2]
+    if channel.empty?
+      return unless msg.channel?
+      channel = msg.channel.name
+    end
 
     case match[1]
     when "join"

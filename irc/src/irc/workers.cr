@@ -1,3 +1,5 @@
+require "core_ext/thread"
+require "core_ext/io"
 require "thread/queue"
 
 require "./message"
@@ -7,23 +9,36 @@ module IRC
     delegate join, @th
 
     def initialize socket, queue
-      @stop = false
+      @socket = socket
+      pipe, @pipe = IO.pipe
       @th = Thread.new(self) do |reader|
         loop do
-          break if @stop
+          begin
+            io = IO.select([socket, pipe])
 
-          line = socket.gets
-          if line
-            puts "< #{line}"
-            message = Message.from(line)
-            queue << message if message
+            if io == pipe
+              break if pipe.gets == "stop\n"
+              next
+            end
+
+            line = socket.gets
+            if line
+              puts "< #{line}"
+              message = Message.from(line)
+              queue << message if message
+            end
+          rescue e : Errno
+            raise e unless e.errno == Errno::EINTR
           end
         end
       end
+      @th.name = "Reader"
     end
 
     def stop
-      @stop = true
+      @pipe.puts "stop"
+      @pipe.close
+      @socket.close
     end
   end
 
@@ -43,6 +58,7 @@ module IRC
           end
         end
       end
+      @th.name = "Sender"
     end
 
     def stop
@@ -55,7 +71,7 @@ module IRC
 
     delegate join, @th
 
-    def initialize pool, queue
+    def initialize id, pool, queue
       @th = Thread.new(self) do |processor|
         loop do
           work = queue.shift
@@ -70,6 +86,7 @@ module IRC
           end
         end
       end
+      @th.name = "Processor #{id}"
     end
   end
 
@@ -79,7 +96,7 @@ module IRC
 
     def initialize @size
       @queue = Queue(Processor::Job|Message|Symbol).new
-      @processors = Array.new(@size) { Processor.new(self, queue) }
+      @processors = Array.new(@size) {|id| Processor.new(id+1, self, queue) }
       @handlers = Array(Message ->).new
     end
 

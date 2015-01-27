@@ -7,6 +7,7 @@ require "./plugins/admin"
 require "./plugins/google"
 require "./plugins/diaspora_stats"
 require "./plugins/down_for_everyone"
+require "./plugins/github_issues"
 
 bot = Framework::Bot.create do |config|
   config.server   = "chat.freenode.net"
@@ -22,6 +23,13 @@ bot = Framework::Bot.create do |config|
   config.add_plugin Admin.new({"jhass"})
   config.add_plugin Google.new
   config.add_plugin DownForEveryone.new
+  config.add_plugin GithubIssues.new({
+    "#diaspora"     => "diaspora/diaspora",
+    "#diaspora-dev" => "diaspora/diaspora",
+    "#diaspora-de"  => "diaspora/diaspora",
+    "#diaspora-fr"  => "diaspora/diaspora",
+    "#cebot"        => "jhass/CeBot"
+  })
 
 end
 

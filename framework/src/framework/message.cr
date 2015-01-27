@@ -1,15 +1,16 @@
 require "irc/message"
 require "./user"
+require "./channel"
 
 module Framework
   class Message
     getter target
-    getter content
+    getter message
     getter sender
     getter context
 
     def initialize @context : Bot, message = IRC::Message
-      @target, @content = message.parameters
+      @target, @message = message.parameters
       prefix = message.prefix
       if prefix
         @sender = User.find_or_create_by_mask(prefix)
@@ -36,12 +37,12 @@ module Framework
       end
     end
 
-    def channel
-      @target if @target.starts_with? '#'
+    def channel?
+      @channel ||= Channel.new(@target) if @target.starts_with? '#'
     end
 
-    def channel!
-      channel.not_nil!
+    def channel
+      channel?.not_nil!
     end
   end
 end

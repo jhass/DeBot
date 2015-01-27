@@ -20,14 +20,14 @@ class KeyValueStore
 
   def execute msg, match
     if match[1] == "keys"
-      msg.reply "I know the following keys: #{known_keys(msg.channel!).join(", ")}"
+      msg.reply "I know the following keys: #{known_keys(msg.channel.name).join(", ")}"
     else
       if match[1].ends_with? '='
         key = match[1][0..-2]
-        set_key msg.channel!, key, match[2]
+        set_key msg.channel.name, key, match[2]
         msg.reply "#{msg.sender.nick}: Set #{key}."
       else
-        content = get_key msg.channel!, match[1]
+        content = get_key msg.channel.name, match[1]
         if content
           prefix = "#{match[2]}: " unless match[2].empty?
           msg.reply "#{prefix}#{content}"

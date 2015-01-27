@@ -13,7 +13,7 @@ module Framework
 
     def handle_message message
       @@matchers.not_nil!.each do |regex|
-        match = message.content.match regex
+        match = message.message.match regex
         if match
           begin
             execute message, match

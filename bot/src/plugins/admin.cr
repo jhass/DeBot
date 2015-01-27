@@ -18,7 +18,7 @@ class Admin
     # pp msg
     return unless @admins.includes? msg.sender.nick
 
-    channel = match[2].empty? ? msg.channel : match[2]
+    channel = match[2].empty? ? msg.channel.name : match[2]
     return unless channel
 
     case match[1]

@@ -52,7 +52,7 @@ module Framework
         message = Message.new self, message
         config.plugins.each do |item|
           plugin, channel_whitelist = item
-          if channel_whitelist.empty? || channel_whitelist.includes?(message.channel!)
+          if channel_whitelist.empty? || (message.channel? && channel_whitelist.includes?(message.channel.name))
             plugin.handle_message(message)
           end
         end

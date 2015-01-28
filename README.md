@@ -17,6 +17,7 @@ received messages.
 
 * Crystal
 * thread
+* core_ext
 
 ## framework
 
@@ -27,6 +28,7 @@ for developing IRC bots.
 
 * Crystal
 * irc
+* thread
 * core_ext
 
 ## bot

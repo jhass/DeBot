@@ -1,9 +1,7 @@
-# require "./recursive_mutex"
-
+require "./checking_mutex"
 module Monitor
   def mutex
-    # @mutex ||= RecursiveMutex.new
-    @mutex ||= Mutex.new
+    @mutex ||= CheckingMutex.new
   end
 
   def condition
@@ -17,9 +15,9 @@ module Monitor
   end
 
   def wait
-    # synchronize do |mutex|
+    synchronize do |mutex|
       condition.wait mutex
-    # end
+    end
   end
 
   def signal

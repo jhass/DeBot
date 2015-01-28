@@ -1,4 +1,3 @@
-
 class Synchronized(T)
   def initialize @target : T
     @mutex = Mutex.new

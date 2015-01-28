@@ -6,26 +6,29 @@ require "./timer"
 
 module Framework
   module Plugin
+    macro included
+
+      @@matchers = [] of Regex
+      def self.matchers
+        @@matchers
+      end
+
+      @@events = [] of Symbol
+      def self.events
+        @@events
+      end
+    end
+
     macro match regex : Regex
-    @@matchers ||= [] of Regex
-      @@matchers.not_nil! << {{regex}}
+      matchers << {{regex}}
     end
 
     macro listen event
-      @@events ||= [] of Symbol
-      @@events.not_nil! << {{event}}
+      events << {{event}}
     end
 
     property! context
     # property container
-
-    def matchers
-      @@matchers.not_nil!
-    end
-
-    def events
-      @@events.not_nil!
-    end
 
     def self.validate
       raise PluginError.new("No matcher defined for #{self.class}!") unless @@matchers

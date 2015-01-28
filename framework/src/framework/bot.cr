@@ -12,7 +12,7 @@ require "./plugin_container"
 module Framework
   class Bot
     macro add_plugin klass, whitelist=nil, arguments=[] of Void
-      config.add_plugin Framework::PluginContainer.new { {{klass}}.new({{*arguments}}) }, {{whitelist if whitelist}}
+      config.add_plugin Framework::PluginContainer({{klass}}).new { {{klass}}.new({{*arguments}}) }, {{whitelist if whitelist}}
     end
 
     getter! connection

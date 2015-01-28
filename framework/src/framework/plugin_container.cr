@@ -1,7 +1,7 @@
 require "./plugin"
 
 module Framework
-  class PluginContainer
+  class PluginContainer(T)
     def initialize &@constructor : -> Plugin
     end
 
@@ -10,13 +10,23 @@ module Framework
     end
 
     def handle event
-      @context = event.context
-      plugin = instance
+      if event.type == :message
+        plugin = instance
+        plugin.context = event.context
+        handle_message event.message, plugin
+      else
+        return unless T.events.includes? event.type
+      end
 
-      handle_message(event.message, plugin) if event.type == :message
+      plugin ||= instance
+      plugin.context = event.context
 
+      handle_event event, plugin
+    end
+
+    private def handle_event event, plugin
       begin
-        plugin.react_to(event) if plugin.responds_to?(:react_to) && plugin.events.includes? event.type
+        plugin.react_to(event) if plugin.responds_to?(:react_to)
       rescue e
         puts "Couldn't run plugin #{self} for #{event}:"
         puts e
@@ -25,13 +35,11 @@ module Framework
     end
 
     private def handle_message message, plugin
-      plugin.matchers.each do |regex|
+      T.matchers.each do |regex|
         match = message.message.match regex
         if match
           begin
-            plugin.context = message.context
-            # plugin.container = self
-            plugin.execute message, match
+            plugin.execute(message, match) if plugin.responds_to?(:execute)
           rescue e
             puts "Couldn't run plugin #{self} for #{message} matched by #{regex}:"
             puts e

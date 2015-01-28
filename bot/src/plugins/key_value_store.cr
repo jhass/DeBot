@@ -10,7 +10,7 @@ require "framework/json_store"
 class KeyValueStore
   include Framework::Plugin
 
-  def initialize path
+  def initialize path : String
     @store = Framework::JsonStore(String, Hash(String, String)).new path
   end
 

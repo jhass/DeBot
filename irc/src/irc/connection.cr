@@ -108,7 +108,6 @@ module IRC
 
       on Message::ERROR do |error|
         if error.message.starts_with? "Closing Link"
-          socket.close
           stop_threads
           exit
         end

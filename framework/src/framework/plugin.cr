@@ -2,6 +2,7 @@ require "core_ext/string"
 
 require "./channel"
 require "./user"
+require "./timer"
 
 module Framework
   module Plugin
@@ -10,24 +11,11 @@ module Framework
       @@matchers.not_nil! << {{regex}}
     end
 
-    getter! context
+    property! context
+    # property container
 
-    def handle_message message
-      @context = message.context
-
-      @@matchers.not_nil!.each do |regex|
-        match = message.message.match regex
-        if match
-          begin
-            execute message, match
-          rescue e
-            puts "Couldn't run plugin #{self} for #{message} matched by #{regex}:"
-            puts e
-            puts e.backtrace.join("\n")
-          end
-          break
-        end
-      end
+    def matchers
+      @@matchers.not_nil!
     end
 
     def self.validate
@@ -41,8 +29,13 @@ module Framework
     def user name
       User.from_nick name, context
     end
-  end
 
-  class PluginError < Exception
+    def in seconds, &block
+      Timer.new seconds, 1, &block
+    end
+
+    def every seconds, limit=nil, &block
+      Timer.new seconds, limit, &block
+    end
   end
 end

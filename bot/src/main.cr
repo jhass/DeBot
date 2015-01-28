@@ -11,36 +11,38 @@ require "./plugins/github_issues"
 require "./plugins/password"
 require "./plugins/what_the_commit"
 require "./plugins/wiki"
+require "./plugins/russian_roulette"
 
-bot = Framework::Bot.create do |config|
+bot = Framework::Bot.create do
   config.server   = "chat.freenode.net"
   config.port     = 6667
   config.user     = "cebot"
   config.nick     = "CeBot"
   config.channels = {"#cebot"}
 
-  config.add_plugin Google.new
-  config.add_plugin DownForEveryone.new
-  config.add_plugin HelloWorld.new,      ["#cebot"]
-  config.add_plugin DiasporaVersion.new, ["#cebot", "#diaspora-de", "#diaspora", "#diaspora-dev"]
-  config.add_plugin DiasporaStats.new,   ["#cebot", "#diaspora-de", "#diaspora", "#diaspora-dev"]
-  config.add_plugin CrystalEval.new,     ["#cebot", "#diaspora-de", "#crystal-lang"]
-  config.add_plugin Password.new,        ["#cebot", "#diaspora-de", "#diaspora", "#diaspora-dev"]
-  config.add_plugin WhatTheCommit.new,   ["#cebot", "#diaspora-de", "#diaspora", "#diaspora-dev"]
-  config.add_plugin Admin.new({"jhass"})
-  config.add_plugin KeyValueStore.new("data/key_value_store.json")
-  config.add_plugin GithubIssues.new({
-    "#diaspora"     => "diaspora/diaspora",
-    "#diaspora-dev" => "diaspora/diaspora",
-    "#diaspora-de"  => "diaspora/diaspora",
-    "#diaspora-fr"  => "diaspora/diaspora",
-    "#cebot"        => "jhass/CeBot"
-  })
-  config.add_plugin Wiki.new({
-    "#diaspora"     => "https://wiki.diasporafoundation.org/",
-    "#diaspora-de"  => "https://wiki.diasporafoundation.org/",
-    "#diaspora-dev" => "https://wiki.diasporafoundation.org/"
-  })
+  add_plugin Google
+  add_plugin DownForEveryone
+  add_plugin HelloWorld,      whitelist: ["#cebot"]
+  add_plugin DiasporaVersion, whitelist: ["#cebot", "#diaspora-de", "#diaspora", "#diaspora-dev"]
+  add_plugin DiasporaStats,   whitelist: ["#cebot", "#diaspora-de", "#diaspora", "#diaspora-dev"]
+  add_plugin CrystalEval,     whitelist: ["#cebot", "#diaspora-de", "#crystal-lang"]
+  add_plugin Password,        whitelist: ["#cebot", "#diaspora-de", "#diaspora", "#diaspora-dev"]
+  add_plugin WhatTheCommit,   whitelist: ["#cebot", "#diaspora-de", "#diaspora", "#diaspora-dev"]
+  add_plugin RussianRoulette,   whitelist: ["#cebot", "#diaspora-de", "#diaspora", "#diaspora-dev"]
+  add_plugin Admin, arguments: [{"jhass"}]
+  add_plugin KeyValueStore, arguments: ["data/key_value_store.json"]
+  add_plugin(GithubIssues, arguments: [{
+      "#diaspora"     => "diaspora/diaspora",
+      "#diaspora-dev" => "diaspora/diaspora",
+      "#diaspora-de"  => "diaspora/diaspora",
+      "#diaspora-fr"  => "diaspora/diaspora",
+      "#cebot"        => "jhass/CeBot"
+  }])
+  add_plugin(Wiki, arguments: [{
+      "#diaspora"     => "https://wiki.diasporafoundation.org/",
+      "#diaspora-de"  => "https://wiki.diasporafoundation.org/",
+      "#diaspora-dev" => "https://wiki.diasporafoundation.org/"
+  }])
 end
 
 bot.start

@@ -47,7 +47,7 @@ class Memo
       msg.reply "#{msg.sender.nick}: You can't leave memos for me.."
     else
       store_memo match[2], msg.sender.nick, nick, msg.channel?.try(&.name)
-      msg.reply "#{msg.sender.nick}: Set memo for #{nick}."
+      msg.reply "#{msg.sender.nick}: Added memo for #{nick}."
     end
   end
 

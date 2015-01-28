@@ -30,7 +30,7 @@ class RussianRoulette
       end
 
       if has_bullet
-        if msg.channel.opped? context.user
+        if msg.channel.opped? bot
           msg.channel.ban msg.sender if ALSO_BAN
           msg.channel.kick msg.sender, "{ *BANG* #{REASONS[rand(REASONS.size)]} }"
           in(BAN_TIME) { msg.channel.unban msg.sender } if ALSO_BAN

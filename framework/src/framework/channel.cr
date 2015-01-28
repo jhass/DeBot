@@ -65,11 +65,11 @@ module Framework
       Message.new(@context, @name, text).send
     end
 
-    def in_channel? user : User
-      in_channel? user.nick
+    def has? user : User
+      has? user.nick
     end
 
-    def in_channel? nick : String
+    def has? nick : String
       !membership(nick).nil?
     end
 
@@ -98,7 +98,7 @@ module Framework
     end
 
     def ban mask : String
-      @context.connection.send IRC::Message::MODE, @name, "+b", mask
+      mode mask, "+b"
     end
 
     def unban user : User
@@ -110,7 +110,7 @@ module Framework
     end
 
     def unban mask : String
-      @context.connection.send IRC::Message::MODE, @name, "-b", mask
+      mode mask, "-b"
     end
 
     def kick user : User, reason=nil
@@ -121,6 +121,26 @@ module Framework
       params = [@name, nick]
       params << reason if reason
       @context.connection.send IRC::Message::KICK, params
+    end
+
+    def op user : User
+      op user.nick
+    end
+
+    def op nick : String
+      mode nick, "+o"
+    end
+
+    def deop user : User
+      deop user.nick
+    end
+
+    def deop nick : String
+      mode nick, "-o"
+    end
+
+    def mode param : String, mode : String
+      @context.connection.send IRC::Message::MODE, @name, mode, param
     end
   end
 end

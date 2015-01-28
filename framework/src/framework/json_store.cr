@@ -31,6 +31,12 @@ module Framework
       end
     end
 
+    def keys
+      @lock.read_lock do
+        @data.keys
+      end
+    end
+
     private def load
       if File.exists? @path
         @data = Hash(K, V).from_json(File.read(@path))

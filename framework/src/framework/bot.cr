@@ -62,6 +62,25 @@ module Framework
       @config ||= Configuration.new
     end
 
+    class Event
+      getter context
+      getter type
+      getter sender
+      getter! channel
+      getter! message
+
+      def initialize @context : Bot, @type : Symbol, @message : Message
+        @sender = message.sender
+        @channel = message.channel
+      end
+
+      def initialize @context : Bot, @type : Symbol, @sender : User
+      end
+
+      def initialize @context : Bot, @type : Symbol, @sender : User, @channel : Channel
+      end
+    end
+
     def join name
       return if channels.includes? name
 
@@ -72,7 +91,7 @@ module Framework
         message = Message.new self, message
         config.plugins.each do |definition|
           if definition.wants? message
-            definition.plugin.handle_message(message)
+            definition.plugin.handle Event.new(self, :message, message)
           end
         end
       end
@@ -92,13 +111,16 @@ module Framework
       @connection = connection
 
       connection.on_query do |message|
-        message = Message.new self, message
-        config.plugins.each &.plugin.handle_message(message)
+        event = Event.new self, :message, Message.new(self, message)
+        config.plugins.each &.plugin.handle(event)
       end
 
       connection.on(IRC::Message::NICK) do |message|
         if prefix = message.prefix
-          User.from_mask(prefix, self).nick = message.parameters.first
+          user = User.from_mask(prefix, self)
+          user.nick = message.parameters.first
+          event = Event.new self, :nick, user
+          config.plugins.each &.plugin.handle(event)
         end
       end
 
@@ -110,11 +132,21 @@ module Framework
         user.realname = realname
       end
 
+
       connection.connect
       user.nick = connection.nick
 
       config.channels.each do |channel|
         join channel
+      end
+
+      connection.on(IRC::Message::JOIN, IRC::Message::PART) do |message|
+        if prefix = message.prefix
+          type = message.type == IRC::Message::JOIN ? :join : :part
+          channel = message.parameters.first
+          event = Event.new self, type, User.from_mask(prefix, self), Channel.from_name(channel, self)
+          config.plugins.each &.plugin.handle(event)
+        end
       end
 
       connection.block

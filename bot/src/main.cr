@@ -12,6 +12,7 @@ require "./plugins/password"
 require "./plugins/what_the_commit"
 require "./plugins/wiki"
 require "./plugins/russian_roulette"
+require "./plugins/memo"
 
 bot = Framework::Bot.create do
   config.server   = "chat.freenode.net"
@@ -31,6 +32,7 @@ bot = Framework::Bot.create do
   add_plugin RussianRoulette,   whitelist: ["#cebot", "#diaspora-de", "#diaspora", "#diaspora-dev"]
   add_plugin Admin, arguments: [{"jhass"}]
   add_plugin KeyValueStore, arguments: ["data/key_value_store.json"]
+  add_plugin Memo, arguments: ["data/memo.json"]
   add_plugin(GithubIssues, arguments: [{
       "#diaspora"     => "diaspora/diaspora",
       "#diaspora-dev" => "diaspora/diaspora",

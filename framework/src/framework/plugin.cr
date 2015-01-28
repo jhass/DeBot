@@ -7,8 +7,13 @@ require "./timer"
 module Framework
   module Plugin
     macro match regex : Regex
-      @@matchers ||= [] of Regex
+    @@matchers ||= [] of Regex
       @@matchers.not_nil! << {{regex}}
+    end
+
+    macro listen event
+      @@events ||= [] of Symbol
+      @@events.not_nil! << {{event}}
     end
 
     property! context
@@ -16,6 +21,10 @@ module Framework
 
     def matchers
       @@matchers.not_nil!
+    end
+
+    def events
+      @@events.not_nil!
     end
 
     def self.validate
@@ -36,6 +45,10 @@ module Framework
 
     def every seconds, limit=nil, &block
       Timer.new seconds, limit, &block
+    end
+
+    def bot
+      context.user
     end
   end
 end

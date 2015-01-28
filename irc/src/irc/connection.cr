@@ -1,6 +1,7 @@
 require "socket"
 require "signal"
 
+require "core_ext/openssl"
 require "thread/queue"
 
 require "./channel"
@@ -14,7 +15,8 @@ module IRC
     property! userhost
     property? connected
 
-    def initialize @server : String, @port=6667, @nick="Crystal" : String, @user="crystal" : String, @realname="Crystal", processors = 2
+    def initialize @server : String, port=nil, @nick="Crystal" : String, @user="crystal" : String, @realname="Crystal", @ssl=false, processors=2
+      @port = @ssl ? 6697 : 6667
       @send_queue = Queue(String|Symbol).new
       @channels = {} of String => Channel
       @processor = ProcessorPool.new(processors)
@@ -94,6 +96,7 @@ module IRC
 
     def connect
       socket = TCPSocket.new @server, @port
+      socket = OpenSSL::SSL::Socket.new socket if @ssl
 
       self.nick = @nick
       send Message::USER, @user, "0", "*", @realname

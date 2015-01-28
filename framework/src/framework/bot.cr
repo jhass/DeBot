@@ -31,15 +31,20 @@ module Framework
       property  user
       property! nick
       property  realname
+      property  ssl
       getter    plugins
 
       def initialize
         @plugins = [] of PluginDefinition
-        @port = 6667
         @channels = Tuple.new
         @user = "cebot"
         @nickname = "CeBot"
         @realname = "CeBot"
+        @ssl = false
+      end
+
+      def port
+        @port || (@ssl ? 6697 : 6667)
       end
 
       def add_plugin plugin : PluginContainer, channel_whitelist = [] of String
@@ -89,7 +94,7 @@ module Framework
     end
 
     def start
-      connection = IRC::Connection.new config.server, config.port, config.nick, config.user
+      connection = IRC::Connection.new config.server, config.port, config.nick, config.user, ssl: config.ssl
       @connection = connection
 
       connection.on_query do |message|

@@ -16,7 +16,6 @@ require "./plugins/memo"
 
 bot = Framework::Bot.create do
   config.server   = "chat.freenode.net"
-  config.port     = 6667
   config.user     = "cebot"
   config.nick     = "CeBot"
   config.channels = {"#cebot"}

@@ -11,7 +11,8 @@ class Errno < Exception
 end
 
 module IO
-  def self.select(readfds : Array(FileDescriptorIO)?, writefds = nil : Array(FileDescriptorIO)?, errorfds = nil : Array(FileDescriptorIO)?, timeout_sec=nil : C::TimeT?)
+  # def self.select(readfds : Array(FileDescriptorIO)?, writefds = nil : Array(FileDescriptorIO)?, errorfds = nil : Array(FileDescriptorIO)?, timeout_sec=nil : C::TimeT?)
+  def self.select(readfds, writefds = nil, errorfds = nil, timeout_sec=nil : C::TimeT?)
     readfds  ||= [] of FileDescriptorIO
     writefds ||= [] of FileDescriptorIO
     errorfds ||= [] of FileDescriptorIO
@@ -41,7 +42,8 @@ module IO
     end
   end
 
-  private def self.to_fdset fds : Array(FileDescriptorIO)
+  # private def self.to_fdset fds : Array(FileDescriptorIO)
+  private def self.to_fdset fds
     fdset = Process::FdSet.new
     fds.each do |io|
       fdset.set io

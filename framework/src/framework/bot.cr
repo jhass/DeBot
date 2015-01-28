@@ -2,6 +2,7 @@ require "thread/synchronized"
 require "irc/connection"
 require "irc/message"
 
+require "./event"
 require "./message"
 require "./channel"
 require "./plugin_container"
@@ -60,25 +61,6 @@ module Framework
 
     def config
       @config ||= Configuration.new
-    end
-
-    class Event
-      getter context
-      getter type
-      getter sender
-      getter! channel
-      getter! message
-
-      def initialize @context : Bot, @type : Symbol, @message : Message
-        @sender = message.sender
-        @channel = message.channel
-      end
-
-      def initialize @context : Bot, @type : Symbol, @sender : User
-      end
-
-      def initialize @context : Bot, @type : Symbol, @sender : User, @channel : Channel
-      end
     end
 
     def join name

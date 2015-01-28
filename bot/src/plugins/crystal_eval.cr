@@ -51,10 +51,17 @@ END
   end
 
   def find_error_message output
-    lines = output.lines
+    lines = output.lines.reject(&.strip.empty?)
+
+    # Find syntax error in macro expansion
+    if separator = lines.find {|line| line =~ /^-+$/ }
+      if index = lines.rindex(separator)
+        return lines[index+1]
+      end
+    end
 
     # Rip out any type traces
-    if separator = lines.find {|line| line =~ /^[\s=]+$/ }
+    if separator = lines.find {|line| line =~ /^[=]+$/ }
       if index = lines.index(separator)
         lines = lines[0..index]
       end
@@ -67,9 +74,18 @@ END
     # Check if we got a traceback
     traces = lines.select {|line|
       line =~ /\/[\.\w]+:\d+:\s/ ||
-      line =~ /in line \d+:/
+      line =~ /in line \d+:/ ||
+      line =~ /in macro/
     }
-    return traces.last unless traces.empty?
+
+    unless traces.empty?
+      line = traces.last
+      if line.includes?("in macro")
+        return "#{line} #{lines.last}"
+      else
+        return line
+      end
+    end
 
     # No traceback, first line that starts with "Error" then
     lines.find &.starts_with?("Error")

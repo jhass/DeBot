@@ -31,7 +31,7 @@ module Framework
 
     def send
       userhost = @context.connection.userhost?
-      nick = @context.connection.nick
+      nick = @context.user.nick
       prefix = "PRIVMSG #{@target} :"
       # 512 max message length according RFC, but Freenode only allows 510
       # -3 for :, ! and space

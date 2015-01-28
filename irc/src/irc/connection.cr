@@ -10,16 +10,57 @@ require "./workers"
 
 module IRC
   class Connection
-    property nick
-    property user
+    class Config
+      property! server
+      property  port
+      property  nick
+      property  user
+      property  realname
+      property! ssl
+      property processors
+
+      private def initialize
+        @port       = 6667
+        @nick       = "Crystal"
+        @user       = "crystal"
+        @realname   = "Crystal"
+        @ssl        = false
+        @processors = 2
+      end
+
+      def self.new server : String
+        build.tap do |config|
+          config.server = server
+        end
+      end
+
+      def self.build
+        new.tap do |config|
+          yield config
+
+          raise ArgumentError.new "server must be provided" unless config.server?
+
+          config.port = config.ssl ? 6697 : 6667
+        end
+      end
+    end
+
     property! userhost
     property? connected
+    getter config
 
-    def initialize @server : String, port=nil, @nick="Crystal" : String, @user="crystal" : String, @realname="Crystal", @ssl=false, processors=2
-      @port = @ssl ? 6697 : 6667
+    def self.build &block : Config ->
+      new Config.build(&block)
+    end
+
+    def self.new server : String
+      new Config.new(server)
+    end
+
+    def initialize @config : Config
       @send_queue = Queue(String|Symbol).new
       @channels = {} of String => Channel
-      @processor = ProcessorPool.new(processors)
+      @processor = ProcessorPool.new(config.processors)
       @connected = false
     end
 
@@ -62,8 +103,8 @@ module IRC
     end
 
     def nick= nick : String
-      oldnick = @nick
-      @nick = nick
+      oldnick = config.nick
+      config.nick = nick
       send Message::NICK, nick unless connected? && nick == oldnick
     end
 
@@ -90,16 +131,16 @@ module IRC
     def on_query(&handler : Message ->)
       on(Message::PRIVMSG, Message::NOTICE) do |message|
         target = message.parameters.first
-        handler.call(message) if target == @nick
+        handler.call(message) if target == config.nick
       end
     end
 
     def connect
-      socket = TCPSocket.new @server, @port
+      socket = TCPSocket.new config.server, config.port
       socket = OpenSSL::SSL::Socket.new socket if @ssl
 
-      self.nick = @nick
-      send Message::USER, @user, "0", "*", @realname
+      self.nick = config.nick
+      send Message::USER, config.user, "0", "*", config.realname
 
       processor = @processor.not_nil!
       reader = Reader.new socket, processor.queue
@@ -117,25 +158,12 @@ module IRC
       end
 
       on Message::PING do
-        send Message::PONG, self.userhost? || @user
+        send Message::PONG, self.userhost? || config.user
       end
 
       on Message::ERR_NICKCOLLISION, Message::ERR_NICKNAMEINUSE do |error|
-        self.nick = "#{nick}_"
+        self.nick = "#{config.nick}_"
       end
-
-      # on Message::RPL_USERHOST do |reply|
-      #   userhosts = reply.parameters.last.split.map {|entry|
-      #     nick, host = entry.split("=")
-      #     away, host = host[0], host[1..-1]
-      #     op = nick.ends_with?("*")
-      #     nick = nick[0..-2] if op
-
-      #     {nick, host, (away == "-"), op}
-      #   }
-      #   mine = userhosts.find(&.[0].==(nick))
-      #   self.userhost = mine[1] if mine
-      # end
 
       on Message::RPL_WELCOME do |message|
         self.connected = true
@@ -146,9 +174,9 @@ module IRC
         if prefix = message.prefix
           nick, rest = prefix.split('!')
           user, _rest = rest.split('@')
-          if nick == self.nick
+          if nick == config.nick
             self.userhost = prefix
-            self.user = user
+            self.config.user = user
           end
         end
       end

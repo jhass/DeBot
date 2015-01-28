@@ -50,6 +50,17 @@ module Framework
       def add_plugin plugin : PluginContainer, channel_whitelist = [] of String
         plugins << PluginDefinition.new(plugin, channel_whitelist)
       end
+
+      def to_connection
+        IRC::Connection.build do |config|
+          config.server = server
+          config.port = port
+          config.nick = nick
+          config.user = user
+          config.realname = realname
+          config.ssl = ssl
+        end
+      end
     end
 
     def self.create
@@ -94,7 +105,7 @@ module Framework
     end
 
     def start
-      connection = IRC::Connection.new config.server, config.port, config.nick, config.user, ssl: config.ssl
+      connection = config.to_connection
       @connection = connection
 
       connection.on_query do |message|
@@ -121,7 +132,7 @@ module Framework
 
 
       connection.connect
-      user.nick = connection.nick
+      user.nick = connection.config.nick
 
       config.channels.each do |channel|
         join channel

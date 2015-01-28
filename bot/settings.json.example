@@ -1,0 +1,29 @@
+// This is a comment
+// Inline comments are not allowed
+// Required keys are given with an example
+// Optional keys are given with their default or an example
+{
+  "server": "chat.freenode.net",
+
+  // Defaults to 6697 if SSL is enabled
+  //"port": 6667,
+
+  //"ssl": false,
+
+  // With SASL enabled, also used to authenticate
+  "nick": "CeBot",
+
+  //"user": "cebot",
+
+  // With SASL enabled, used to authenticate,
+  // else, if present, used as server password
+  //"password": "secret",
+
+  //"try_sasl": false,
+
+  //"realname": "CeBot",
+
+  "channels": [
+    "#cebot"
+  ]
+}

@@ -1,3 +1,5 @@
+require "json"
+
 require "thread/synchronized"
 require "irc/connection"
 require "irc/message"
@@ -18,6 +20,32 @@ module Framework
     property! user
 
     class Configuration
+      class Store
+        json_mapping({
+          server:   {type: String},
+          port:     {type: Int32, nilable: true},
+          channels: {type: Array(String)},
+          nick:     {type: String},
+          user:     {type: String, nilable: true},
+          password: {type: String, nilable: true, emit_null: true},
+          realname: {type: String, nilable: true},
+          ssl:      {type: Bool, nilable: true},
+          try_sasl: {type: Bool, nilable: true}
+        }, true)
+
+        def update config
+          config.server   = server
+          config.port     = port      unless port.nil?
+          config.channels = channels
+          config.nick     = nick
+          config.user     = user      unless user.nil?
+          config.password = password  unless password.nil?
+          config.realname = realname  unless realname.nil?
+          config.ssl      = ssl       unless ssl.nil?
+          config.try_sasl = try_sasl  unless try_sasl.nil?
+        end
+      end
+
       record PluginDefinition, plugin, channel_whitelist do
         def wants? message : Message
           return true unless message.channel?
@@ -28,10 +56,10 @@ module Framework
       property! server
       property  port
       property  channels
-      property  user
       property! nick
+      property! user
       property  password
-      property  realname
+      property! realname
       property  ssl
       property  try_sasl
       getter    plugins
@@ -40,7 +68,7 @@ module Framework
         @plugins = [] of PluginDefinition
         @channels = Tuple.new
 
-        @nickname = "CeBot"
+        @nick = "CeBot"
         @user = "cebot"
         @password = nil
         @realname = "CeBot"
@@ -54,6 +82,11 @@ module Framework
 
       def add_plugin plugin : PluginContainer, channel_whitelist = [] of String
         plugins << PluginDefinition.new(plugin, channel_whitelist)
+      end
+
+      def from_file path
+        json = File.read_lines(path).reject(&.match(/^\s*\/\//)).join
+        Store.from_json(json).update(self)
       end
 
       def to_connection

@@ -13,7 +13,7 @@ module Framework
 
     def initialize @context : Bot, @type : Symbol, @message : Message
       @sender = message.sender
-      @channel = message.channel
+      @channel = message.channel?
     end
 
     def initialize @context : Bot, @type : Symbol, @sender : User

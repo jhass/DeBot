@@ -15,16 +15,20 @@ module IRC
       property  port
       property  nick
       property  user
+      property! password
       property  realname
       property! ssl
-      property processors
+      property! try_sasl
+      property  processors
 
       private def initialize
         @port       = 6667
         @nick       = "Crystal"
         @user       = "crystal"
+        @password   = nil
         @realname   = "Crystal"
         @ssl        = false
+        @try_sasl   = false
         @processors = 2
       end
 
@@ -39,6 +43,10 @@ module IRC
           yield config
 
           raise ArgumentError.new "server must be provided" unless config.server?
+
+          if config.try_sasl? && !config.password?
+            raise ArgumentError.new "must set password when enabling SASL"
+          end
 
           config.port = config.ssl ? 6697 : 6667
         end
@@ -85,10 +93,6 @@ module IRC
       @send_queue << message.to_s
     end
 
-    def send type : String, *parameters : Array(String)
-      send type, parameters.to_a
-    end
-
     def send type : String, parameters : Array(String)
       if parameters.empty?
         message = Message.from(type)
@@ -100,6 +104,10 @@ module IRC
       end
 
       send message
+    end
+
+    def send type : String, *parameters
+      send type, parameters.to_a
     end
 
     def nick= nick : String
@@ -137,14 +145,40 @@ module IRC
 
     def connect
       socket = TCPSocket.new config.server, config.port
-      socket = OpenSSL::SSL::Socket.new socket if @ssl
+      socket = OpenSSL::SSL::Socket.new socket if config.ssl?
+
+      if config.try_sasl?
+        send Message::CAP, "LS"
+
+        on Message::CAP do |cap|
+          case cap.parameters[1]
+          when "LS"
+            cap.parameters.last.split(' ').includes? "sasl"
+            send Message::CAP, "REQ", "sasl"
+          when "ACK"
+            if cap.parameters.last == "sasl"
+              send Message::AUTHENTICATE, "PLAIN"
+            else
+              send Message::CAP, "END"
+            end
+          else
+            send Message::CAP, "END"
+          end
+        end
+
+        on Message::AUTHENTICATE do
+          send Message::AUTHENTICATE, Base64.strict_encode64("#{config.nick}\0#{config.nick}\0#{config.password}")
+        end
+
+        on Message::RPL_SASL_SUCCESS, Message::RPL_SASL_FAILED, Message::RPL_SASL_ABORTED do
+          send Message::CAP, "END"
+        end
+      elsif config.password?
+        send Message::PASS, config.password
+      end
 
       self.nick = config.nick
       send Message::USER, config.user, "0", "*", config.realname
-
-      processor = @processor.not_nil!
-      reader = Reader.new socket, processor.queue
-      sender = Sender.new socket, @send_queue
 
       Signal.trap(Signal::INT) do
         quit
@@ -180,6 +214,10 @@ module IRC
           end
         end
       end
+
+      processor = @processor.not_nil!
+      reader = Reader.new socket, processor.queue
+      sender = Sender.new socket, @send_queue
 
       await(Message::RPL_WELCOME)
 

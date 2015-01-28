@@ -30,17 +30,22 @@ module Framework
       property  channels
       property  user
       property! nick
+      property  password
       property  realname
       property  ssl
+      property  try_sasl
       getter    plugins
 
       def initialize
         @plugins = [] of PluginDefinition
         @channels = Tuple.new
-        @user = "cebot"
+
         @nickname = "CeBot"
+        @user = "cebot"
+        @password = nil
         @realname = "CeBot"
         @ssl = false
+        @try_sasl = false
       end
 
       def port
@@ -57,8 +62,10 @@ module Framework
           config.port = port
           config.nick = nick
           config.user = user
+          config.password = password
           config.realname = realname
           config.ssl = ssl
+          config.try_sasl = try_sasl
         end
       end
     end

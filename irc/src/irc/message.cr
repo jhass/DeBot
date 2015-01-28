@@ -46,6 +46,12 @@ module IRC
     USERHOST = "USERHOST"
     ISON     = "ISON"
 
+    CAP              = "CAP"
+    AUTHENTICATE     = "AUTHENTICATE"
+    RPL_SASL_SUCCESS = "903"
+    RPL_SASL_FAILED  = "904"
+    RPL_SASL_ABORTED = "906"
+
     RPL_WELCOME           = "001"
     RPL_YOURHOST          = "002"
     RPL_CREATED           = "003"
@@ -254,7 +260,7 @@ module IRC
         end
       end
 
-      parameters << parameter.to_s
+      parameters << parameter.to_s.strip
 
       prefix = prefix.to_s
       prefix = nil if prefix.empty?

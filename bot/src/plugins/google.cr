@@ -88,7 +88,7 @@ class Google
 
   def result_count query
     html = query query
-    html[/About ([\d\.,]+) results/, 1].delete(/[,\.]/).to_i
+    html[/About ([\d\.,]+) results/, 1].delete(/[,\.]/).to_u64
   end
 
   def number_with_delimiter number, delimiter=','

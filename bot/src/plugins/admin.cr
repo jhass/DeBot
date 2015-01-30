@@ -3,8 +3,9 @@ require "framework/plugin"
 class Admin
   include Framework::Plugin
 
-  def initialize @admins : Enumerable(String)
-  end
+  config({
+    admins: {type: Array(String)}
+  })
 
   #channel    =  ( "#" / "+" / ( "!" channelid ) / "&" ) chanstring
   #              [ ":" chanstring ]
@@ -17,7 +18,7 @@ class Admin
   match /^!((?:de)?op)(?:\s+(\w+))?/
 
   def execute msg, match
-    return unless @admins.includes? msg.sender.nick
+    return unless config.admins.includes? msg.sender.nick
 
     case match[1]
     when "join", "part", "sayto", "msg"

@@ -1,12 +1,29 @@
 require "core_ext/string"
 
+require "./configuration"
 require "./channel"
 require "./user"
 require "./timer"
 
 module Framework
   module Plugin
+    macro config properties
+      class Config < Framework::Configuration::Plugin
+        json_mapping({
+          :channels => {type: Array(String), nilable: true},
+          {% for key, value in properties %}
+          {{key}} => {{value}},
+          {% end %}
+        }, true)
+      end
+    end
+
     macro included
+      class Config < Framework::Configuration::Plugin
+        def self.empty
+          allocate
+        end
+      end
 
       @@matchers = [] of Regex
       def self.matchers
@@ -27,8 +44,11 @@ module Framework
       events << {{event}}
     end
 
-    property! context
-    # property container
+    getter context
+    getter config
+
+    def initialize @context, @config
+    end
 
     def self.validate
       raise PluginError.new("No matcher defined for #{self.class}!") unless @@matchers

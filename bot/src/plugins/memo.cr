@@ -24,8 +24,12 @@ class Memo
 
   include Framework::Plugin
 
-  def initialize path : String
-    @memos = Framework::JsonStore(String, Array(Memo)).new path
+  config({
+    store: {type: String}
+  })
+
+  def memos
+    @memos ||= Framework::JsonStore(String, Array(Memo)).new config.store
   end
 
   listen :join
@@ -54,14 +58,14 @@ class Memo
   def deliver_memos user
     chosen_keys = Set(String).new
 
-    @memos.keys.select {|key|
+    memos.keys.select {|key|
       key == user.nick || (key.starts_with?('/') && key.ends_with?('/'))
     }.each do |key|
       regex = key.starts_with?('/') ? key[1..-2] : Regex.escape(key)
       regex = Regex.new regex rescue nil
 
       if regex && user.nick.match(regex)
-        @memos.fetch(key) do |memos|
+        memos.fetch(key) do |memos|
           next unless memos
           memos.each do |memo|
             chosen_keys << key
@@ -72,7 +76,7 @@ class Memo
     end
 
     chosen_keys.each do |key|
-      @memos.modify(key) do |memos|
+      memos.modify(key) do |memos|
         memos ||= [] of Memo
         memos.clear
         memos
@@ -81,7 +85,7 @@ class Memo
   end
 
   def store_memo content, from, to, at=nil
-    @memos.modify(to) do |memos|
+    memos.modify(to) do |memos|
       memos ||= [] of Memo
       memos << Memo.new(content, from, at, Time.now)
     end

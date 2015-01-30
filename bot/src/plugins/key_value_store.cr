@@ -10,8 +10,12 @@ require "framework/json_store"
 class KeyValueStore
   include Framework::Plugin
 
-  def initialize path : String
-    @store = Framework::JsonStore(String, Hash(String, String)).new path
+  config({
+    store: {type: String}
+  })
+
+  def store
+    @store ||= Framework::JsonStore(String, Hash(String, String)).new config.store
   end
 
   match /^!(keys)\s+(#[^ ]+)?/
@@ -45,13 +49,13 @@ class KeyValueStore
   end
 
   def known_keys channel
-    @store.fetch(channel) do |data|
+    store.fetch(channel) do |data|
       data ? data.keys : Tuple.new
     end
   end
 
   def set_key channel, key, value
-    @store.modify(channel) do |data|
+    store.modify(channel) do |data|
       data ||= Hash(String, String).new
       data[key] = value
       data
@@ -59,7 +63,7 @@ class KeyValueStore
   end
 
   def get_key channel, key
-    @store.fetch(channel) do |data|
+    store.fetch(channel) do |data|
       data && data[key]?
     end
   end

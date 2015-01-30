@@ -19,28 +19,18 @@ bot = Framework::Bot.create do
 
   add_plugin Google
   add_plugin DownForEveryone
-  add_plugin HelloWorld,      whitelist: ["#cebot"]
-  add_plugin DiasporaVersion, whitelist: ["#cebot", "#diaspora-de", "#diaspora", "#diaspora-dev"]
-  add_plugin DiasporaStats,   whitelist: ["#cebot", "#diaspora-de", "#diaspora", "#diaspora-dev"]
-  add_plugin CrystalEval,     whitelist: ["#cebot", "#diaspora-de", "#crystal-lang"]
-  add_plugin Password,        whitelist: ["#cebot", "#diaspora-de", "#diaspora", "#diaspora-dev"]
-  add_plugin WhatTheCommit,   whitelist: ["#cebot", "#diaspora-de", "#diaspora", "#diaspora-dev"]
-  add_plugin RussianRoulette,   whitelist: ["#cebot", "#diaspora-de", "#diaspora", "#diaspora-dev"]
-  add_plugin Admin, arguments: [{"jhass"}]
-  add_plugin KeyValueStore, arguments: ["data/key_value_store.json"]
-  add_plugin Memo, arguments: ["data/memo.json"]
-  add_plugin(GithubIssues, arguments: [{
-      "#diaspora"     => "diaspora/diaspora",
-      "#diaspora-dev" => "diaspora/diaspora",
-      "#diaspora-de"  => "diaspora/diaspora",
-      "#diaspora-fr"  => "diaspora/diaspora",
-      "#cebot"        => "jhass/CeBot"
-  }])
-  add_plugin(Wiki, arguments: [{
-      "#diaspora"     => "https://wiki.diasporafoundation.org/",
-      "#diaspora-de"  => "https://wiki.diasporafoundation.org/",
-      "#diaspora-dev" => "https://wiki.diasporafoundation.org/"
-  }])
+  add_plugin HelloWorld
+  add_plugin DiasporaVersion
+  add_plugin DiasporaStats
+  add_plugin CrystalEval
+  add_plugin Password
+  add_plugin WhatTheCommit
+  add_plugin RussianRoulette
+  add_plugin Admin
+  add_plugin KeyValueStore
+  add_plugin Memo
+  add_plugin GithubIssues
+  add_plugin Wiki
 end
 
 bot.start

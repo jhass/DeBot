@@ -5,14 +5,15 @@ class GithubIssues
 
   PATTERN = /(?:^|\s+|\()#(\d{3,5})\b/
 
-  def initialize @projects : Hash(String, String)
-  end
+  config({
+    repositories: {type: Hash(String, String)}
+  })
 
   match PATTERN
   def execute msg, _match
     return unless msg.channel?
-    return unless @projects.has_key? msg.channel.name
+    return unless config.repositories.has_key? msg.channel.name
     issues = msg.message.scan(PATTERN)
-    msg.reply issues.map {|issue| "https://github.com/#{@projects[msg.channel.name]}/issues/#{issue[1]}" }.join(" | ")
+    msg.reply issues.map {|issue| "https://github.com/#{config.repositories[msg.channel.name]}/issues/#{issue[1]}" }.join(" | ")
   end
 end

@@ -1,25 +1,38 @@
+require "json"
+
 require "./plugin"
 
 module Framework
-  class PluginContainer(T)
-    def initialize &@constructor : -> Plugin
+  class PluginContainer(T, J)
+    getter config
+    delegate channels, config
+    delegate wants?, config
+
+    def initialize
+       @config = J.empty
     end
 
-    def instance
-      @constructor.call
+    def name
+      T.to_s
+    end
+
+    def read_config pull : JSON::PullParser
+      @config = J.new pull
+    end
+
+    def instance context
+      T.new(context, config)
     end
 
     def handle event
       if event.type == :message
-        plugin = instance
-        plugin.context = event.context
+        plugin = instance event.context
         handle_message event.message, plugin
       else
         return unless T.events.includes? event.type
       end
 
-      plugin ||= instance
-      plugin.context = event.context
+      plugin ||= instance event.context
 
       handle_event event, plugin
     end

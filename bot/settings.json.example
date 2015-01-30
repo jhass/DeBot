@@ -25,5 +25,38 @@
 
   "channels": [
     "#cebot"
-  ]
+  ],
+
+  "plugins": {
+    "Admin": {
+      "admins": ["jhass"]
+    },
+
+    "Memo": {
+      "store": "data/memo.json"
+    },
+
+    "KeyValueStore": {
+      "store": "data/key_value_store.json"
+    },
+
+    // "CrystalEval": {
+    //    channels is valid for any plugin and limits the list of channels
+    //    the plugin see messages for. If not given or empty,
+    //    no filter is applied.
+    //   "channels": ["#crystal-lang"]
+    // },
+
+    // "GithubIssues": {
+    //   "repositories": {
+    //     "#cebot": "jhass/CeBot"
+    //   }
+    // },
+
+    // "Wiki": {
+    //   "wikis":  {
+    //     "#diaspora": "https://wiki.diasporafoundation.org/"
+    //   }
+    // }
+  }
 }

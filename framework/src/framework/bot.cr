@@ -1,107 +1,24 @@
-require "json"
-
 require "thread/synchronized"
 require "irc/connection"
 require "irc/message"
 
+require "./configuration"
 require "./event"
 require "./message"
 require "./channel"
 require "./plugin_container"
+require "./plugin"
 
 module Framework
   class Bot
-    macro add_plugin klass, whitelist=nil, arguments=[] of Void
-      config.add_plugin Framework::PluginContainer({{klass}}).new { {{klass}}.new({{*arguments}}) }, {{whitelist if whitelist}}
+    macro add_plugin klass
+      config.add_plugin Framework::PluginContainer({{klass}}, {{klass}}::Config).new
     end
 
     getter! connection
     getter channels
     property! user
 
-    class Configuration
-      class Store
-        json_mapping({
-          server:   {type: String},
-          port:     {type: Int32, nilable: true},
-          channels: {type: Array(String)},
-          nick:     {type: String},
-          user:     {type: String, nilable: true},
-          password: {type: String, nilable: true, emit_null: true},
-          realname: {type: String, nilable: true},
-          ssl:      {type: Bool, nilable: true},
-          try_sasl: {type: Bool, nilable: true}
-        }, true)
-
-        def update config
-          config.server   = server
-          config.port     = port      unless port.nil?
-          config.channels = channels
-          config.nick     = nick
-          config.user     = user      unless user.nil?
-          config.password = password  unless password.nil?
-          config.realname = realname  unless realname.nil?
-          config.ssl      = ssl       unless ssl.nil?
-          config.try_sasl = try_sasl  unless try_sasl.nil?
-        end
-      end
-
-      record PluginDefinition, plugin, channel_whitelist do
-        def wants? message : Message
-          return true unless message.channel?
-          channel_whitelist.empty? || channel_whitelist.includes?(message.channel.name)
-        end
-      end
-
-      property! server
-      property  port
-      property  channels
-      property! nick
-      property! user
-      property  password
-      property! realname
-      property  ssl
-      property  try_sasl
-      getter    plugins
-
-      def initialize
-        @plugins = [] of PluginDefinition
-        @channels = Tuple.new
-
-        @nick = "CeBot"
-        @user = "cebot"
-        @password = nil
-        @realname = "CeBot"
-        @ssl = false
-        @try_sasl = false
-      end
-
-      def port
-        @port || (@ssl ? 6697 : 6667)
-      end
-
-      def add_plugin plugin : PluginContainer, channel_whitelist = [] of String
-        plugins << PluginDefinition.new(plugin, channel_whitelist)
-      end
-
-      def from_file path
-        json = File.read_lines(path).reject(&.match(/^\s*\/\//)).join
-        Store.from_json(json).update(self)
-      end
-
-      def to_connection
-        IRC::Connection.build do |config|
-          config.server = server
-          config.port = port
-          config.nick = nick
-          config.user = user
-          config.password = password
-          config.realname = realname
-          config.ssl = ssl
-          config.try_sasl = try_sasl
-        end
-      end
-    end
 
     def self.create
       new.tap do |bot|
@@ -127,9 +44,9 @@ module Framework
 
       channel.on_message do |message|
         message = Message.new self, message
-        config.plugins.each do |definition|
-          if definition.wants? message
-            definition.plugin.handle Event.new(self, :message, message)
+        config.plugins.each_value do |container|
+          if container.wants? message
+            container.handle Event.new(self, :message, message)
           end
         end
       end
@@ -150,7 +67,7 @@ module Framework
 
       connection.on_query do |message|
         event = Event.new self, :message, Message.new(self, message)
-        config.plugins.each &.plugin.handle(event)
+        config.plugins.each_value &.handle(event)
       end
 
       connection.on(IRC::Message::NICK) do |message|
@@ -158,7 +75,7 @@ module Framework
           user = User.from_mask(prefix, self)
           user.nick = message.parameters.first
           event = Event.new self, :nick, user
-          config.plugins.each &.plugin.handle(event)
+          config.plugins.each_value &.handle(event)
         end
       end
 
@@ -183,7 +100,7 @@ module Framework
           type = message.type == IRC::Message::JOIN ? :join : :part
           channel = message.parameters.first
           event = Event.new self, type, User.from_mask(prefix, self), Channel.from_name(channel, self)
-          config.plugins.each &.plugin.handle(event)
+          config.plugins.each_value &.handle(event)
         end
       end
 

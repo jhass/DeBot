@@ -4,9 +4,9 @@ class Errno < Exception
   getter errno
 
   def initialize(message)
-    errno = C.errno
+    errno = LibC.errno
     @errno = errno
-    super "#{message}: #{String.new(C.strerror(errno))}"
+    super "#{message}: #{String.new(LibC.strerror(errno))}"
   end
 end
 
@@ -20,18 +20,18 @@ module IO
     fdsets = {to_fdset(readfds), to_fdset(writefds), to_fdset(errorfds)}
 
     if timeout_sec
-      timeout = C::TimeVal.new
+      timeout = LibC::TimeVal.new
       timeout.tv_sec = timeout_sec
       timeout.tv_usec = 0
       timeout_ptr = pointerof(timeout)
     else
-      timeout_ptr = Pointer(C::TimeVal).null
+      timeout_ptr = Pointer(LibC::TimeVal).null
     end
 
     readfdset, writefdset, errorfdset = fdsets
     nfds = ios.map(&.fd).max
     nfds += 1
-    case C.select(nfds, pointerof(readfdset) as Void*, pointerof(writefdset) as Void*, pointerof(errorfdset) as Void*, timeout_ptr as Void*)
+    case LibC.select(nfds, pointerof(readfdset) as Void*, pointerof(writefdset) as Void*, pointerof(errorfdset) as Void*, timeout_ptr as Void*)
     when 0
       # TODO: better exception type
       raise "Timed out"

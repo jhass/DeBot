@@ -1,8 +1,5 @@
 require "http/client"
 
-require "core_ext/string"
-require "core_ext/int"
-
 require "framework/plugin"
 
 class Google

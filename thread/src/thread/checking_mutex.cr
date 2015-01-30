@@ -1,14 +1,14 @@
-require "./pthread"
+require "./lib_pthread"
 
 class CheckingMutex < Mutex
   def initialize
-    PThread.mutexattr_init(out @attr)
-    PThread.mutexattr_settype(pointerof(@attr), PThread::MUTEX_ERRORCHECK)
-    PThread.mutex_init_fixed(out @mutex, pointerof(@attr))
+    LibPThread.mutexattr_init(out @attr)
+    LibPThread.mutexattr_settype(pointerof(@attr), LibPThread::MUTEX_ERRORCHECK)
+    LibPThread.mutex_init_fixed(out @mutex, pointerof(@attr))
   end
 
   def lock
-    ret = PThread.mutex_lock(self)
+    ret = LibPThread.mutex_lock(self)
 
     case ret
     when 0
@@ -20,7 +20,7 @@ class CheckingMutex < Mutex
   end
 
   def try_lock
-    ret = PThread.mutex_trylock(self)
+    ret = LibPThread.mutex_trylock(self)
 
     case ret
     when 0
@@ -32,7 +32,7 @@ class CheckingMutex < Mutex
   end
 
   def unlock
-    ret = PThread.mutex_unlock(self)
+    ret = LibPThread.mutex_unlock(self)
 
     case ret
     when 0
@@ -44,12 +44,12 @@ class CheckingMutex < Mutex
   end
 
   def relock
-    ret = PThread.mutex_lock(self)
+    ret = LibPThread.mutex_lock(self)
 
     case ret
     when 0
       true
-    when PThread::EDEADLK
+    when LibPThread::EDEADLK
       false
     else
       puts "re"

@@ -8,10 +8,10 @@ class Password
     "de"      => "/usr/share/dict/ngerman"
   }
 
-  match /^!password(\s\w\w)?/
+  match /^!password\s*$/
+  match /^!password\s+(\w\w)/
   def execute msg, match
-    lang = match[1] unless match[1].empty?
-    lang ||= "default"
+    lang = match[1]? || "default"
     dict = AVAILABLE_DICTS[lang.strip]
     dict ||= AVAILABLE_DICTS["default"]
     password = `echo "$(shuf -n4 #{dict} | tr '\n' ' ')"`.delete('\'')

@@ -44,8 +44,8 @@ def Process.run(command, args = nil, output = nil : IO | Bool, input = nil : Str
     end
 
 
-    C.execvp(command, argv.buffer)
-    C.exit 127
+    LibC.execvp(command, argv.buffer)
+    LibC.exit 127
   end
 
   if pid == -1
@@ -112,7 +112,7 @@ def Process.run(command, args = nil, output = nil : IO | Bool, input = nil : Str
 
     buffer :: UInt8[2048]
 
-    case C.select(nfds + 1, pointerof(rfds) as Void*, pointerof(wfds) as Void*, nil, nil)
+    case LibC.select(nfds + 1, pointerof(rfds) as Void*, pointerof(wfds) as Void*, nil, nil)
     when 0
       raise "Timeout"
     when -1

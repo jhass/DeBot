@@ -1,8 +1,6 @@
 require "http/client"
 require "json"
 
-require "core_ext/array"
-
 require "framework/plugin"
 
 

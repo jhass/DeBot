@@ -1,4 +1,4 @@
-lib PThread
+lib LibPThread
   EDEADLK = 35
 
   MUTEX_RECURSIVE  = 1

@@ -34,6 +34,9 @@ module Framework
       def self.events
         @@events
       end
+
+      def self.config_loaded config
+      end
     end
 
     macro match regex : Regex
@@ -48,10 +51,6 @@ module Framework
     getter config
 
     def initialize @context, @config
-    end
-
-    def self.validate
-      raise PluginError.new("No matcher defined for #{self.class}!") unless @@matchers
     end
 
     def channel name

@@ -28,8 +28,12 @@ class Memo
     store: {type: String}
   })
 
+  def self.config_loaded config
+    @@memos = Framework::JsonStore(String, Array(Memo)).new config.store
+  end
+
   def memos
-    @memos ||= Framework::JsonStore(String, Array(Memo)).new config.store
+    @@memos.not_nil!
   end
 
   listen :join

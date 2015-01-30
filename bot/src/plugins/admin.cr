@@ -14,7 +14,7 @@ class Admin
 
   match /^!(join|part)\s+(#[^\s,:]+)?/
   match /^!(msg|sayto)\s+([^ ]+)\s+(.+)/
-  match /^!(quit)/
+  match /^!(quit|reload)/
   match /^!((?:de)?op)(?:\s+(\w+))?/
 
   def execute msg, match
@@ -27,6 +27,9 @@ class Admin
       op :op, msg, match[2]
     when "deop"
       op :deop, msg, match[2]
+    when "reload"
+      context.config.reload_plugins
+      msg.reply "Reloaded plugin configuration."
     when "quit"
       context.connection.quit
     end

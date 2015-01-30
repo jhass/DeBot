@@ -184,6 +184,10 @@ module IRC
         quit
       end
 
+      Signal.trap(Signal::TERM) do
+        quit
+      end
+
       on Message::ERROR do |error|
         if error.message.starts_with? "Closing Link"
           stop_threads

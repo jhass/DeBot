@@ -18,6 +18,7 @@ module Framework
 
     def read_config pull : JSON::PullParser
       @config = J.new pull
+      T.config_loaded(@config)
     end
 
     def instance context

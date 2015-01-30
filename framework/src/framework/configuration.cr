@@ -5,21 +5,6 @@ require "irc/connection"
 module Framework
   class Configuration
     class Plugin
-      class Container
-        def initialize config, pull : JSON::PullParser
-          pull.read_object do |key|
-            config.plugins[key].read_config(pull)
-          end
-        end
-
-        # Compiler bug: delegate doesn't pass blocks along
-        def each
-          plugins.each do |plugin|
-            yield plugin
-          end
-        end
-      end
-
       def initialize pull : JSON::PullParser
         pull.on_key("channels") do
           @channels = Array(String).new pull
@@ -55,14 +40,11 @@ module Framework
         try_sasl: {type: Bool, nilable: true},
       })
 
-      property plugins
-
-      def self.from_json config, json
+      def self.load_plugins config, json
         pull = JSON::PullParser.new json
-        new(pull).tap do |store|
-          pull = JSON::PullParser.new json
-          pull.on_key("plugins") do
-            store.plugins = Plugin::Container.new config, pull
+        pull.on_key("plugins") do
+          pull.read_object do |key|
+            config.plugins[key].read_config(pull)
           end
         end
       end
@@ -115,10 +97,15 @@ module Framework
       @config_file = path
     end
 
+    def reload_plugins
+      Store.load_plugins self, read_config
+    end
+
     def to_connection
-      if path = @config_file
-        json = File.read_lines(path).reject(&.match(/^\s*\/\//)).join
-        Store.from_json(self, json).update(self)
+      if @config_file
+        json = read_config
+        Store.from_json(json).update(self)
+        Store.load_plugins self, json
       end
 
       IRC::Connection.build do |config|
@@ -131,6 +118,12 @@ module Framework
         config.ssl = ssl
         config.try_sasl = try_sasl
       end
+    end
+
+    private def read_config
+      path = @config_file
+      raise "No configuration file defined" unless path
+      File.read_lines(path).reject(&.match(/^\s*\/\//)).join
     end
   end
 end

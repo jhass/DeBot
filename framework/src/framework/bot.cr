@@ -1,3 +1,5 @@
+require "signal"
+
 require "thread/synchronized"
 require "irc/connection"
 require "irc/message"
@@ -102,6 +104,10 @@ module Framework
           event = Event.new self, type, User.from_mask(prefix, self), Channel.from_name(channel, self)
           config.plugins.each_value &.handle(event)
         end
+      end
+
+      Signal.trap(Signal::HUP) do
+        config.reload_plugins
       end
 
       connection.block

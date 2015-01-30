@@ -14,8 +14,12 @@ class KeyValueStore
     store: {type: String}
   })
 
+  def self.config_loaded config
+    @@store = Framework::JsonStore(String, Hash(String, String)).new config.store
+  end
+
   def store
-    @store ||= Framework::JsonStore(String, Hash(String, String)).new config.store
+    @@store.not_nil!
   end
 
   match /^!(keys)\s+(#[^ ]+)?/

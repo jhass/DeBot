@@ -53,6 +53,10 @@ END
   def find_error_message output
     lines = output.lines.reject(&.strip.empty?)
 
+    # Compiler bug
+    bug = lines.find {|line| line.starts_with?("Bug:") }
+    return bug if bug
+
     # Find syntax error in macro expansion
     if separator = lines.find {|line| line =~ /^-+$/ }
       if index = lines.rindex(separator)

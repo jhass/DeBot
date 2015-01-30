@@ -30,15 +30,16 @@ module Framework
     class Store
       json_mapping({
         server:   {type: String},
-        port:     {type: Int32, nilable: true},
+        port:     {type: Int32,     nilable: true},
         channels: {type: Array(String)},
         nick:     {type: String},
-        user:     {type: String, nilable: true},
-        password: {type: String, nilable: true, emit_null: true},
-        realname: {type: String, nilable: true},
-        ssl:      {type: Bool, nilable: true},
-        try_sasl: {type: Bool, nilable: true},
-      })
+        user:     {type: String,    nilable: true},
+        password: {type: String,    nilable: true, emit_null: true},
+        realname: {type: String,    nilable: true},
+        ssl:      {type: Bool,      nilable: true},
+        try_sasl: {type: Bool,      nilable: true},
+        plugins:  {type: JSON::Any, nilable: true}
+      }, true)
 
       def self.load_plugins config, json
         pull = JSON::PullParser.new json
@@ -49,7 +50,19 @@ module Framework
         end
       end
 
-      def update config
+      def to_json config : Configuration
+        self.port     = config.port
+        self.channels = config.channels
+        self.user     = config.user
+        self.password = config.password
+        self.realname = config.realname
+        self.ssl      = config.ssl
+        self.try_sasl = config.try_sasl
+
+        to_json
+      end
+
+      def restore config
         config.server   = server
         config.port     = port      unless port.nil?
         config.channels = channels
@@ -75,7 +88,7 @@ module Framework
 
     def initialize
       @plugins = Hash(String, PluginContainer).new
-      @channels = Tuple.new
+      @channels = [] of String
 
       @nick = "CeBot"
       @user = "cebot"
@@ -101,10 +114,21 @@ module Framework
       Store.load_plugins self, read_config
     end
 
+    def save
+      store = @store
+      path = @config_file
+      return unless store && path
+
+      json = store.to_json self
+      File.write(path, json)
+    end
+
     def to_connection
       if @config_file
         json = read_config
-        Store.from_json(json).update(self)
+        store = Store.from_json(json)
+        store.restore(self)
+        @store = store
         Store.load_plugins self, json
       end
 

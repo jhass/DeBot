@@ -17,11 +17,6 @@ module Framework
       config.add_plugin Framework::PluginContainer({{klass}}, {{klass}}::Config).new
     end
 
-    getter! connection
-    getter channels
-    property! user
-
-
     def self.create
       new.tap do |bot|
         with bot yield
@@ -30,19 +25,25 @@ module Framework
       end
     end
 
-    private def initialize
-      @channels = Synchronized.new [] of String
-    end
+    getter config
+    getter! connection
+    property! user
+    delegate channels, config
 
-    def config
-      @config ||= Configuration.new
+    private def initialize
+      @config = Configuration.new
+      @started = false
     end
 
     def join name
-      return if channels.includes? name
+      return if config.channels.includes?(name) && @started
 
       channel = connection.join name
-      channels << name
+
+      if @started
+        config.channels << name
+        config.save
+      end
 
       channel.on_message do |message|
         message = Message.new self, message
@@ -59,8 +60,9 @@ module Framework
     end
 
     def part name
-      connection.part name if channels.includes? name
-      channels.delete name
+      connection.part name if config.channels.includes? name
+      config.channels.delete name
+      config.save
     end
 
     def start
@@ -89,11 +91,10 @@ module Framework
         user.realname = realname
       end
 
-
       connection.connect
       user.nick = connection.config.nick
 
-      config.channels.each do |channel|
+      channels.each do |channel|
         join channel
       end
 
@@ -109,6 +110,8 @@ module Framework
       Signal.trap(Signal::HUP) do
         config.reload_plugins
       end
+
+      @started = true
 
       connection.block
     end

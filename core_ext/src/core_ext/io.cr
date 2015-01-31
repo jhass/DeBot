@@ -1,17 +1,4 @@
-class Errno < Exception
-  EINTR = 4
-
-  getter errno
-
-  def initialize(message)
-    errno = LibC.errno
-    @errno = errno
-    super "#{message}: #{String.new(LibC.strerror(errno))}"
-  end
-end
-
 module IO
-  # def self.select(readfds : Array(FileDescriptorIO)?, writefds = nil : Array(FileDescriptorIO)?, errorfds = nil : Array(FileDescriptorIO)?, timeout_sec=nil : C::TimeT?)
   def self.select(readfds, writefds = nil, errorfds = nil, timeout_sec=nil : C::TimeT?)
     readfds  ||= [] of FileDescriptorIO
     writefds ||= [] of FileDescriptorIO
@@ -42,7 +29,6 @@ module IO
     end
   end
 
-  # private def self.to_fdset fds : Array(FileDescriptorIO)
   private def self.to_fdset fds
     fdset = Process::FdSet.new
     fds.each do |io|

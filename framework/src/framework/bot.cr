@@ -14,7 +14,7 @@ require "./plugin"
 module Framework
   class Bot
     macro add_plugin klass
-      config.add_plugin Framework::PluginContainer({{klass}}, {{klass}}::Config).new
+      config.add_plugin Framework::PluginContainer({{klass}}).new
     end
 
     def self.create

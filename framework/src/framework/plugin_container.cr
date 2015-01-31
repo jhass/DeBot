@@ -3,13 +3,13 @@ require "json"
 require "./plugin"
 
 module Framework
-  class PluginContainer(T, J)
+  class PluginContainer(T)
     getter config
     delegate channels, config
     delegate wants?, config
 
     def initialize
-       @config = J.empty
+       @config = T::Config.empty
     end
 
     def name
@@ -17,7 +17,7 @@ module Framework
     end
 
     def read_config pull : JSON::PullParser
-      @config = J.new pull
+      @config = T::Config.new pull
       T.config_loaded(@config)
     end
 

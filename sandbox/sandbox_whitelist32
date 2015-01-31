@@ -8,6 +8,7 @@ clone
 close
 dup2
 exit_group
+fadvise64_64
 fcntl64
 fstat64
 futex
@@ -34,6 +35,7 @@ munmap
 open
 openat
 pipe
+pipe2
 prlimit64
 read
 readlink

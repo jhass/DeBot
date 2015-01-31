@@ -2,17 +2,21 @@ require "fileutils"
 
 
 def run prog
-  r, w = IO.pipe
-  system("./sandbox_crystal", "eval", prog, err: w)
-  w.close
-  stderr = r.read
-  puts "#{stderr}"
-  [stderr, $?.exitstatus]
+  er, ew = IO.pipe
+  sr, sw = IO.pipe
+  system("./sandbox_crystal", "eval", prog, err: ew, out: sw)
+  ew.close
+  sw.close
+  stderr = er.read
+  stdout = sr.read
+  puts stdout
+  puts stderr
+  [stdout, stderr, $?.exitstatus]
 end
 
 def needed? prog
-  stderr, exitstatus = run prog
-  exitstatus != 0 || stderr.include?("Bad system call")
+  stdout, stderr, exitstatus = run prog
+  exitstatus != 0 || stderr.include?("Bad system call") || stdout.include?("error code: 31")
 end
 
 syscalls = File.readlines(ARGV[0] || "all_syscalls64").map(&:chomp).sort
@@ -26,7 +30,7 @@ syscalls.each do |call|
   File.write("sandbox_whitelist", tmp_calls.join("\n"))
   puts "without #{call}:"
   needed = false
-  stderr, exitstatus = run "putss \"hi\""
+  stdout, stderr, exitstatus = run "putss \"hi\""
 
   if stderr.start_with? "playpen"
     exitstatus = stderr[/with signal (\d+)/, 1].to_i
@@ -37,6 +41,9 @@ syscalls.each do |call|
 
   needed ||= needed? "puts \"hi\""
   needed ||= needed? "`ls -al`"
+  needed ||= needed? "exit"
+  needed ||= needed? %(r, w = IO.pipe;  Process.run("/bin/cat", output: w, input: "hi"); p(r.read(1)))
+  needed ||= needed? %(LibC.popen("ls", "r"))
 
   unless needed
     needed_calls = tmp_calls

@@ -1,5 +1,4 @@
 require "core_ext/thread"
-require "core_ext/io"
 require "thread/queue"
 
 require "./message"
@@ -14,9 +13,9 @@ module IRC
       @th = Thread.new(self) do |reader|
         loop do
           begin
-            io = IO.select([socket, pipe])
+            ios = IO.select([socket, pipe])
 
-            if io == pipe
+            if ios.includes? pipe
               break if pipe.gets == "stop\n"
               next
             end

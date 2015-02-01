@@ -5,6 +5,9 @@ require "irc/connection"
 module Framework
   class Configuration
     class Plugin
+      property! name
+      property! config
+
       def initialize pull : JSON::PullParser
         pull.on_key("channels") do
           @channels = Array(String).new pull
@@ -22,8 +25,8 @@ module Framework
         channels!.includes? message.channel.name
       end
 
-      def self.none
-        @@none ||= None.new
+      def save
+        config.update_plugin_config name, JSON.parse(to_json)
       end
     end
 
@@ -45,9 +48,20 @@ module Framework
         pull = JSON::PullParser.new json
         pull.on_key("plugins") do
           pull.read_object do |key|
-            config.plugins[key].read_config(pull)
+            config.plugins[key].read_config(config, pull)
           end
         end
+      end
+
+      def plugins
+        plugins = @plugins
+
+        unless plugins.is_a? Hash(String, JSON::Type)
+          plugins = Hash(String, JSON::Type).new
+          @plugins = plugins
+        end
+
+        plugins
       end
 
       def to_json config : Configuration
@@ -112,6 +126,15 @@ module Framework
 
     def reload_plugins
       Store.load_plugins self, read_config
+    end
+
+    def update_plugin_config plugin, config
+      store = @store
+      path = @config_file
+      return unless store && path
+
+      store.plugins[plugin] = config
+      save
     end
 
     def save

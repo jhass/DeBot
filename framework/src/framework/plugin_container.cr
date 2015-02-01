@@ -16,8 +16,10 @@ module Framework
       T.to_s
     end
 
-    def read_config pull : JSON::PullParser
+    def read_config config, pull : JSON::PullParser
       @config = T::Config.new pull
+      @config.config = config
+      @config.name = name
       T.config_loaded(@config)
     end
 

@@ -30,7 +30,8 @@
 
   "plugins": {
     "Admin": {
-      "admins": ["jhass"]
+      superadmins: ["jhass"],
+      //"admins": ["asterite"]
     },
 
     "Memo": {

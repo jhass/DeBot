@@ -37,16 +37,18 @@ module Framework
       @memberships = [] of Membership
     end
 
-    def update_userlist memberships : Array(String)
+    def update_userlist memberships : Array(String), removal=false
       memberships.each do |membership|
-        update_userlist(membership)
+        update_userlist(membership, removal)
       end
     end
 
-    def update_userlist membership : String
+    def update_userlist membership : String, removal=false
       membership = Membership.parse(membership, @context)
       index = @memberships.index(membership)
-      if index
+      if removal
+        @memberships.delete(membership)
+      elsif index
         @memberships[index] = membership
       else
         @memberships << membership

@@ -9,7 +9,7 @@ module IRC
 
     def initialize @connection, @name
       @message_handlers = [] of Message ->
-      @userlist_handlers = [] of Array(String)|String ->
+      @userlist_handlers = [] of (Array(String)|String, Bool) ->
       @users = Synchronized.new([] of String)
 
 
@@ -28,8 +28,20 @@ module IRC
       @connection.on(IRC::Message::RPL_ENDOFNAMES) do |reply|
         if reply.parameters[1] == @name
           @users.uniq!
-          @userlist_handlers.each &.call(@users.dup)
+          @userlist_handlers.each &.call(@users.dup, false)
         end
+      end
+
+      @connection.on(IRC::Message::JOIN, IRC::Message::PART) do |message|
+        if prefix = message.prefix
+          nick, rest = prefix.split('!')
+        else
+          nick = @connection.config.nick
+        end
+
+        removal = message.type == IRC::Message::PART
+
+        @userlist_handlers.each &.call(nick, removal)
       end
 
       @connection.on(IRC::Message::MODE) do |message|
@@ -65,7 +77,7 @@ module IRC
                 @users << newuser
               end
 
-              @userlist_handlers.each &.call(newuser)
+              @userlist_handlers.each &.call(newuser, false)
             end
           end
         end
@@ -76,7 +88,7 @@ module IRC
       @message_handlers << block
     end
 
-    def on_userlist_update(&block : Array(String)|String ->)
+    def on_userlist_update(&block : (Array(String)|String, Bool) ->)
       @userlist_handlers << block
     end
 

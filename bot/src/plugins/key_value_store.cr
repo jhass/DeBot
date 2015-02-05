@@ -22,7 +22,7 @@ class KeyValueStore
     @@store.not_nil!
   end
 
-  match /^!(keys)\s+(#[^ ]+)?/
+  match /^!(keys)\s+(#[\w\d]+)?/
   match /^\?((?:[^\s=]+))\s*([\w\[\]\\`\^\{\}\|][\w\[\]\\`\^\{\}|\d\-]{0,8})?\s*$/
   match /^\?((?:[^\s=]+)=)(.+)/
 

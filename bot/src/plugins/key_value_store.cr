@@ -22,9 +22,9 @@ class KeyValueStore
     @@store.not_nil!
   end
 
-  match /^!(keys)\s+(#[\w\d]+)?/
-  match /^\?((?:[^\s=]+))\s*([\w\[\]\\`\^\{\}\|][\w\[\]\\`\^\{\}|\d\-]{0,8})?\s*$/
-  match /^\?((?:[^\s=]+)=)(.+)/
+  match /^!(keys)\s+(#[^ ]+)?/
+  match /^\?((?:[\d\w]+))\s*([\w\[\]\\`\^\{\}\|][\w\[\]\\`\^\{\}|\d\-]{0,8})?\s*$/
+  match /^\?((?:[\d\w]+)=)(.+)/
 
   def execute msg, match
     if match[1] == "keys"

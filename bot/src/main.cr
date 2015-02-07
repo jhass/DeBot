@@ -13,6 +13,7 @@ require "./plugins/what_the_commit"
 require "./plugins/wiki"
 require "./plugins/russian_roulette"
 require "./plugins/memo"
+require "./plugins/wti_status"
 
 bot = Framework::Bot.create do
   config.from_file "settings.json"
@@ -31,6 +32,7 @@ bot = Framework::Bot.create do
   add_plugin Memo
   add_plugin GithubIssues
   add_plugin Wiki
+  add_plugin WtiStatus
 end
 
 bot.start

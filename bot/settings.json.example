@@ -59,6 +59,16 @@
     //   "wikis":  {
     //     "#diaspora": "https://wiki.diasporafoundation.org/"
     //   }
-    // }
+    // },
+
+    "WtiStatus": {
+      "default_project": "diaspora",
+      "projects": {
+        "diaspora": {
+          "api_key": "abc",
+          "slug": "3020-Diaspora"
+        },
+      }
+    }
   }
 }

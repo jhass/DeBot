@@ -34,7 +34,7 @@ echo "en_US.UTF-8 UTF-8" >> etc/locale.gen
 arch-chroot . locale-gen
 echo "LANG=en_US.UTF-8" > etc/locale.conf
 
-yaourt -G crystal-git
-arch-chroot . chown -R crystal:users crystal-git
-arch-chroot . /bin/sh -c 'cd /crystal-git; su crystal -- makepkg'
-arch-chroot . pacman -U crystal-git/crystal-*.tar.xz 
+yaourt -G crystal
+arch-chroot . chown -R crystal:users crystal
+arch-chroot . /bin/sh -c 'cd /crystal; su crystal -- makepkg'
+arch-chroot . pacman -U crystal/crystal-*.tar.xz 

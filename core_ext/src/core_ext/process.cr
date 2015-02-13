@@ -1,4 +1,4 @@
-struct Process::Status
+class Process::Status
   property stderr
 end
 
@@ -153,7 +153,7 @@ def Process.run(command, args = nil, output = nil : IO | Bool, input = nil : Str
     status.stderr = status_stderr.to_s
   end
 
-  Process::Status.last = status
+  $? = status
 
   status
 end

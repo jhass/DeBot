@@ -10,7 +10,8 @@ module IRC
     def initialize socket, queue
       @socket = socket
       pipe, @pipe = IO.pipe
-      @th = Thread.new(self) do |reader|
+      @th = Thread.new do
+        reader = self
         loop do
           begin
             ios = IO.select([socket, pipe])
@@ -46,7 +47,8 @@ module IRC
 
     def initialize socket, queue
       @queue = queue
-      @th = Thread.new(self) do |sender|
+      @th = Thread.new do
+        sender = self
         loop do
           message = queue.shift
           if message.is_a? String
@@ -71,7 +73,8 @@ module IRC
     delegate join, @th
 
     def initialize id, pool, queue
-      @th = Thread.new(self) do |processor|
+      @th = Thread.new do
+        processor = self
         loop do
           work = queue.shift
           if work.is_a? Message

@@ -54,9 +54,7 @@ module Framework
         end
       end
 
-      channel.on_userlist_update do |update, removal|
-        Channel.from_name(name, self).update_userlist(update, removal)
-      end
+      Channel.from_name(name, channel, self)
     end
 
     def part name

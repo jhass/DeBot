@@ -6,53 +6,19 @@ require "./bot"
 
 module Framework
   class Channel
-    record Membership, user, opped, voiced do
-      def_equals_and_hash user.nick
-
-      def opped?
-        opped
-      end
-
-      def voiced?
-        voiced
-      end
-
-      def self.parse membership, context
-        opped = membership[0] == '@'
-        voiced = membership[0] == '+'
-        nick = opped || voiced ? membership[1..-1] : membership
-        new User.from_nick(nick, context), opped, voiced
-      end
-    end
-
     getter name
 
     @@channels = Repository(String, Channel).new
 
+    def self.from_name name : String, channel, context
+      @@channels.fetch(name) { new(name, channel, context) }
+    end
+
     def self.from_name name : String, context
-      @@channels.fetch(name) { new(name, context) }
+      @@channels.fetch(name) { new(name, nil, context) }
     end
 
-    private def initialize(@name : String, @context : Bot)
-      @memberships = [] of Membership
-    end
-
-    def update_userlist memberships : Array(String), removal=false
-      memberships.each do |membership|
-        update_userlist(membership, removal)
-      end
-    end
-
-    def update_userlist membership : String, removal=false
-      membership = Membership.parse(membership, @context)
-      index = @memberships.index(membership)
-      if removal
-        @memberships.delete(membership)
-      elsif index
-        @memberships[index] = membership
-      else
-        @memberships << membership
-      end
+    private def initialize(@name : String, @irc_channel : IRC::Channel?, @context : Bot)
     end
 
     def membership user : User
@@ -60,7 +26,7 @@ module Framework
     end
 
     def membership nick : String
-      @memberships.find {|membership| membership.user.nick == nick }
+      @irc_channel.try &.membership(nick)
     end
 
     def send text : String

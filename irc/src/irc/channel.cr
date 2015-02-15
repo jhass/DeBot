@@ -4,13 +4,36 @@ require "./message"
 
 module IRC
   class Channel
+    record Membership, nick, opped, voiced do
+      def_equals_and_hash nick
+
+      def opped?
+        opped
+      end
+
+      def voiced?
+        voiced
+      end
+
+      def self.parse membership
+        opped = membership[0] == '@'
+        voiced = membership[0] == '+'
+        nick = opped || voiced ? membership[1..-1] : membership
+        new nick, opped, voiced
+      end
+
+      def to_s(io)
+        io << opped? ? "@" : (voiced? ? "+" : "")
+        io << nick
+      end
+    end
+
     getter name
     getter users
 
     def initialize @connection, @name
       @message_handlers = [] of Message ->
-      @userlist_handlers = [] of (Array(String)|String, Bool) ->
-      @users = Synchronized.new([] of String)
+      @users = Synchronized.new(Set(Membership).new)
 
 
       @connection.on Message::PRIVMSG, Message::NOTICE do |message|
@@ -21,27 +44,26 @@ module IRC
       @connection.on(IRC::Message::RPL_NAMREPLY) do |reply|
         channel = reply.parameters[2]
         if channel == @name
-          @users.concat reply.parameters.last.split(' ')
+          reply.parameters.last.split(' ').each do |user|
+            create_or_update_membership(user)
+          end
         end
       end
 
-      @connection.on(IRC::Message::RPL_ENDOFNAMES) do |reply|
-        if reply.parameters[1] == @name
-          @users.uniq!
-          @userlist_handlers.each &.call(@users.dup, false)
-        end
-      end
-
-      @connection.on(IRC::Message::JOIN, IRC::Message::PART) do |message|
+      @connection.on(IRC::Message::JOIN,
+                     IRC::Message::PART,
+                     IRC::Message::KICK) do |message|
         if prefix = message.prefix
           nick, rest = prefix.split('!')
         else
           nick = @connection.config.nick
         end
 
-        removal = message.type == IRC::Message::PART
-
-        @userlist_handlers.each &.call(nick, removal)
+        if message.type == IRC::Message::JOIN
+          create_or_update_membership(nick)
+        else
+          delete_membership(nick)
+        end
       end
 
       @connection.on(IRC::Message::MODE) do |message|
@@ -52,10 +74,11 @@ module IRC
           add = flags.shift == '+'
 
           flags.each_with_index do |flag, i|
+            next unless {'o', 'v'}.includes? flag
+
             nick = message.parameters[i+2]
 
-            index = @users.index(nick) || @users.index("@#{nick}") || @users.index("+#{nick}")
-            olduser = index ? @users[index] : ""
+            olduser = create_or_update_membership(nick).to_s
 
             if add
               case flag
@@ -67,18 +90,10 @@ module IRC
                 newuser = olduser
               end
             else # "-o", "-v"
-              newuser = nick
+              newuser = olduser.starts_with?('@') ? olduser : nick
             end
 
-            if newuser != olduser
-              if index
-                @users[index] = newuser
-              else
-                @users << newuser
-              end
-
-              @userlist_handlers.each &.call(newuser, false)
-            end
+            create_or_update_membership(newuser)
           end
         end
       end
@@ -88,16 +103,27 @@ module IRC
       @message_handlers << block
     end
 
-    def on_userlist_update(&block : (Array(String)|String, Bool) ->)
-      @userlist_handlers << block
-    end
-
     def join
       @connection.send "JOIN #{@name}"
     end
 
     def part
       @connection.send "PART #{@name}"
+    end
+
+    def membership nick : String
+      @users.find {|user| user.nick == nick }
+    end
+
+    private def create_or_update_membership membership
+      Membership.parse(membership).tap do |user|
+        @users.delete user
+        @users << user
+      end
+    end
+
+    private def delete_membership membership
+      @users.delete Membership.parse(membership)
     end
   end
 end

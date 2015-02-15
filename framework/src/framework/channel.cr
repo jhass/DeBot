@@ -7,18 +7,21 @@ require "./bot"
 module Framework
   class Channel
     getter name
+    protected setter irc_channel
 
     @@channels = Repository(String, Channel).new
 
     def self.from_name name : String, channel, context
-      @@channels.fetch(name) { new(name, channel, context) }
+      from_name(name, context).tap do |chan|
+        chan.irc_channel = channel
+      end
     end
 
     def self.from_name name : String, context
-      @@channels.fetch(name) { new(name, nil, context) }
+      @@channels.fetch(name) { new(name, context) }
     end
 
-    private def initialize(@name : String, @irc_channel : IRC::Channel?, @context : Bot)
+    private def initialize(@name : String, @context : Bot)
     end
 
     def membership user : User

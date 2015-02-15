@@ -78,7 +78,7 @@ module IRC
 
             nick = message.parameters[i+2]
 
-            olduser = create_or_update_membership(nick).to_s
+            olduser = find_or_create_membership(nick).to_s
 
             if add
               case flag
@@ -113,6 +113,18 @@ module IRC
 
     def membership nick : String
       @users.find {|user| user.nick == nick }
+    end
+
+    private def find_or_create_membership membership
+      membership = Membership.parse(membership)
+      entry = @users.find {|user| user == membership }
+
+      unless entry
+        entry = membership
+        @users << membership
+      end
+
+      entry
     end
 
     private def create_or_update_membership membership

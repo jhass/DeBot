@@ -1,5 +1,5 @@
 def safe_sleep delay
-  start = Time.now
+  start = Time.now.to_i
   elapsed = 0
   begin
     sleep delay-elapsed
@@ -9,7 +9,7 @@ def safe_sleep delay
     pp e.errno
     raise e
   ensure
-    elapsed = start-Time.now
+    elapsed = Time.now.to_i-start
   end while elapsed < delay
 end
 

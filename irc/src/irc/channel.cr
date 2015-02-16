@@ -43,16 +43,17 @@ module IRC
 
       @connection.on(IRC::Message::RPL_NAMREPLY) do |reply|
         channel = reply.parameters[2]
-        if channel == @name
-          reply.parameters.last.split(' ').each do |user|
-            create_or_update_membership(user)
-          end
+        return unless channel == @name
+
+        reply.parameters.last.split(' ').each do |user|
+          create_or_update_membership(user)
         end
       end
 
-      @connection.on(IRC::Message::JOIN,
-                     IRC::Message::PART,
-                     IRC::Message::KICK) do |message|
+      @connection.on(IRC::Message::JOIN, IRC::Message::PART) do |message|
+        channel = message.parameters.first
+        return unless channel == @name
+
         if prefix = message.prefix
           nick, rest = prefix.split('!')
         else
@@ -66,35 +67,39 @@ module IRC
         end
       end
 
+      @connection.on(IRC::Message::KICK) do |message|
+        channel, nick = message.parameters
+        delete_membership(nick) if channel == @name
+      end
+
       @connection.on(IRC::Message::MODE) do |message|
-        if message.parameters.first == @name
-          mode = message.parameters[1]
+        channel = message.parameters.first
+        return unless channel == @name
 
-          flags = mode.chars
-          add = flags.shift == '+'
+        mode  = message.parameters[1]
+        flags = mode.chars
+        add   = flags.shift == '+'
 
-          flags.each_with_index do |flag, i|
-            next unless {'o', 'v'}.includes? flag
+        flags.each_with_index do |flag, i|
+          next unless {'o', 'v'}.includes? flag
 
-            nick = message.parameters[i+2]
+          nick    = message.parameters[i+2]
+          olduser = find_or_create_membership(nick).to_s
 
-            olduser = find_or_create_membership(nick).to_s
-
-            if add
-              case flag
-              when 'o'
-                newuser = "@#{nick}"
-              when 'v'
-                newuser = olduser.starts_with?('@') ? olduser : "+#{nick}"
-              else
-                newuser = olduser
-              end
-            else # "-o", "-v"
-              newuser = olduser.starts_with?('@') ? olduser : nick
+          if add
+            case flag
+            when 'o'
+              newuser = "@#{nick}"
+            when 'v'
+              newuser = olduser.starts_with?('@') ? olduser : "+#{nick}"
+            else
+              newuser = olduser
             end
-
-            create_or_update_membership(newuser)
+          else # "-o", "-v"
+            newuser = olduser.starts_with?('@') ? olduser : nick
           end
+
+          create_or_update_membership(newuser)
         end
       end
     end

@@ -7,8 +7,7 @@ class WhatTheCommit
 
   match /^!commit/
   def execute msg, match
-    html = HTTP::Client.get("http://whatthecommit.com/").body
-    msg.reply html[/<p>([^<\n]+)/, 1]
+    msg.reply HTTP::Client.get("http://whatthecommit.com/index.txt").body
   rescue
     msg.reply "I broke this"
   end

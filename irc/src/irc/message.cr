@@ -218,7 +218,11 @@ module IRC
         when :prefix, :start
           case char
           when ':'
-            state = :prefix
+            if state == :prefix
+              prefix << char
+            else
+              state = :prefix
+            end
           when ' '
             state = :type
           when '\r', '\n'

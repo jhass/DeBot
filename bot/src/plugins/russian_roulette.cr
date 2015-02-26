@@ -13,21 +13,16 @@ class RussianRoulette
   ALSO_BAN = true
   BAN_TIME = 30
   CHAMBERS = 6
-  @@chambers = CHAMBERS
 
   match /^!roul(?:ette)?/
 
   def execute msg, _match
     return unless msg.channel?
 
+    msg.reply "*spin*..."
     msg.reply "*pull*..."
     in(3) do
-      if @@chambers == 1
-        has_bullet = true
-        @@chambers = CHAMBERS
-      else
-        has_bullet = (rand(@@chambers) == 0)
-      end
+      has_bullet = (rand(CHAMBERS) == 0)
 
       if has_bullet
         if msg.channel.opped? bot
@@ -39,7 +34,6 @@ class RussianRoulette
         end
       else
         msg.reply "-click-"
-        @@chambers -= 1
       end
     end
   end

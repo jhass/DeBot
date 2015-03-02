@@ -8,21 +8,25 @@ require "./timer"
 module Framework
   module Plugin
     macro config properties
-      class Config < Framework::Configuration::Plugin
+      class Config
+        include Framework::Configuration::Plugin
+
         json_mapping({
-          :channels => {type: Array(String), nilable: true},
+          :channels => {type: Framework::Configuration::Plugin::ChannelList, nilable: true},
           {% for key, value in properties %}
           {{key}} => {{value}},
           {% end %}
         }, true)
       end
+
+      def self.config_class
+        Config
+      end
     end
 
     macro included
-      class Config < Framework::Configuration::Plugin
-        def self.empty
-          allocate
-        end
+      def self.config_class
+        Framework::Configuration::Plugin::Default
       end
 
       @@matchers = [] of Regex

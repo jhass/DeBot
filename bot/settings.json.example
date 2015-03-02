@@ -44,8 +44,9 @@
 
     // "CrystalEval": {
     //    channels is valid for any plugin and limits the list of channels
-    //    the plugin see messages for. If not given or empty,
-    //    no filter is applied.
+    //    the plugin see messages for. If not given or null,
+    //    no filter is applied, if an empty array, or false, the plugin is only
+    //    active in direct queries to the bot.
     //   "channels": ["#crystal-lang"]
     // },
 

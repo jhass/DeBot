@@ -31,6 +31,7 @@ class Admin
   match /^!(quit|reload)/
   match /^!(addadmin|rmadmin)\s+([^ ]+)/
   match /^!((?:de)?op)(?:\s+(\w+))?/
+  match /^!(enable|disable)\s+([a-zA-Z]+)/
 
   def execute msg, match
     return unless admin?(msg.sender)
@@ -42,6 +43,10 @@ class Admin
       add_admin msg, match[2]
     when "rmadmin"
       rm_admin msg, match[2]
+    when "enable"
+      enable_plugin msg, match[2]
+    when "disable"
+      disable_plugin msg, match[2]
     when "op"
       op :op, msg, match[2]
     when "deop"
@@ -110,6 +115,8 @@ class Admin
 
     if admin? user(nick)
       msg.reply "#{msg.sender.nick}: #{nick} is already an admin."
+    elsif bot.nick == nick
+      msg.reply "#{msg.sender.nick}: That makes no sense."
     else
       admins << nick
       config.save
@@ -127,5 +134,43 @@ class Admin
     else
       msg.reply "#{msg.sender.nick}: #{nick} is not an admin."
     end
+  end
+
+  def enable_plugin msg, name
+    unless context.config.plugins.has_key? name
+      msg.reply "#{msg.sender.nick}: Unknown plugin #{name}."
+      return
+    end
+
+    plugin_config = context.config.plugins[name].config
+
+    if plugin_config.wants? msg
+      msg.reply "#{msg.sender.nick}: #{name} is already enabled."
+      return
+    end
+
+    plugin_config.channels!.add msg.channel
+    plugin_config.save
+
+    msg.reply "#{msg.sender.nick}: Enabled #{name}."
+  end
+
+  def disable_plugin msg, name
+    unless context.config.plugins.has_key? name
+      msg.reply "#{msg.sender.nick}: Unknown plugin #{name}."
+      return
+    end
+
+    plugin_config = context.config.plugins[name].config
+
+    unless plugin_config.wants? msg
+      msg.reply "#{msg.sender.nick}: #{name} is already disabled."
+      return
+    end
+
+    plugin_config.channels!.remove msg.channel
+    plugin_config.save
+
+    msg.reply "#{msg.sender.nick}: Disabled #{name}."
   end
 end

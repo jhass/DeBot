@@ -9,7 +9,7 @@ module Framework
     delegate wants?, config
 
     def initialize
-       @config = T::Config.empty
+       @config = T.config_class.empty
     end
 
     def name
@@ -17,7 +17,7 @@ module Framework
     end
 
     def read_config config, pull : JSON::PullParser
-      @config = T::Config.new pull
+      @config = T.config_class.new pull
       @config.config = config
       @config.name = name
       T.config_loaded(@config)

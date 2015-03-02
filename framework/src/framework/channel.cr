@@ -7,6 +7,7 @@ require "./bot"
 module Framework
   class Channel
     getter name
+    getter context
     protected setter irc_channel
 
     @@channels = Repository(String, Channel).new

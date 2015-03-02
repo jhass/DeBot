@@ -4,25 +4,114 @@ require "irc/connection"
 
 module Framework
   class Configuration
-    class Plugin
-      property! name
-      property! config
+    module Plugin
+      class ChannelList
+        def self.new pull : JSON::PullParser
+          case pull.kind
+          when :null
+            default
+          when :begin_array
+            new Array(String).new pull
+          when :bool
+            if pull.read_bool == false
+              none
+            else
+              raise ArgumentError.new "true is not a valid value for the channel list"
+            end
+          else
+            raise ArgumentError.new "invalid channel list (#{pull.kind}"
+          end
+        end
 
-      def initialize pull : JSON::PullParser
-        pull.on_key("channels") do
-          @channels = Array(String).new pull
+        def self.default
+          new true
+        end
+
+        def self.none
+          new false
+        end
+
+        def initialize channels : Array(String)|Bool
+          case channels
+          when Bool
+            @wants_channel_messsages = channels
+            @channels = [] of String
+          when Array(String)
+            @wants_channel_messsages = !channels.empty?
+            @channels = channels
+          else
+            raise "bug" # prevent nilable
+          end
+        end
+
+        def wants? message
+          return false unless @wants_channel_messsages
+          return true if @channels.empty?
+
+          @channels.includes? message.channel.name
+        end
+
+        def add channel : Channel
+          if @wants_channel_messsages
+            unless @channels.empty? || @channels.includes?(channel.name)
+              @channels << channel.name
+            end
+          else
+            @wants_channel_messsages = true
+
+            unless @channels.includes? channel.name
+              @channels << channel.name
+            end
+          end
+        end
+
+        def remove channel : Channel
+          if @channels.includes? channel.name
+            @channels.delete channel.name
+            if @channels.empty?
+              @wants_channel_messsages = false
+            end
+          elsif @channels.empty? && @wants_channel_messsages
+            @channels = channel.context.channels
+            @channels.delete channel.name
+          end
+        end
+
+        def to_json io
+          value = if @wants_channel_messsages
+            if @channels.empty?
+              nil
+            else
+              @channels
+            end
+          else
+            false
+          end
+
+          value.to_json io
         end
       end
 
-      def channels!
-        @channels ||= [] of String
+      macro included
+        def self.empty
+          allocate
+        end
       end
 
-      def wants? message
-        return true if channels!.empty?
-        return true unless message.channel?
+      class Default
+        include Plugin
 
-        channels!.includes? message.channel.name
+        json_mapping({
+          channels: {type: Framework::Configuration::Plugin::ChannelList, nilable: true}
+        })
+      end
+
+      property! name
+      property! config
+      delegate wants?, channels!
+
+      def channels!
+        @channels ||= ChannelList.default
       end
 
       def save
@@ -73,7 +162,7 @@ module Framework
         self.ssl      = config.ssl
         self.try_sasl = config.try_sasl
 
-        to_json
+        to_pretty_json
       end
 
       def restore config

@@ -10,7 +10,7 @@ begin
     %s
   end
 rescue e
-  puts "\#{e.class}: #{e.message}"
+  puts "#{e.class}: #{e.message}"
 end
 END
 

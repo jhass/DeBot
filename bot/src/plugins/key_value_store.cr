@@ -11,7 +11,7 @@ class KeyValueStore
   include Framework::Plugin
 
   config({
-    store: {type: String}
+    store: {type: String, default: "data/key_value_store.json"}
   })
 
   def self.config_loaded config

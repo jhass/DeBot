@@ -8,15 +8,26 @@ require "./timer"
 module Framework
   module Plugin
     macro config properties
+      {% for key, value in properties %}
+        {% properties[key] = {type: value} unless value.is_a?(HashLiteral) %}
+      {% end %}
+
       class Config
         include Framework::Configuration::Plugin
 
         json_mapping({
-          :channels => {type: Framework::Configuration::Plugin::ChannelList, nilable: true},
+          :channels => {type: Framework::Configuration::Plugin::ChannelList, nilable: true, emit_null: true},
           {% for key, value in properties %}
-          {{key}} => {{value}},
+            {{key}} => {{value}},
           {% end %}
         }, true)
+
+        def initialize_empty
+          @channels = nil
+          {% for key, value in properties %}
+            @{{key.id}} = {{value[:default]}}
+          {% end %}
+        end
       end
 
       def self.config_class

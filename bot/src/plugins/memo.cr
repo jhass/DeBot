@@ -25,7 +25,7 @@ class Memo
   include Framework::Plugin
 
   config({
-    store: {type: String}
+    store: {type: String, default: "data/memos.json"}
   })
 
   def self.config_loaded config

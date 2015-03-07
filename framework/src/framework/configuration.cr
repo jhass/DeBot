@@ -94,7 +94,9 @@ module Framework
 
       macro included
         def self.empty
-          allocate
+          obj = allocate
+          obj.initialize_empty
+          obj
         end
       end
 
@@ -102,8 +104,12 @@ module Framework
         include Plugin
 
         json_mapping({
-          channels: {type: Framework::Configuration::Plugin::ChannelList, nilable: true}
+          channels: {type: Framework::Configuration::Plugin::ChannelList, nilable: true, emit_null: true}
         })
+
+        def initialize_empty
+          @channels = nil
+        end
       end
 
       property! name
@@ -153,6 +159,10 @@ module Framework
         plugins
       end
 
+      def plugins= value : JSON::Value
+        @plugins = value
+      end
+
       def to_json config : Configuration
         self.port     = config.port
         self.channels = config.channels
@@ -187,7 +197,7 @@ module Framework
     property! realname
     property  ssl
     property  try_sasl
-    getter    plugins
+    getter  plugins
 
     def initialize
       @plugins = Hash(String, PluginContainer).new
@@ -214,7 +224,17 @@ module Framework
     end
 
     def reload_plugins
-      Store.load_plugins self, read_config
+      json = read_config
+
+      Store.load_plugins self, json
+
+      store = @store
+      if store
+        pull = JSON::PullParser.new json
+        pull.on_key("plugins") do
+          store.plugins = JSON::Any.new(pull)
+        end
+      end
     end
 
     def update_plugin_config plugin, config

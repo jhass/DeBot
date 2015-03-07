@@ -5,7 +5,7 @@ class Wiki
   include Framework::Plugin
 
   config({
-    wikis: {type: Hash(String, String)}
+    wikis: {type: Hash(String, String), default: {} of String => String}
   })
 
   match /^!wiki\s+(.+)/

@@ -24,8 +24,8 @@ class WtiStatus
   include Framework::Plugin
 
   config({
-    projects: Hash(String, Project),
-    default_project: String
+    projects: {type: Hash(String, Project), default: {} of String => Project},
+    default_project: {type: String, default: "configure_me"}
   })
 
   # command (?:ts|trans(?:lation)?stati?s(?:tics)?)

@@ -5,7 +5,7 @@ class Admin
 
   config({
     admins: {type: Array(String), nilable: true},
-    superadmins: {type: Array(String)}
+    superadmins: {type: Array(String), default: [] of String}
   })
 
   def admins

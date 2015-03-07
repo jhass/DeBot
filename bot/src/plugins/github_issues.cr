@@ -6,7 +6,7 @@ class GithubIssues
   PATTERN = /(?:^|\s+|\()#(\d{3,5})\b/
 
   config({
-    repositories: {type: Hash(String, String)}
+    repositories: {type: Hash(String, String), default: {} of String => String}
   })
 
   match PATTERN

@@ -9,7 +9,8 @@ module Framework
     delegate wants?, config
 
     def initialize
-       @config = T.config_class.empty
+      @config = T.config_class.empty
+      @config.name = name
     end
 
     def name

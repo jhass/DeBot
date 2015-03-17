@@ -94,6 +94,19 @@ module IRC
     end
 
     def send type : String, parameters : Array(String)
+      send message_for(type, parameters)
+    end
+
+    def send type : String, *parameters
+      # Compiler bug: get rid of NoReturn the manual way
+      converted_parameters = [] of String
+      parameters.each do |parameter|
+        converted_parameters << parameter.to_s
+      end
+      send message_for(type, converted_parameters)
+    end
+
+    private def message_for type, parameters
       if parameters.empty?
         message = Message.from(type)
         unless message
@@ -103,11 +116,7 @@ module IRC
         message = Message.new(type, parameters)
       end
 
-      send message
-    end
-
-    def send type : String, *parameters
-      send type, parameters.to_a
+      message
     end
 
     def nick= nick : String

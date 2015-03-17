@@ -14,6 +14,7 @@ require "./plugins/wiki"
 require "./plugins/russian_roulette"
 require "./plugins/memo"
 require "./plugins/wti_status"
+require "./plugins/hangman"
 
 bot = Framework::Bot.create do
   config.from_file "settings.json"
@@ -33,6 +34,7 @@ bot = Framework::Bot.create do
   add_plugin GithubIssues
   add_plugin Wiki
   add_plugin WtiStatus
+  add_plugin Hangman
 end
 
 bot.start

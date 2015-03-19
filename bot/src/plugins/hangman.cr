@@ -87,7 +87,7 @@ class Hangman
     return unless msg.channel?
     message = msg.message
     return unless message.starts_with? bot.nick
-    command = message.gsub(/^#{bot.nick}[:,\s]*/, "")
+    command = message.gsub(/^#{bot.nick}[:,]?\s*/, "")
 
     case command
     when /^!hangman\s+\w+$/
@@ -95,7 +95,7 @@ class Hangman
       start_game msg, list
     when /^!hangman$/
       start_game msg, Game::DEFAULT_LIST
-    when /^[a-zA-Z_=\?\!\:#]+$/
+    when /^[a-zA-Z0-9_=\?\!\:#]+$/
       guess msg, command.downcase.chars
     end
   end

@@ -5,19 +5,21 @@ class Hangman
 
   class Game
     def self.word_list_for name
-       File.read_lines(File.join(__DIR__, "..", "..", "res", name)).map(&.chomp.downcase)
+       File.read_lines(File.join(__DIR__, "..", "..", "res", name)).map(&.chomp)
     end
 
     WORDLISTS = {
       "nouns" => word_list_for("wordlist"),
-      "gems"  => word_list_for("gem_names")
+      "gems"  => word_list_for("gem_names"),
+      "ruby"  => word_list_for("ruby")
     }
 
     DEFAULT_LIST = "nouns"
+    PLACEHOLDER  = '␣'
 
     def initialize list=DEFAULT_LIST
       @word = pick_word list
-      @guesses = [] of Char
+      @guesses = [] of Char|String
     end
 
     def status
@@ -37,16 +39,26 @@ class Hangman
 
     def known_chars
       @word.map {|char|
-        @guesses.includes?(char) ? char : '_'
+        @guesses.includes?(char.downcase) ? char : PLACEHOLDER
       }.join
     end
 
     def wrong_guesses
-      @guesses-@word
+      @guesses-@word.map(&.downcase)
     end
 
-    def guess guess
-      @guesses << guess unless @guesses.includes? guess
+    def guess guesses : Array(Char)
+      guesses.each do |guess|
+        guess guess
+      end
+    end
+
+    def guess guess : Char
+      @guesses << guess.downcase unless guessed? guess
+    end
+
+    def guessed? guess
+      @guesses.includes? guess.downcase
     end
 
     def lost?
@@ -54,7 +66,7 @@ class Hangman
     end
 
     def won?
-      !known_chars.includes?('_')
+      !known_chars.includes?(PLACEHOLDER)
     end
 
     def over?
@@ -83,8 +95,8 @@ class Hangman
       start_game msg, list
     when /^!hangman$/
       start_game msg, Game::DEFAULT_LIST
-    when /^[a-zA-Z]$/
-      guess msg, command.downcase.char_at(0)
+    when /^[a-zA-Z_=\?\!\:#]+$/
+      guess msg, command.downcase.chars
     end
   end
 

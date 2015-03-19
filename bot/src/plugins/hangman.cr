@@ -4,10 +4,19 @@ class Hangman
   include Framework::Plugin
 
   class Game
-    WORDLIST = File.read_lines(File.join(__DIR__, "..", "..", "res", "wordlist")).map(&.chomp.upcase)
+    def self.word_list_for name
+       File.read_lines(File.join(__DIR__, "..", "..", "res", name)).map(&.chomp.downcase)
+    end
 
-    def initialize
-      @word = pick_word
+    WORDLISTS = {
+      "nouns" => word_list_for("wordlist"),
+      "gems"  => word_list_for("gem_names")
+    }
+
+    DEFAULT_LIST = "nouns"
+
+    def initialize list=DEFAULT_LIST
+      @word = pick_word list
       @guesses = [] of Char
     end
 
@@ -52,8 +61,8 @@ class Hangman
       lost? || won?
     end
 
-    private def pick_word
-      WORDLIST.sample.chars
+    private def pick_word list
+      WORDLISTS[list].sample.chars
     end
   end
 
@@ -69,16 +78,19 @@ class Hangman
     command = message.gsub(/^#{bot.nick}[:,\s]*/, "")
 
     case command
-    when "!hangman"
-      start_game msg
+    when /^!hangman\s+\w+$/
+      _c, list = command.split
+      start_game msg, list
+    when /^!hangman$/
+      start_game msg, Game::DEFAULT_LIST
     when /^[a-zA-Z]$/
-      guess msg, command.upcase.char_at(0)
+      guess msg, command.downcase.char_at(0)
     end
   end
 
-  def start_game msg
+  def start_game msg, list
     unless @@games.has_key? msg.channel.name
-      @@games[msg.channel.name] = Game.new
+      @@games[msg.channel.name] = Game.new list
     end
 
     msg.reply @@games[msg.channel.name].status

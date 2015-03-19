@@ -50,9 +50,9 @@ class Memo
     nick = match[1]
 
     if nick == msg.sender.nick
-      msg.reply "#{msg.sender.nick}: You can't leave memos for yourself.."
+      msg.reply "#{msg.sender.nick}: You can't leave memos for yourself ..."
     elsif nick == bot.nick
-      msg.reply "#{msg.sender.nick}: You can't leave memos for me.."
+      msg.reply "#{msg.sender.nick}: You can't leave memos for me ..."
     else
       store_memo match[2], msg.sender.nick, nick, msg.channel?.try(&.name)
       msg.reply "#{msg.sender.nick}: Added memo for #{nick}."

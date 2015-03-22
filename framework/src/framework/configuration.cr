@@ -72,7 +72,7 @@ module Framework
               @wants_channel_messsages = false
             end
           elsif @channels.empty? && @wants_channel_messsages
-            @channels = channel.context.channels
+            @channels = channel.context.channels.dup
             @channels.delete channel.name
           end
         end
@@ -108,19 +108,18 @@ module Framework
         })
 
         def initialize_empty
-          @channels = nil
+          @channels = ChannelList.default
         end
       end
 
       property! name
-      property! config
       delegate wants?, channels!
 
       def channels!
         @channels ||= ChannelList.default
       end
 
-      def save
+      def save(config)
         config.update_plugin_config name, JSON.parse(to_json)
       end
     end
@@ -143,7 +142,7 @@ module Framework
         pull = JSON::PullParser.new json
         pull.on_key("plugins") do
           pull.read_object do |key|
-            config.plugins[key].read_config(config, pull)
+            config.plugins[key].read_config(pull)
           end
         end
       end

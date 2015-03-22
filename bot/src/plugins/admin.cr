@@ -119,7 +119,7 @@ class Admin
       msg.reply "#{msg.sender.nick}: That makes no sense."
     else
       admins << nick
-      config.save
+      config.save(context.config)
       msg.reply "#{msg.sender.nick}: Added #{nick} to admins."
     end
   end
@@ -129,7 +129,7 @@ class Admin
 
     if admin? user(nick)
       admins.delete nick
-      config.save
+      config.save(context.config)
       msg.reply "#{msg.sender.nick}: Removed #{nick} from admins."
     else
       msg.reply "#{msg.sender.nick}: #{nick} is not an admin."
@@ -150,7 +150,7 @@ class Admin
     end
 
     plugin_config.channels!.add msg.channel
-    plugin_config.save
+    plugin_config.save(context.config)
 
     msg.reply "#{msg.sender.nick}: Enabled #{name}."
   end
@@ -169,7 +169,7 @@ class Admin
     end
 
     plugin_config.channels!.remove msg.channel
-    plugin_config.save
+    plugin_config.save(context.config)
 
     msg.reply "#{msg.sender.nick}: Disabled #{name}."
   end

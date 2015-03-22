@@ -9,19 +9,24 @@ module Framework
     delegate wants?, config
 
     def initialize
-      @config = T.config_class.empty
-      @config.name = name
+
+    end
+
+    def config
+      (@config ||= T.config_class.empty).tap do |config|
+        config.name = name
+      end
     end
 
     def name
       T.to_s
     end
 
-    def read_config config, pull : JSON::PullParser
-      @config = T.config_class.new pull
-      @config.config = config
-      @config.name = name
-      T.config_loaded(@config)
+    def read_config pull : JSON::PullParser
+      (@config = T.config_class.new pull).tap do |config|
+        config.name = name
+        T.config_loaded(config)
+      end
     end
 
     def instance context

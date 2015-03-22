@@ -54,6 +54,7 @@ class Hangman
     end
 
     def guess guess : Char
+      return if over?
       @guesses << guess.downcase unless guessed? guess
     end
 
@@ -66,7 +67,7 @@ class Hangman
     end
 
     def won?
-      !known_chars.includes?(PLACEHOLDER)
+      !lost? && !known_chars.includes?(PLACEHOLDER)
     end
 
     def over?

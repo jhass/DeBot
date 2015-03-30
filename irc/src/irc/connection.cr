@@ -1,5 +1,6 @@
 require "socket"
 require "signal"
+require "base64"
 
 require "core_ext/openssl"
 require "thread/queue"

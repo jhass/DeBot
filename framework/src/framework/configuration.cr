@@ -45,10 +45,14 @@ module Framework
         end
 
         def wants? message
+          listens_to? message.channel
+        end
+
+        def listens_to? channel
           return false unless @wants_channel_messsages
           return true if @channels.empty?
 
-          @channels.includes? message.channel.name
+          @channels.includes? channel.name
         end
 
         def add channel : Channel
@@ -113,7 +117,8 @@ module Framework
       end
 
       property! name
-      delegate wants?, channels!
+      delegate listens_to?, channels!
+      delegate wants?,      channels!
 
       def channels!
         @channels ||= ChannelList.default

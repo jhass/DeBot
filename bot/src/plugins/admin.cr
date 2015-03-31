@@ -31,7 +31,8 @@ class Admin
   match /^!(quit|reload)/
   match /^!(addadmin|rmadmin)\s+([^ ]+)/
   match /^!((?:de)?op)(?:\s+(\w+))?/
-  match /^!(enable|disable)\s+([a-zA-Z]+)/
+  match /^!(enable|disable)\s+(#[^\s,:]+)\s+([a-zA-Z]+)/
+  match /^!(enable|disable)\s+([a-zA-Z]+)$/
 
   def execute msg, match
     return unless admin?(msg.sender)
@@ -43,10 +44,14 @@ class Admin
       add_admin msg, match[2]
     when "rmadmin"
       rm_admin msg, match[2]
-    when "enable"
-      enable_plugin msg, match[2]
-    when "disable"
-      disable_plugin msg, match[2]
+    when "enable", "disable"
+      channel = match[3]? ? channel(match[2]) : msg.channel
+      plugin = match[3]? ? match[3] : match[2]
+      if match[1] == "enable"
+        enable_plugin msg, channel, plugin
+      else
+        disable_plugin msg, channel, plugin
+      end
     when "op"
       op :op, msg, match[2]
     when "deop"
@@ -136,7 +141,7 @@ class Admin
     end
   end
 
-  def enable_plugin msg, name
+  def enable_plugin msg, channel, name
     unless context.config.plugins.has_key? name
       msg.reply "#{msg.sender.nick}: Unknown plugin #{name}."
       return
@@ -144,18 +149,18 @@ class Admin
 
     plugin_config = context.config.plugins[name].config
 
-    if plugin_config.wants? msg
+    if plugin_config.listens_to? channel
       msg.reply "#{msg.sender.nick}: #{name} is already enabled."
       return
     end
 
-    plugin_config.channels!.add msg.channel
+    plugin_config.channels!.add channel
     plugin_config.save(context.config)
 
     msg.reply "#{msg.sender.nick}: Enabled #{name}."
   end
 
-  def disable_plugin msg, name
+  def disable_plugin msg, channel, name
     unless context.config.plugins.has_key? name
       msg.reply "#{msg.sender.nick}: Unknown plugin #{name}."
       return
@@ -163,12 +168,12 @@ class Admin
 
     plugin_config = context.config.plugins[name].config
 
-    unless plugin_config.wants? msg
+    unless plugin_config.listens_to? channel
       msg.reply "#{msg.sender.nick}: #{name} is already disabled."
       return
     end
 
-    plugin_config.channels!.remove msg.channel
+    plugin_config.channels!.remove channel
     plugin_config.save(context.config)
 
     msg.reply "#{msg.sender.nick}: Disabled #{name}."

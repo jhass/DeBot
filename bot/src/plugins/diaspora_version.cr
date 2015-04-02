@@ -7,7 +7,7 @@ class DiasporaVersion
 
   API_ENDPOINT = "http://version.diaspora.social/%s/text"
 
-  match /^!rev\s+([a-zA-Z0-9]+[a-zA-Z0-9\-]*\.[a-zA-Z\.]+)/
+  match /^!rev\s+([a-zA-Z0-9]+[a-zA-Z0-9\-\.]*\.[a-zA-Z]+)/
 
   def execute msg, match
     resp = HTTP::Client.get API_ENDPOINT % [match[1]]

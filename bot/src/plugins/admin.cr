@@ -27,7 +27,7 @@ class Admin
   #channelid = ; 5( A-Z / 0-9 )
 
   match /^!(join|part)\s+(#[^\s,:]+)?/
-  match /^!(msg|sayto)\s+([^ ]+)\s+(.+)/
+  match /^!(msg|sayto|doto)\s+([^ ]+)\s+(.+)/
   match /^!(quit|reload)/
   match /^!(addadmin|rmadmin)\s+([^ ]+)/
   match /^!((?:de)?op)(?:\s+(\w+))?/
@@ -38,7 +38,7 @@ class Admin
     return unless admin?(msg.sender)
 
     case match[1]
-    when "join", "part", "sayto", "msg"
+    when "join", "part", "sayto", "msg", "doto"
       with_channel msg, match
     when "addadmin"
       add_admin msg, match[2]
@@ -80,18 +80,32 @@ class Admin
       msg.context.part channel
     when "msg", "sayto"
       sayto msg, match[2], match[3]
+    when "doto"
+      doto msg, match[2], match[3]
     end
   end
 
   def sayto msg, dst, message
+    sendto(msg, dst) do |target|
+      target.send message
+    end
+  end
+
+  def doto msg, dst, message
+    sendto(msg, dst) do |target|
+      target.action message
+    end
+  end
+
+  def sendto msg, dst
     if dst.starts_with? '#'
       if context.channels.includes?(dst)
-        channel(dst).send message
+        yield channel(dst)
       else
         msg.reply "I'm not in #{dst}."
       end
     else
-      user(dst).send message
+      yield user(dst)
     end
   end
 

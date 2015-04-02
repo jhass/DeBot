@@ -37,6 +37,10 @@ module Framework
       Message.new(@context, @name, text).send
     end
 
+    def action text : String
+      Message.new(@context, @name, text).as_action.send
+    end
+
     def has? user : User
       has? user.nick
     end

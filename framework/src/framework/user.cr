@@ -39,5 +39,9 @@ module Framework
     def send text : String
       Message.new(@context, nick, text).send
     end
+
+    def action text : String
+      Message.new(@context, nick, text).as_action.send
+    end
   end
 end

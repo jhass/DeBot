@@ -55,7 +55,7 @@ module IRC
         return unless channel == @name
 
         if prefix = message.prefix
-          nick, rest = prefix.split('!')
+          nick, _rest = prefix.split('!')
         else
           nick = @connection.config.nick
         end
@@ -63,6 +63,13 @@ module IRC
         if message.type == IRC::Message::JOIN
           create_or_update_membership(nick)
         else
+          delete_membership(nick)
+        end
+      end
+
+      @connection.on(IRC::Message::QUIT) do |message|
+        if prefix = message.prefix
+          nick, _rest = prefix.split('!')
           delete_membership(nick)
         end
       end

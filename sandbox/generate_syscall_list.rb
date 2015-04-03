@@ -44,6 +44,7 @@ syscalls.each do |call|
   needed ||= needed? "exit"
   needed ||= needed? %(r, w = IO.pipe;  Process.run("/bin/cat", output: w, input: "hi"); p(r.read(1)))
   needed ||= needed? %(LibC.popen("ls", "r"))
+  needed ||= needed? %(require "compiler/crystal/**"; Crystal::Parser.parse("foo { |x| x.bar }"))
 
   unless needed
     needed_calls = tmp_calls

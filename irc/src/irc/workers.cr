@@ -31,11 +31,13 @@ module IRC
             raise e unless e.errno == Errno::EINTR
           end
         end
+        puts "Stopped reader"
       end
       @th.name = "Reader"
     end
 
     def stop
+      puts "Stopping reader"
       @pipe.puts "stop"
       @pipe.close
       @socket.close
@@ -58,11 +60,13 @@ module IRC
             break
           end
         end
+        puts "Stopped sender"
       end
       @th.name = "Sender"
     end
 
     def stop
+      puts "Stopping sender"
       @queue << :stop
     end
   end
@@ -87,6 +91,7 @@ module IRC
             break
           end
         end
+        puts "Stopped processor #{id}"
       end
       @th.name = "Processor #{id}"
     end
@@ -114,6 +119,7 @@ module IRC
     end
 
     def stop
+      puts "Stopping processors"
       @size.times do
         @queue << :stop
       end

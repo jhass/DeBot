@@ -233,9 +233,9 @@ module IRC
       reader = Reader.new socket, processor.queue
       sender = Sender.new socket, @send_queue
 
-      await(Message::RPL_WELCOME)
-
       @threads = {processor, reader, sender}
+
+      await(Message::RPL_WELCOME)
     end
 
     def block

@@ -209,6 +209,12 @@ module IRC
         send Message::PONG, self.userhost? || config.user
       end
 
+      on Message::PRIVMSG do |message|
+        if message.message == "\u0001VERSION\u0001"
+          send Message::PRIVMSG, message.prefix.not_nil!.split("!", 2).first, "#{config.user} 0.1.0"
+        end
+      end
+
       on Message::ERR_NICKCOLLISION, Message::ERR_NICKNAMEINUSE do |error|
         self.nick = "#{config.nick}_"
       end

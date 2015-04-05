@@ -205,8 +205,8 @@ module IRC
         end
       end
 
-      on Message::PING do
-        send Message::PONG, self.userhost? || config.user
+      on Message::PING do |ping|
+        send Message::PONG, ping.message
       end
 
       on Message::PRIVMSG do |message|

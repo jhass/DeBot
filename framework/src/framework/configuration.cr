@@ -1,3 +1,4 @@
+require "logger"
 require "json"
 
 require "irc/connection"
@@ -131,16 +132,17 @@ module Framework
 
     class Store
       json_mapping({
-        server:   {type: String},
-        port:     {type: Int32,     nilable: true},
-        channels: {type: Array(String)},
-        nick:     {type: String},
-        user:     {type: String,    nilable: true},
-        password: {type: String,    nilable: true, emit_null: true},
-        realname: {type: String,    nilable: true},
-        ssl:      {type: Bool,      nilable: true},
-        try_sasl: {type: Bool,      nilable: true},
-        plugins:  {type: JSON::Any, nilable: true}
+        server:    {type: String},
+        port:      {type: Int32,     nilable: true},
+        channels:  {type: Array(String)},
+        nick:      {type: String},
+        user:      {type: String,    nilable: true},
+        password:  {type: String,    nilable: true, emit_null: true},
+        realname:  {type: String,    nilable: true},
+        ssl:       {type: Bool,      nilable: true},
+        try_sasl:  {type: Bool,      nilable: true},
+        log_level: {type: String,    nilable: true},
+        plugins:   {type: JSON::Any, nilable: true}
       }, true)
 
       def self.load_plugins config, json
@@ -168,29 +170,39 @@ module Framework
       end
 
       def to_json config : Configuration
-        self.port     = config.port
-        self.channels = config.channels
-        self.user     = config.user
-        self.password = config.password
-        self.realname = config.realname
-        self.ssl      = config.ssl
-        self.try_sasl = config.try_sasl
+        self.port      = config.port
+        self.channels  = config.channels
+        self.user      = config.user
+        self.password  = config.password
+        self.realname  = config.realname
+        self.ssl       = config.ssl
+        self.try_sasl  = config.try_sasl
+        self.log_level = config.log_level
 
         to_pretty_json
       end
 
       def restore config
-        config.server   = server
-        config.port     = port      unless port.nil?
-        config.channels = channels
-        config.nick     = nick
-        config.user     = user      unless user.nil?
-        config.password = password  unless password.nil?
-        config.realname = realname  unless realname.nil?
-        config.ssl      = ssl       unless ssl.nil?
-        config.try_sasl = try_sasl  unless try_sasl.nil?
+        config.server    = server
+        config.port      = port      unless port.nil?
+        config.channels  = channels
+        config.nick      = nick
+        config.user      = user      unless user.nil?
+        config.password  = password  unless password.nil?
+        config.realname  = realname  unless realname.nil?
+        config.ssl       = ssl       unless ssl.nil?
+        config.try_sasl  = try_sasl  unless try_sasl.nil?
+        config.log_level = log_level unless log_level.nil?
       end
     end
+
+    LOG_LEVELS = {
+      "debug" => Logger::Severity::DEBUG,
+      "info"  => Logger::Severity::INFO,
+      "warn"  => Logger::Severity::WARN,
+      "error" => Logger::Severity::ERROR,
+      "fatal" => Logger::Severity::FATAL
+    }
 
     property! server
     property  port
@@ -201,18 +213,24 @@ module Framework
     property! realname
     property  ssl
     property  try_sasl
-    getter  plugins
+    property  log_level
+    getter    logger
+    getter    plugins
 
     def initialize
-      @plugins = Hash(String, PluginContainer).new
+      @plugins  = Hash(String, PluginContainer).new
       @channels = [] of String
+      @logger   = Logger.new(STDOUT)
 
-      @nick = "CeBot"
-      @user = "cebot"
-      @password = nil
-      @realname = "CeBot"
-      @ssl = false
-      @try_sasl = false
+      @nick      = "CeBot"
+      @user      = "cebot"
+      @password  = nil
+      @realname  = "CeBot"
+      @ssl       = false
+      @try_sasl  = false
+      @log_level = "info"
+
+      set_log_level
     end
 
     def port
@@ -227,8 +245,10 @@ module Framework
       @config_file = path
     end
 
-    def reload_plugins
+    def reload
       json = read_config
+
+      set_log_level
 
       Store.load_plugins self, json
 
@@ -266,17 +286,19 @@ module Framework
         store.restore(self)
         @store = store
         Store.load_plugins self, json
+        set_log_level
       end
 
       IRC::Connection.build do |config|
-        config.server = server
-        config.port = port
-        config.nick = nick
-        config.user = user
+        config.server   = server
+        config.port     = port
+        config.nick     = nick
+        config.user     = user
         config.password = password
         config.realname = realname
-        config.ssl = ssl
+        config.ssl      = ssl
         config.try_sasl = try_sasl
+        config.logger   = logger
       end
     end
 
@@ -284,6 +306,12 @@ module Framework
       path = @config_file
       raise "No configuration file defined" unless path
       File.read_lines(path).reject(&.match(/^\s*\/\//)).join
+    end
+
+    private def set_log_level
+      raise "Unknown log level #{log_level}" unless LOG_LEVELS.has_key? log_level
+
+      logger.level = LOG_LEVELS[log_level]
     end
   end
 end

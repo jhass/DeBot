@@ -28,6 +28,9 @@
     "#cebot"
   ],
 
+  // Valid levels: debug, info, warn, error, fatal
+  //"log_level": "info",
+
   "plugins": {
     "Admin": {
       superadmins: ["jhass"],

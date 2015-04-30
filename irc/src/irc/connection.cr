@@ -2,7 +2,10 @@ require "socket"
 require "signal"
 require "base64"
 
+# Due to lazy initialization of constants, we need to load this before the logger :(
 require "core_ext/openssl"
+require "logger"
+
 require "thread/queue"
 
 require "./channel"
@@ -20,6 +23,7 @@ module IRC
       property  realname
       property! ssl
       property! try_sasl
+      setter    logger
       property  processors
 
       private def initialize
@@ -30,6 +34,7 @@ module IRC
         @realname   = "Crystal"
         @ssl        = false
         @try_sasl   = false
+        @logger     = nil
         @processors = 2
       end
 
@@ -52,11 +57,16 @@ module IRC
           config.port = config.ssl ? 6697 : 6667
         end
       end
+
+      def logger
+        @logger ||= Logger.new(STDOUT)
+      end
     end
 
     property! userhost
     property? connected
     getter config
+    delegate logger, config
 
     def self.build &block : Config ->
       new Config.build(&block)
@@ -69,7 +79,7 @@ module IRC
     def initialize @config : Config
       @send_queue = Queue(String|Symbol).new
       @channels = {} of String => Channel
-      @processor = ProcessorPool.new(config.processors)
+      @processor = ProcessorPool.new(config.processors, logger)
       @connected = false
     end
 
@@ -154,10 +164,14 @@ module IRC
     end
 
     def connect
+      logger.info "Connecting to #{config.server}:#{config.port}#{" (SSL enabled)" if config.ssl?}"
+
       socket = TCPSocket.new config.server, config.port
       socket = OpenSSL::SSL::Socket.new socket if config.ssl?
 
       if config.try_sasl?
+        logger.info "Attempting SASL authentication"
+
         send Message::CAP, "LS"
 
         on Message::CAP do |cap|
@@ -180,7 +194,13 @@ module IRC
           send Message::AUTHENTICATE, Base64.strict_encode64("#{config.nick}\0#{config.nick}\0#{config.password}")
         end
 
-        on Message::RPL_SASL_SUCCESS, Message::RPL_SASL_FAILED, Message::RPL_SASL_ABORTED do
+        on Message::RPL_SASL_SUCCESS, Message::RPL_SASL_FAILED, Message::RPL_SASL_ABORTED do |message|
+          if message.type == Message::RPL_SASL_SUCCESS
+            logger.info "SASL authentication succeeded"
+          else
+            logger.warn "SASL authentication failed"
+          end
+
           send Message::CAP, "END"
         end
       elsif config.password?
@@ -200,6 +220,8 @@ module IRC
 
       on Message::ERROR do |error|
         if error.message.starts_with? "Closing Link"
+          logger.warn "Server closed connection (#{error.message}), shutting down"
+
           stop_threads
           exit
         end
@@ -236,12 +258,14 @@ module IRC
       end
 
       processor = @processor.not_nil!
-      reader = Reader.new socket, processor.queue
-      sender = Sender.new socket, @send_queue
+      reader = Reader.new socket, processor.queue, logger
+      sender = Sender.new socket, @send_queue, logger
 
       @threads = {processor, reader, sender}
 
       await(Message::RPL_WELCOME)
+
+      logger.info "Connected"
     end
 
     def block

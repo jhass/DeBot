@@ -6,8 +6,9 @@ require "./message"
 module IRC
   class Reader
     delegate join, @th
+    getter logger
 
-    def initialize socket, queue
+    def initialize socket, queue, @logger
       @socket = socket
       pipe, @pipe = IO.pipe
       @th = Thread.new do
@@ -17,27 +18,38 @@ module IRC
             ios = IO.select([socket, pipe])
 
             if ios.includes? pipe
-              break if pipe.gets == "stop\n"
+              if pipe.gets == "stop\n"
+                reader.logger.debug "Reader received stop signal, shutting down"
+                break
+              end
+
               next
             end
 
             line = socket.gets
             if line
-              puts "< #{line}"
+              reader.logger.debug "r> #{line.chomp}"
               message = Message.from(line)
               queue << message if message
             end
           rescue e : Errno
-            raise e unless e.errno == Errno::EINTR
+            unless e.errno == Errno::EINTR
+              reader.logger.fatal "Failed to read message: #{e.message} (#{e.class})"
+              exit 1
+            end
+          rescue e
+            reader.logger.fatal "Failed to read message: #{e.message} (#{e.class})"
+            exit 1
           end
         end
-        puts "Stopped reader"
+        reader.logger.debug "Stopped reader"
       end
+
       @th.name = "Reader"
     end
 
     def stop
-      puts "Stopping reader"
+      logger.debug "Stopping reader"
       @pipe.puts "stop"
       @pipe.close
       @socket.close
@@ -46,27 +58,34 @@ module IRC
 
   class Sender
     delegate join, @th
+    getter logger
 
-    def initialize socket, queue
+    def initialize socket, queue, @logger
       @queue = queue
       @th = Thread.new do
         sender = self
-        loop do
-          message = queue.shift
-          if message.is_a? String
-            puts "> #{message}"
-            socket.puts message
-          elsif message == :stop
-            break
+        begin
+          loop do
+            message = queue.shift
+            if message.is_a? String
+              sender.logger.debug "w> #{message.chomp}"
+              socket.puts message
+            elsif message == :stop
+              sender.logger.debug "Sender received stop signal, shutting down"
+              break
+            end
           end
+        rescue e
+          sender.logger.fatal "Failed to send message: #{e.message} (#{e.class})"
+          exit 1
         end
-        puts "Stopped sender"
       end
+
       @th.name = "Sender"
     end
 
     def stop
-      puts "Stopping sender"
+      logger.debug "Stopping sender"
       @queue << :stop
     end
   end
@@ -76,23 +95,28 @@ module IRC
 
     delegate join, @th
 
-    def initialize id, pool, queue
+    def initialize id, pool, queue, logger
       @th = Thread.new do
         processor = self
         loop do
-          work = queue.shift
-          if work.is_a? Message
-            pool.handlers.each do |handler|
-              queue << Job.new(work, handler)
+          begin
+            work = queue.shift
+            if work.is_a? Message
+              pool.handlers.each do |handler|
+                queue << Job.new(work, handler)
+              end
+            elsif work.is_a? Job
+              work.handler.call(work.message)
+            elsif work == :stop
+              logger.debug "Processor #{id} received stop signal, shutting down"
+              break
             end
-          elsif work.is_a? Job
-            work.handler.call(work.message)
-          elsif work == :stop
-            break
+          rescue e
+            logger.error "Couldn't process message: #{e.message} (#{e.class})"
           end
         end
-        puts "Stopped processor #{id}"
       end
+
       @th.name = "Processor #{id}"
     end
   end
@@ -101,9 +125,9 @@ module IRC
     getter queue
     getter handlers
 
-    def initialize @size
+    def initialize @size, @logger
       @queue = Queue(Processor::Job|Message|Symbol).new
-      @processors = Array.new(@size) {|id| Processor.new(id+1, self, queue) }
+      @processors = Array.new(@size) {|id| Processor.new(id+1, self, queue, @logger) }
       @handlers = Array(Message ->).new
     end
 
@@ -119,7 +143,7 @@ module IRC
     end
 
     def stop
-      puts "Stopping processors"
+      @logger.debug "Stopping processors"
       @size.times do
         @queue << :stop
       end

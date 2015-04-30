@@ -25,13 +25,14 @@ module Framework
       end
     end
 
-    getter config
-    getter! connection
+    getter    config
+    getter!   connection
     property! user
-    delegate channels, config
+    delegate  channels, config
+    delegate  logger,   config
 
     private def initialize
-      @config = Configuration.new
+      @config  = Configuration.new
       @started = false
     end
 
@@ -106,7 +107,7 @@ module Framework
       end
 
       Signal.trap(Signal::HUP) do
-        config.reload_plugins
+        config.reload
       end
 
       @started = true

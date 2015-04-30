@@ -87,5 +87,9 @@ module Framework
     def bot
       context.user
     end
+
+    def logger
+      context.logger
+    end
   end
 end

@@ -57,7 +57,7 @@ class Admin
     when "deop"
       op :deop, msg, match[2]
     when "reload"
-      context.config.reload_plugins
+      context.config.reload
       msg.reply "#{msg.sender.nick}: Reloaded plugin configuration."
     when "quit"
       context.connection.quit

@@ -54,7 +54,7 @@ module Framework
       end
     end
 
-    macro match regex : Regex
+    macro match regex
       matchers << {{regex}}
     end
 

@@ -32,6 +32,8 @@ module IRC
               message = Message.from(line)
               queue << message if message
             end
+          rescue e : InvalidByteSequenceError
+            reader.logger.warn "Failed to decode message: #{line.try(&.dump) || line.inspect}"
           rescue e : Errno
             unless e.errno == Errno::EINTR
               reader.logger.fatal "Failed to read message: #{e.message} (#{e.class})"

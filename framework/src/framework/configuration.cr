@@ -165,7 +165,7 @@ module Framework
         plugins
       end
 
-      def plugins= value : JSON::Value
+      def plugins= value : JSON::Type
         @plugins = value
       end
 

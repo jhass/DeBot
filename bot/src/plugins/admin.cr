@@ -28,9 +28,9 @@ class Admin
 
   match /^!(join|part)\s+(#[^\s,:]+)?/
   match /^!(msg|sayto|doto)\s+([^ ]+)\s+(.+)/
-  match /^!(quit|reload)/
+  match /^!(quit|reload)$/
   match /^!(addadmin|rmadmin)\s+([^ ]+)/
-  match /^!((?:de)?op)(?:\s+(\w+))?/
+  match /^!((?:de)?op)(?:\s+(\w+))?$/
   match /^!(enable|disable)\s+(#[^\s,:]+)\s+([a-zA-Z]+)/
   match /^!(enable|disable)\s+([a-zA-Z]+)$/
 

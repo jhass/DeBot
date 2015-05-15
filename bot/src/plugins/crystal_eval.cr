@@ -1,8 +1,25 @@
+require "http/client"
+
 require "framework/plugin"
 require "core_ext/process"
 
 class CrystalEval
   include Framework::Plugin
+
+  class Request
+    json_mapping({
+      run: Run
+    })
+  end
+
+  class Run
+    json_mapping({
+      stdout:     String,
+      stderr:     String,
+      exit_code:  Int32,
+      html_url:   String
+    })
+  end
 
   TEMPLATE = <<-END
 begin
@@ -18,12 +35,23 @@ END
 
   def execute msg, match
     source = TEMPLATE % [match[1]]
-    run = Process.run "../sandbox/sandbox_crystal", ["eval", source], output: true, stderr: true
-    output = run.output
+
+    run = Request.from_json((JSON.parse(
+      HTTP::Client.post(
+        "http://carc.in/run_requests",
+        HTTP::Headers {"Content-Type" => "application/json; charset=utf8"},
+        {
+          run_request: {
+            language: "crystal",
+            code: source
+          }
+        }.to_json
+      ).body
+    ) as Hash(String, JSON::Type))["run_request"].to_json).run
+
+    output = run.stdout
     stderr = run.stderr
-    pp stderr
-    pp output
-    pp run.exit
+    success = run.exit_code == 0
 
     if stderr && !stderr.strip.empty?
       playpen, crystal = separate_playpen stderr
@@ -32,8 +60,8 @@ END
     end
 
     if reply.nil? && output && !output.strip.empty?
-      reply = run.success? ? output.lines.first : find_error_message(output)
-    elsif run.success?
+      reply = success ? output.lines.first : find_error_message(output)
+    elsif success
       reply ||= output # Return the empty string
     end
 
@@ -43,7 +71,7 @@ END
     reply = prettify_error reply
     reply = limit_size reply
 
-    msg.reply "#{msg.sender.nick}: #{reply}"
+    msg.reply "#{msg.sender.nick}: #{reply} - #{run.html_url}"
   end
 
   def separate_playpen stderr

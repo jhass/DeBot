@@ -59,7 +59,7 @@ END
     end
 
     if reply.nil? && output && !output.strip.empty?
-      reply = success ? output.lines.first : find_error_message(output)
+      reply = success ? output.lines.find {|line| !line.strip.empty? } : find_error_message(output)
     elsif success
       reply ||= output # Return the empty string
     end

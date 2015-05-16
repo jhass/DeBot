@@ -22,9 +22,9 @@ class CrystalEval
   end
 
   TEMPLATE = <<-END
-p begin;
+begin; puts;
   %s
-puts; rescue e
+rescue e
   puts "#{e.class}: #{e.message}"
   puts e.backtrace.join("\n")
 end

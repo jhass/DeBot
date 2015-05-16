@@ -59,19 +59,3 @@ A collection of threading primitives such as a Queue and a ReadWriteLock
 ### Dependencies
 
 * Crystal
-
-### sandbox
-
-The sandbox is used to provide a safe environment to the crystal_eval plugin.
-
-### Dependencies
-
-* playpen
-* SUID-wrapper
-  * Crystal
-  * core_ext
-* Ruby (for generating the syscall whitelist)
-* build_sandbox.sh
-  * Assumes an Archlinux host
-  * arch-install-scripts
-  * yaourt

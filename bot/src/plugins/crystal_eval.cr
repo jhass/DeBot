@@ -22,15 +22,20 @@ class CrystalEval
   end
 
   TEMPLATE = <<-END
-begin; puts;
-  %s
+begin;
+__expr__ = begin
+
+%s
+
+end
+puts "\n# => #{__expr__.inspect}"
 rescue e
   puts "#{e.class}: #{e.message}"
   puts e.backtrace.join("\n")
 end
 END
 
-  match /^>>(.+)/
+  match /^>>\s*(.+)/
 
   def execute msg, match
     source = TEMPLATE % [match[1]]

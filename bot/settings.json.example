@@ -33,7 +33,7 @@
 
   "plugins": {
     "Admin": {
-      superadmins: ["jhass"],
+      "superadmins": ["jhass"],
       //"admins": ["asterite"]
     },
 

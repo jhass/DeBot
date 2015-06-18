@@ -71,7 +71,7 @@
         "diaspora": {
           "api_key": "abc",
           "slug": "3020-Diaspora"
-        },
+        }
       }
     }
   }

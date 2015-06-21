@@ -20,8 +20,6 @@ module Framework
     def self.create
       new.tap do |bot|
         with bot yield
-        bot.user = User.from_nick bot.config.nick, bot, bot.config.realname
-        bot.user.mask.user = bot.config.user
       end
     end
 
@@ -55,7 +53,7 @@ module Framework
         end
       end
 
-      Channel.from_name(name, channel, self)
+      Channel.from_name(name, self)
     end
 
     def part name
@@ -67,6 +65,8 @@ module Framework
     def start
       connection = config.to_connection
       @connection = connection
+      @user = User.from_nick config.nick, self
+      user.mask.user = config.user
 
       connection.on_query do |message|
         event = Event.new self, :message, Message.new(self, message)
@@ -75,23 +75,12 @@ module Framework
 
       connection.on(IRC::Message::NICK) do |message|
         if prefix = message.prefix
-          user = User.from_mask(prefix, self)
-          user.nick = message.parameters.first
           event = Event.new self, :nick, user
           config.plugins.each_value &.handle(event)
         end
       end
 
-      connection.on(IRC::Message::RPL_WHOISUSER) do |reply|
-        nick, user, host, _unused, realname = reply.parameters
-        user = User.from_nick(nick, self)
-        user.mask.user = user
-        user.mask.host = host
-        user.realname = realname
-      end
-
       connection.connect
-      user.nick = connection.config.nick
 
       channels.each do |channel|
         join channel

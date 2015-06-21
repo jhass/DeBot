@@ -1,112 +1,92 @@
-require "thread/synchronized"
-
+require "./membership"
 require "./message"
+require "./modes"
 
 module IRC
+  # WITHOUT PARAMETER
+  # CHANNELMODE - DESCRIPTION
+  #      +n     - No external messages.  Only channel members may talk in
+  #               the channel.
+  #      +t     - Ops Topic.  Only opped (+o) users may set the topic.
+  #      +s     - Secret.  Channel will not be shown in /whois and /list etc.
+  #      +p     - Private.  Disables /knock to the channel.
+  #      +m     - Moderated.  Only opped/voiced users may talk in channel.
+  #      +i     - Invite only.  Users need to be /invite'd or match a +I to
+  #               join the channel.
+  #      +r, +R - Registered users only.  Only users identified to services
+  #               may join.
+  #      +r     - The channel is registered (settable by services only) (UnrealIRCd)
+  #      +c, +S - No color.  All color codes in messages are stripped.
+  #      +g     - Free invite.  Everyone may invite users.  Significantly
+  #               weakens +i control.
+  #      +z     - Op moderated.  Messages blocked by +m, +b and +q are instead
+  #               sent to ops.
+  #      +L     - Large ban list.  Increase maximum number of +beIq entries.
+  #               Only settable by opers.
+  #      +P     - Permanent.  Channel does not disappear when empty.  Only
+  #               settable by opers.
+  #      +F     - Free target.  Anyone may set forwards to this (otherwise
+  #               ops are necessary).
+  #      +Q     - Disable forward.  Users cannot be forwarded to the channel
+  #               (however, new forwards can still be set subject to +F).
+  #      +C     - Disable CTCP. All CTCP messages to the channel, except ACTION,
+  #               are disallowed.
+  #      +A     - Server/Net Admin only channel (settable by Admins)
+  #      +G     - Filters out all Bad words in messages with <censored> [o]
+  #      +K     - /KNOCK is not allowed [o]
+  #      +M     - Must be using a registered nick (+r), or have voice access to talk [o]
+  #      +N     - No Nickname changes are permitted in the channel [o]
+  #      +O     - IRC Operator only channel (settable by IRCops)
+  #      +Q     - No kicks allowed [o]
+  #      +T     - No NOTICEs allowed in the channel [o]
+  #      +u     - Auditorium mode (/names and /who #channel only show channel ops) [q]
+  #      +V     - /INVITE is not allowed [o]
+  #      +z     - Only Clients on a Secure Connection (SSL) can join [o]
+  #      +Z     - All users on the channel are on a Secure connection (SSL) [server]
+  #               (This mode is set/unset by the server. Only if the channel is also +z)
+
+  # WITH PARAMETER
+  # CHANNELMODE - DESCRIPTION
+  #      +f     - Forward.  Forwards users who cannot join because of +i, (Freenode)
+  #               +j, +l or +r.
+  #               PARAMS: /mode #channel +f #channel2
+  #      +f     - Flood protection (for more info see /HELPOP CHMODEF) [o] (UnrealIRCD)
+  #      +j     - Join throttle.  Limits number of joins to the channel per time.
+  #               PARAMS: /mode #channel +j count:time
+  #      +k     - Key.  Requires users to issue /join #channel KEY to join.
+  #               PARAMS: /mode #channel +k key
+  #      +l     - Limit.  Impose a maximum number of LIMIT people in the channel.
+  #               PARAMS: /mode #channel +l limit
+  #      +L <chan2> - Channel link (If +l is full, the next user will auto-join <chan2>) [q]
   class Channel
-    record Membership, nick, opped, voiced do
-      def_equals_and_hash nick
-
-      def opped?
-        opped
-      end
-
-      def voiced?
-        voiced
-      end
-
-      def self.parse membership
-        opped = membership[0] == '@'
-        voiced = membership[0] == '+'
-        nick = opped || voiced ? membership[1..-1] : membership
-        new nick, opped, voiced
-      end
-
-      def to_s(io)
-        io << opped? ? "@" : (voiced? ? "+" : "")
-        io << nick
-      end
-    end
+    MEMBERHSIP_MODES = {'v', 'b', 'q', 'e', 'o', 'I', 'h', 'a'}
 
     getter name
-    getter users
+    getter modes
 
     def initialize @connection, @name
+      @modes = Modes.new
       @message_handlers = [] of Message ->
-      @users = Synchronized.new(Set(Membership).new)
-
 
       @connection.on Message::PRIVMSG, Message::NOTICE do |message|
         target = message.parameters.first
         @message_handlers.each &.call(message) if target == @name
       end
 
-      @connection.on(IRC::Message::RPL_NAMREPLY) do |reply|
-        channel = reply.parameters[2]
-        return unless channel == @name
+      @connection.on Message::MODE do |message|
+        target = message.parameters.first
+        modes  = message.parameters[1..-1].join(' ')
 
-        reply.parameters.last.split(' ').each do |user|
-          create_or_update_membership(user)
-        end
-      end
-
-      @connection.on(IRC::Message::JOIN, IRC::Message::PART) do |message|
-        channel = message.parameters.first
-        return unless channel == @name
-
-        if prefix = message.prefix
-          nick, _rest = prefix.split('!')
-        else
-          nick = @connection.config.nick
-        end
-
-        if message.type == IRC::Message::JOIN
-          create_or_update_membership(nick)
-        else
-          delete_membership(nick)
-        end
-      end
-
-      @connection.on(IRC::Message::QUIT) do |message|
-        if prefix = message.prefix
-          nick, _rest = prefix.split('!')
-          delete_membership(nick)
-        end
-      end
-
-      @connection.on(IRC::Message::KICK) do |message|
-        channel, nick = message.parameters
-        delete_membership(nick) if channel == @name
-      end
-
-      @connection.on(IRC::Message::MODE) do |message|
-        channel = message.parameters.first
-        return unless channel == @name
-
-        mode  = message.parameters[1]
-        flags = mode.chars
-        add   = flags.shift == '+'
-
-        flags.each_with_index do |flag, i|
-          next unless {'o', 'v'}.includes? flag
-
-          nick    = message.parameters[i+2]
-          olduser = find_or_create_membership(nick).to_s
-
-          if add
-            case flag
-            when 'o'
-              newuser = "@#{nick}"
-            when 'v'
-              newuser = olduser.starts_with?('@') ? olduser : "+#{nick}"
-            else
-              newuser = olduser
+        if target == @name
+          Modes::Parser.parse(modes) do |modifier, flag, parameter|
+            unless MEMBERHSIP_MODES.includes?(flag)
+              if modifier == '+'
+                @modes.set flag, parameter
+              else
+                @modes.unset flag, parameter
+              end
             end
-          else # "-o", "-v"
-            newuser = olduser.starts_with?('@') ? olduser : nick
           end
-
-          create_or_update_membership(newuser)
         end
       end
     end
@@ -123,31 +103,38 @@ module IRC
       @connection.send "PART #{@name}"
     end
 
-    def membership nick : String
-      @users.find {|user| user.nick == nick }
-    end
-
-    private def find_or_create_membership membership
-      membership = Membership.parse(membership)
-      entry = @users.find {|user| user == membership }
-
-      unless entry
-        entry = membership
-        @users << membership
+    {% for item in [{'b', "banned"}, {'q', "quieted"}, {'e', "exempted"}, {'I', "invited"}] %}
+      {% flag = item[0] %}
+      {% name = item[1] %}
+      def query_{{name.id}}
       end
+    {% end %}
 
-      entry
-    end
-
-    private def create_or_update_membership membership
-      Membership.parse(membership).tap do |user|
-        @users.delete user
-        @users << user
+    {% for item in [{['n'], "no_external"}, {['t'], "topic_locked"}, {['s'], "secret"},
+                    {['p'], "pivate"}, {['m'], "moderated"}, {['i'], "invite_only"},
+                    {['r', 'R'], "registered_only"}, {['c', 'S'], "no_colors"}, {['g'], "free_invite"},
+                    {['z'], "reduced_moderation"}, {['L'], "large_banlist"}, {['P'], "permanent"},
+                    {['F'], "free_target"}, {['Q'], "disabled_forward"}, {['C'], "no_ctcp"},
+                    {['A'], "admin_channel"}, {['K'], "no_knock"}, {['N'], "no_nick_changes"},
+                    {['O'], "operator_channel"}, {['V'], "no_invite"}, {['z'], "secure_only"},
+                    {['Q'], "no_kicks"}, {['T'], "no_notices"}, {['u'], "auditorium"},
+                    {['Z'], "all_secure"}] %}
+      {% flags = item[0] %}
+      {% name  = item[1] %}
+      def {{name.id}}?
+        {% for flag in flags %}
+          @modes.set?({{flag}}) ||
+        {% end %}
+        false # Cheat post fence problem
       end
-    end
+    {% end %}
 
-    private def delete_membership membership
-      @users.delete Membership.parse(membership)
-    end
+    {% for item in [{'j', "join_throttle"}, {'k', "key"}, {'l', "limit"}, {'L', "link"}] %}
+      {% flag = item[0] %}
+      {% name = item[1] %}
+      def {{name.id}}
+        @modes.get {{flag}}
+      end
+    {% end %}
   end
 end

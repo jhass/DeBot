@@ -7,9 +7,13 @@ require "core_ext/openssl"
 require "logger"
 
 require "thread/queue"
+require "thread/repository"
 
 require "./channel"
+require "./mask"
 require "./message"
+require "./network"
+require "./user_manager"
 require "./workers"
 
 module IRC
@@ -31,7 +35,7 @@ module IRC
         @nick       = "Crystal"
         @user       = "crystal"
         @password   = nil
-        @realname   = "Crystal"
+        @realname   = "Crystal IRC"
         @ssl        = false
         @try_sasl   = false
         @logger     = nil
@@ -63,9 +67,11 @@ module IRC
       end
     end
 
-    property! userhost
     property? connected
     getter config
+    getter users
+    getter channels
+    getter network
     delegate logger, config
 
     def self.build &block : Config ->
@@ -78,9 +84,13 @@ module IRC
 
     def initialize @config : Config
       @send_queue = Queue(String|Symbol).new
-      @channels = {} of String => Channel
-      @processor = ProcessorPool.new(config.processors, logger)
-      @connected = false
+      @users      = UserManager.new
+      @channels   = Repository(String, Channel).new
+      @processor  = ProcessorPool.new(config.processors, logger)
+      @network    = Network.new
+      @connected  = false
+
+      @users.track Mask.parse(@config.nick) # Track self with pseudo mask
     end
 
     def await type
@@ -96,8 +106,11 @@ module IRC
       @processor.handlers.delete(handler)
     end
 
-    def quit message="Crystal"
+    def quit message="Crystal IRC"
       send Message::QUIT, message
+      sleep 3
+      stop_threads
+      exit
     end
 
     def send message : Message
@@ -133,12 +146,14 @@ module IRC
     def nick= nick : String
       oldnick = config.nick
       config.nick = nick
+      @users.nick Mask.parse(oldnick), nick unless nick == oldnick
       send Message::NICK, nick unless connected? && nick == oldnick
     end
 
     def join channel_name
       Channel.new(self, channel_name).tap do |channel|
         channel.join
+        @users.join Mask.parse(config.nick), channel
         @channels[channel_name] = channel
       end
     end
@@ -147,6 +162,7 @@ module IRC
       @channels[channel_name]?.tap do |channel|
         if channel
           channel.part
+          @users.part Mask.parse(config.nick), channel
           @channels.delete channel_name
         end
       end
@@ -169,41 +185,50 @@ module IRC
       socket = TCPSocket.new config.server, config.port
       socket = OpenSSL::SSL::Socket.new socket if config.ssl?
 
-      if config.try_sasl?
-        logger.info "Attempting SASL authentication"
+      send Message::CAP, "LS"
 
-        send Message::CAP, "LS"
+      on Message::CAP do |cap|
+        case cap.parameters[1]
+        when "LS"
+          capabilities = cap.parameters.last.split(' ')
 
-        on Message::CAP do |cap|
-          case cap.parameters[1]
-          when "LS"
-            cap.parameters.last.split(' ').includes? "sasl"
+          send Message::CAP, "REQ", "account-notify" if capabilities.includes? "account-notify"
+          send Message::CAP, "REQ", "extended-join" if capabilities.includes? "extended-join"
+
+          if config.try_sasl? && capabilities.includes? "sasl"
+            logger.info "Attempting SASL authentication"
             send Message::CAP, "REQ", "sasl"
-          when "ACK"
-            if cap.parameters.last == "sasl"
-              send Message::AUTHENTICATE, "PLAIN"
-            else
-              send Message::CAP, "END"
-            end
           else
             send Message::CAP, "END"
           end
-        end
+        when "ACK"
+          network.account_notify = true if cap.parameters.last == "account-notify"
+          network.extended_join  = true if cap.parameters.last == "extended-join"
 
-        on Message::AUTHENTICATE do
-          send Message::AUTHENTICATE, Base64.strict_encode64("#{config.nick}\0#{config.nick}\0#{config.password}")
-        end
-
-        on Message::RPL_SASL_SUCCESS, Message::RPL_SASL_FAILED, Message::RPL_SASL_ABORTED do |message|
-          if message.type == Message::RPL_SASL_SUCCESS
-            logger.info "SASL authentication succeeded"
-          else
-            logger.warn "SASL authentication failed"
+          if cap.parameters.last == "sasl"
+            send Message::AUTHENTICATE, "PLAIN"
           end
-
+        when "NAK"
+        else
           send Message::CAP, "END"
         end
-      elsif config.password?
+      end
+
+      on Message::AUTHENTICATE do
+        send Message::AUTHENTICATE, Base64.strict_encode64("#{config.nick}\0#{config.nick}\0#{config.password}")
+      end
+
+      on Message::RPL_SASL_SUCCESS, Message::RPL_SASL_FAILED, Message::RPL_SASL_ABORTED do |message|
+        if message.type == Message::RPL_SASL_SUCCESS
+          logger.info "SASL authentication succeeded"
+        else
+          logger.warn "SASL authentication failed"
+        end
+
+        send Message::CAP, "END"
+      end
+
+      if config.password? && !config.try_sasl?
         send Message::PASS, config.password
       end
 
@@ -246,16 +271,7 @@ module IRC
         self.nick = message.parameters.first
       end
 
-      on Message::JOIN do |message|
-        if prefix = message.prefix
-          nick, rest = prefix.split('!')
-          user, _rest = rest.split('@')
-          if nick == config.nick
-            self.userhost = prefix
-            self.config.user = user
-          end
-        end
-      end
+      @users.register_handlers self
 
       processor = @processor.not_nil!
       reader = Reader.new socket, processor.queue, logger

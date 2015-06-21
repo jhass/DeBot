@@ -1,8 +1,9 @@
-module Framework
+module IRC
   class Mask
     property! nick
     property user
     property host
+    def_equals_and_hash nick
 
     def self.parse mask
       if mask.includes? '@'
@@ -23,8 +24,15 @@ module Framework
     def initialize(@nick : String, @user : String?, @host : String?)
     end
 
+    def update mask
+      if mask.nick == @nick
+        @user = mask.user if mask.user
+        @host = mask.host if mask.host
+      end
+    end
+
     def matches? other
-      return true if !has_wildcard? && self == other
+      return true if !has_wildcard? && nick == other.nick && user == other.user && host == other.host
       return false unless has_wildcard?
 
       !to_regex.match(other).nil?

@@ -51,6 +51,8 @@ module IRC
     RPL_SASL_SUCCESS = "903"
     RPL_SASL_FAILED  = "904"
     RPL_SASL_ABORTED = "906"
+    ACCOUNT          = "ACCOUNT"
+    RPL_WHOISACCOUNT = "330"
 
     RPL_WELCOME           = "001"
     RPL_YOURHOST          = "002"
@@ -293,6 +295,10 @@ module IRC
       else
         parameters.first
       end
+    end
+
+    def mask
+      Mask.parse prefix.not_nil!
     end
 
     def to_s(io)

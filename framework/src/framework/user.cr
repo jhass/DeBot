@@ -1,39 +1,27 @@
-require "./repository"
-require "./mask"
+require "thread/repository"
+
 require "./bot"
 
 module Framework
-  class User
-    getter mask
-    property realname
-    delegate nick, mask
-    delegate user, mask
-    delegate host, mask
+  record User, irc_user, context do
+    delegate mask,     irc_user
+    delegate realname, irc_user
+    delegate nick,     irc_user
+    delegate user,     irc_user
+    delegate host,     irc_user
+    delegate modes,    irc_user
 
-    @@users = Repository(String, User).new
-
-    def self.from_mask mask : String, context : Bot, realname=nil
-      from_mask Mask.parse(mask), context, realname
+    def self.from_nick nick : String, context : Bot
+      from_mask nick, context
     end
 
-    def self.from_mask mask : Mask, context : Bot, realname=nil
-      @@users.fetch(mask.nick) { new(mask, context, realname) }
+    def self.from_mask mask : String, context : Bot
+      from_mask IRC::Mask.parse(mask), context
     end
 
-    def self.from_nick nick : String, context : Bot, realname=nil
-      @@users.fetch(nick) { new(Mask.new(nick, nil, nil), context, realname) }
-    end
-
-    private def initialize(@mask : Mask, @context : Bot, @realname=nil)
-    end
-
-    def name
-      nick || user || host
-    end
-
-    def nick= nick
-      @@users.rename mask.nick, nick
-      mask.nick = nick
+    def self.from_mask mask : IRC::Mask, context : Bot
+      user = context.connection.users.find_user(mask)
+      new user, context
     end
 
     def send text : String
@@ -42,6 +30,17 @@ module Framework
 
     def action text : String
       Message.new(@context, nick, text).as_action.send
+    end
+
+    def authname
+      authname = irc_user.authname
+
+      if authname.nil?
+        context.connection.send IRC::Message::WHOIS, nick
+        context.connection.await IRC::Message::RPL_ENDOFWHOIS
+      end
+
+      irc_user.authname
     end
   end
 end

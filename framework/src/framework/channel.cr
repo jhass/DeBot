@@ -1,6 +1,6 @@
+require "thread/repository"
 require "irc/message"
 
-require "./repository"
 require "./message"
 require "./bot"
 
@@ -8,15 +8,8 @@ module Framework
   class Channel
     getter name
     getter context
-    protected setter irc_channel
 
     @@channels = Repository(String, Channel).new
-
-    def self.from_name name : String, channel, context
-      from_name(name, context).tap do |chan|
-        chan.irc_channel = channel
-      end
-    end
 
     def self.from_name name : String, context
       @@channels.fetch(name) { new(name, context) }
@@ -30,7 +23,8 @@ module Framework
     end
 
     def membership nick : String
-      @irc_channel.try &.membership(nick)
+      channel = @context.connection.channels[@name]
+      @context.connection.users.find_membership(IRC::Mask.parse(nick), channel)
     end
 
     def send text : String
@@ -54,7 +48,7 @@ module Framework
     end
 
     def opped? nick : String
-      membership(nick).try(&.opped?) || false
+      membership(nick).try(&.op?) || false
     end
 
     def voiced? user : User

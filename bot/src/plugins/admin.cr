@@ -13,12 +13,14 @@ class Admin
   end
 
   def superadmin? user
-    config.superadmins.includes? user.nick
+    return false unless user.authname
+    config.superadmins.includes? user.authname
   end
 
   def admin? user
     return true if superadmin? user
-    admins.includes? user.nick
+    return false unless user.authname
+    admins.includes? user.authname
   end
 
   #channel    =  ( "#" / "+" / ( "!" channelid ) / "&" ) chanstring

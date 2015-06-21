@@ -72,6 +72,7 @@ module IRC
             if message.is_a? String
               sender.logger.debug "w> #{message.chomp}"
               socket.puts message
+              socket.flush
             elsif message == :stop
               sender.logger.debug "Sender received stop signal, shutting down"
               break

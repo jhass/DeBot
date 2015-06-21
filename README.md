@@ -2,6 +2,9 @@
 
 CeBot is an IRC bot written in [Crystal](http://crystal-lang.org).
 
+irc and thread are based on pthread, thus they're currently only compatible
+with Crystal 0.6.1, 0.7.0 and later do not work.
+
 Currently this repository contains not only the bot but also the underlying
 libraries and tools until they are mature enough to be extracted into their
 own projects.

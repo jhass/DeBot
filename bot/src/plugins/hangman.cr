@@ -9,9 +9,10 @@ class Hangman
     end
 
     WORDLISTS = {
-      "nouns" => word_list_for("wordlist"),
-      "gems"  => word_list_for("gem_names"),
-      "ruby"  => word_list_for("ruby")
+      "distros" =>  word_list_for("distros"),
+      "nouns"   => word_list_for("wordlist"),
+      "gems"    => word_list_for("gem_names"),
+      "ruby"    => word_list_for("ruby")
     }
 
     DEFAULT_LIST = "nouns"
@@ -96,7 +97,7 @@ class Hangman
       start_game msg, list
     when /^!hangman$/
       start_game msg, Game::DEFAULT_LIST
-    when /^[a-zA-Z0-9!"#\$%&'\*\+,\-\.\/:;<=>\?@\[\]\\^_`|~]+$/
+    when /^[a-zA-Z0-9!"#\$%&'\*\+,\-\.\/:;<=>\?@\[\]\\^_`|~ ]+$/
       guess msg, command.downcase.chars
     end
   end

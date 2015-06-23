@@ -71,7 +71,7 @@ module IRC
             message = queue.shift
             if message.is_a? String
               sender.logger.debug "w> #{message.chomp}"
-              socket.puts message
+              message.to_s(socket)
               socket.flush
             elsif message == :stop
               sender.logger.debug "Sender received stop signal, shutting down"

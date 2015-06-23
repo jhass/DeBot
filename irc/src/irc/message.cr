@@ -329,6 +329,8 @@ module IRC
         io << ':' if last.includes?(' ') || last.includes?(' ')
         io << last
       end
+
+      io << "\r\n" unless last && last.ends_with? '\n'
     end
 
     class Malformed < Exception

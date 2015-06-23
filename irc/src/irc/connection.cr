@@ -271,8 +271,10 @@ module IRC
         end
       end
 
-      on Message::ERR_NICKCOLLISION, Message::ERR_NICKNAMEINUSE do |error|
-        self.nick = "#{config.nick}_"
+      on Message::ERR_NICKCOLLISION, Message::ERR_NICKNAMEINUSE, Message::ERR_UNAVAILRESOURCE do |error|
+        if error.type != Message::ERR_UNAVAILRESOURCE || error.message == config.nick
+          self.nick = "#{config.nick}_"
+        end
       end
 
       on Message::RPL_WELCOME do |message|

@@ -257,7 +257,11 @@ module IRC
         when :parameter
           case char
           when ':'
-            state = :trail
+            if parameter.empty? # Only trail if preceded by space
+              state = :trail
+            else
+              parameter << char
+            end
           when '\r', '\n'
           when ' '
             parameters << parameter.to_s

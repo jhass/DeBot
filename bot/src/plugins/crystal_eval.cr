@@ -1,7 +1,6 @@
 require "http/client"
 
 require "framework/plugin"
-require "core_ext/process"
 
 class CrystalEval
   include Framework::Plugin

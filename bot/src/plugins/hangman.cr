@@ -98,6 +98,8 @@ class Hangman
       start_game msg, list
     when /^!hangman$/
       start_game msg, Game::DEFAULT_LIST
+    when /^space$/
+      guess msg, ' '
     when /^[a-zA-Z0-9!"#\$%&'\*\+,\-\.\/:;<=>\?@\[\]\\^_`|~ ]+$/
       guess msg, command.downcase.chars
     end

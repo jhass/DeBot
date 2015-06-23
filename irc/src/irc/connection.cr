@@ -224,8 +224,11 @@ module IRC
         send Message::AUTHENTICATE, Base64.strict_encode64("#{config.nick}\0#{config.nick}\0#{config.password}")
       end
 
-      on Message::RPL_SASL_SUCCESS, Message::RPL_SASL_FAILED, Message::RPL_SASL_ABORTED do |message|
-        if message.type == Message::RPL_SASL_SUCCESS
+      on(Message::RPL_LOGGEDIN,     Message::RPL_LOGGEDOUT, Message::ERR_NICKLOCKED,
+         Message::RPL_SASLSUCCESS,  Message::ERR_SASLFAIL,  Message::ERR_SASLTOOLONG,
+         Message::RPL_SASL_ABORTED, Message::ERR_SASLALREADY) do |message|
+
+        if {Message::RPL_LOGGEDIN, Message::RPL_SASLSUCCESS, Message::ERR_SASLALREADY}.includes? message.type
           logger.info "SASL authentication succeeded"
         else
           logger.warn "SASL authentication failed"

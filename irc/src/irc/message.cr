@@ -47,10 +47,18 @@ module IRC
     ISON     = "ISON"
 
     CAP              = "CAP"
+
     AUTHENTICATE     = "AUTHENTICATE"
-    RPL_SASL_SUCCESS = "903"
-    RPL_SASL_FAILED  = "904"
+    RPL_LOGGEDIN     = "900"
+    RPL_LOGGEDOUT    = "901"
+    ERR_NICKLOCKED   = "902"
+    RPL_SASLSUCCESS  = "903"
+    ERR_SASLFAIL     = "904"
+    ERR_SASLTOOLONG  = "905"
     RPL_SASL_ABORTED = "906"
+    ERR_SASLALREADY  = "907"
+    RPL_SASLMECHS    = "908"
+
     ACCOUNT          = "ACCOUNT"
     RPL_WHOISACCOUNT = "330"
 

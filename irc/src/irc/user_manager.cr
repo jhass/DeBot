@@ -80,7 +80,7 @@ module IRC
       end
 
       connection.on Message::RPL_WHOISUSER do |message|
-        nick, user, host, _unused, realname = message.parameters
+        _me, nick, user, host, _unused, realname = message.parameters
         user = find_user Mask.parse(nick)
         user.mask.user = user
         user.mask.host = host

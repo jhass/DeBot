@@ -9,10 +9,11 @@ class Hangman
     end
 
     WORDLISTS = {
-      "distros" =>  word_list_for("distros"),
-      "nouns"   => word_list_for("wordlist"),
-      "gems"    => word_list_for("gem_names"),
-      "ruby"    => word_list_for("ruby")
+      "codepoints" => word_list_for("unicode_codepoint_names"),
+      "distros"    => word_list_for("distros"),
+      "nouns"      => word_list_for("wordlist"),
+      "gems"       => word_list_for("gem_names"),
+      "ruby"       => word_list_for("ruby")
     }
 
     DEFAULT_LIST = "nouns"

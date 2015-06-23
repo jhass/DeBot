@@ -37,7 +37,9 @@ module Framework
 
       if authname.nil?
         context.connection.send IRC::Message::WHOIS, nick
-        context.connection.await IRC::Message::RPL_ENDOFWHOIS
+        context.connection.await IRC::Message::RPL_ENDOFWHOIS do |message|
+          message.parameters[1] == nick
+        end
       end
 
       irc_user.authname

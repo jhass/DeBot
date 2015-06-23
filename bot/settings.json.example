@@ -20,6 +20,9 @@
   // else, if present, used as server password
   //"password": "secret",
 
+  // Send REGAIN to NickServ on nick collisions
+  //"nickserv_regain": true,
+
   //"try_sasl": false,
 
   //"realname": "CeBot",

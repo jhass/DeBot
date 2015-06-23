@@ -80,6 +80,13 @@ module Framework
         end
       end
 
+      connection.on(IRC::Message::ERR_NICKCOLLISION, IRC::Message::ERR_NICKNAMEINUSE) do |message|
+        if config.nickserv_regain? && config.password
+          connection.await IRC::Message::RPL_WELCOME
+          connection.send IRC::Message::PRIVMSG, "NickServ", "REGAIN #{config.nick} #{config.password}"
+        end
+      end
+
       connection.connect
 
       channels.each do |channel|

@@ -39,7 +39,7 @@ module IRC
         @ssl        = false
         @try_sasl   = false
         @logger     = nil
-        @processors = 2
+        @processors = 4
       end
 
       def self.new server : String
@@ -93,10 +93,10 @@ module IRC
       @users.track Mask.parse(@config.nick) # Track self with pseudo mask
     end
 
-    def await type
+    def await type, &callback : Message -> Bool
       condition = ConditionVariable.new
-      handler = @processor.on(type) do
-        condition.signal
+      handler = @processor.on(type) do |message|
+        condition.signal if callback.call(message)
       end
 
       Mutex.new.synchronize do |mutex|
@@ -104,6 +104,12 @@ module IRC
       end
 
       @processor.handlers.delete(handler)
+    end
+
+    def await type
+      await(type) do |_message|
+        true
+      end
     end
 
     def quit message="Crystal IRC"

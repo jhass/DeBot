@@ -132,17 +132,18 @@ module Framework
 
     class Store
       json_mapping({
-        server:    {type: String},
-        port:      {type: Int32,     nilable: true},
-        channels:  {type: Array(String)},
-        nick:      {type: String},
-        user:      {type: String,    nilable: true},
-        password:  {type: String,    nilable: true, emit_null: true},
-        realname:  {type: String,    nilable: true},
-        ssl:       {type: Bool,      nilable: true},
-        try_sasl:  {type: Bool,      nilable: true},
-        log_level: {type: String,    nilable: true},
-        plugins:   {type: JSON::Any, nilable: true}
+        server:          {type: String},
+        port:            {type: Int32,     nilable: true},
+        channels:        {type: Array(String)},
+        nick:            {type: String},
+        user:            {type: String,    nilable: true},
+        password:        {type: String,    nilable: true, emit_null: true},
+        nickserv_regain: {type: Bool,      nilable: true},
+        realname:        {type: String,    nilable: true},
+        ssl:             {type: Bool,      nilable: true},
+        try_sasl:        {type: Bool,      nilable: true},
+        log_level:       {type: String,    nilable: true},
+        plugins:         {type: JSON::Any, nilable: true}
       }, true)
 
       def self.load_plugins config, json
@@ -170,29 +171,31 @@ module Framework
       end
 
       def to_json config : Configuration
-        self.port      = config.port
-        self.channels  = config.channels
-        self.user      = config.user
-        self.password  = config.password
-        self.realname  = config.realname
-        self.ssl       = config.ssl
-        self.try_sasl  = config.try_sasl
-        self.log_level = config.log_level
+        self.port            = config.port
+        self.channels        = config.channels
+        self.user            = config.user
+        self.password        = config.password
+        self.nickserv_regain = config.nickserv_regain?
+        self.realname        = config.realname
+        self.ssl             = config.ssl?
+        self.try_sasl        = config.try_sasl?
+        self.log_level       = config.log_level
 
         to_pretty_json
       end
 
       def restore config
-        config.server    = server
-        config.port      = port      unless port.nil?
-        config.channels  = channels
-        config.nick      = nick
-        config.user      = user      unless user.nil?
-        config.password  = password  unless password.nil?
-        config.realname  = realname  unless realname.nil?
-        config.ssl       = ssl       unless ssl.nil?
-        config.try_sasl  = try_sasl  unless try_sasl.nil?
-        config.log_level = log_level unless log_level.nil?
+        config.server          = server
+        config.port            = port            unless port.nil?
+        config.channels        = channels
+        config.nick            = nick
+        config.user            = user            unless user.nil?
+        config.password        = password        unless password.nil?
+        config.nickserv_regain = nickserv_regain unless nickserv_regain.nil?
+        config.realname        = realname        unless realname.nil?
+        config.ssl             = ssl             unless ssl.nil?
+        config.try_sasl        = try_sasl        unless try_sasl.nil?
+        config.log_level       = log_level       unless log_level.nil?
       end
     end
 
@@ -210,9 +213,10 @@ module Framework
     property! nick
     property! user
     property  password
+    property? nickserv_regain
     property! realname
-    property  ssl
-    property  try_sasl
+    property? ssl
+    property? try_sasl
     property  log_level
     getter    logger
     getter    plugins
@@ -222,13 +226,14 @@ module Framework
       @channels = [] of String
       @logger   = Logger.new(STDOUT)
 
-      @nick      = "CeBot"
-      @user      = "cebot"
-      @password  = nil
-      @realname  = "CeBot"
-      @ssl       = false
-      @try_sasl  = false
-      @log_level = "info"
+      @nick            = "CeBot"
+      @user            = "cebot"
+      @password        = nil
+      @nickserv_regain = false
+      @realname        = "CeBot"
+      @ssl             = false
+      @try_sasl        = false
+      @log_level       = "info"
 
       set_log_level
     end
@@ -296,8 +301,8 @@ module Framework
         config.user     = user
         config.password = password
         config.realname = realname
-        config.ssl      = ssl
-        config.try_sasl = try_sasl
+        config.ssl      = ssl?
+        config.try_sasl = try_sasl?
         config.logger   = logger
       end
     end

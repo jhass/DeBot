@@ -61,4 +61,10 @@ class Repository(K,V)
       @store.delete oldkey
     end
   end
+
+  def rehash
+    @lock.write_lock do
+      @store.rehash
+    end
+  end
 end

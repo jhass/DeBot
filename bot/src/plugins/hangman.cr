@@ -1,4 +1,5 @@
 require "framework/plugin"
+require "framework/limiter"
 
 class Hangman
   include Framework::Plugin
@@ -81,7 +82,8 @@ class Hangman
     end
   end
 
-  @@games = {} of String => Game
+  GAMES  = {} of String => Game
+  LIMITS = Framework::LimiterCollection(Framework::User).new 3, 60
 
   listen :message
 
@@ -90,8 +92,11 @@ class Hangman
     return unless msg.channel?
     message = msg.message
     return unless message.starts_with? bot.nick
-    command = message.gsub(/^#{bot.nick}[:,]?\s*/, "")
 
+    return unless LIMITS.pass? msg.sender
+    LIMITS.hit msg.sender
+
+    command = message.gsub(/^#{bot.nick}[:,]?\s*/, "")
     case command
     when /^!hangman\s+\w+$/
       _c, list = command.split
@@ -106,19 +111,19 @@ class Hangman
   end
 
   def start_game msg, list
-    unless @@games.has_key? msg.channel.name
-      @@games[msg.channel.name] = Game.new list
+    unless GAMES.has_key? msg.channel.name
+      GAMES[msg.channel.name] = Game.new list
     end
 
-    msg.reply @@games[msg.channel.name].status
+    msg.reply GAMES[msg.channel.name].status
   end
 
   def guess msg, guess
-    return unless @@games.has_key? msg.channel.name
+    return unless GAMES.has_key? msg.channel.name
 
-    game = @@games[msg.channel.name]
+    game = GAMES[msg.channel.name]
     game.guess guess
     msg.reply game.status
-    @@games.delete(msg.channel.name) if game.over?
+    GAMES.delete(msg.channel.name) if game.over?
   end
 end

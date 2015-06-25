@@ -1,23 +1,28 @@
 require "framework/plugin"
+require "framework/limiter"
 
 class RussianRoulette
   include Framework::Plugin
 
-  REASONS = [
+  ALSO_BAN = true
+  BAN_TIME = 30
+  CHAMBERS = 6
+  LIMITS   = Framework::LimiterCollection(Framework::User).new 3, 60
+  REASONS  = [
     "You just shot yourself!",
     "Suicide is never the answer.",
     "If you wanted to leave, you could have just said so...",
     "Good thing these aren't real bullets...",
     "That's gotta hurt..."
   ]
-  ALSO_BAN = true
-  BAN_TIME = 30
-  CHAMBERS = 6
 
   match /^!roul(?:ette)?/
 
   def execute msg, _match
     return unless msg.channel?
+
+    return unless LIMITS.pass? msg.sender
+    LIMITS.hit msg.sender
 
     msg.reply "*spin*..."
     msg.reply "*pull*..."

@@ -89,8 +89,8 @@ class Hangman
     msg = event.message
     return unless msg.channel?
     message = msg.message
-    return unless message.starts_with? bot.nick
-    command = message.gsub(/^#{bot.nick}[:,]?\s*/, "")
+    return unless message.downcase.starts_with? bot.nick.downcase
+    command = message.gsub(/^#{bot.nick}[:,]?\s*/i, "")
 
     case command
     when /^!hangman\s+\w+$/

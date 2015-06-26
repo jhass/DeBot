@@ -134,22 +134,32 @@ class Admin
   def add_admin msg, nick
     return unless superadmin? msg.sender
 
-    if admin? user(nick)
+    new_admin = user(nick)
+
+    if admin? new_admin
       msg.reply "#{msg.sender.nick}: #{nick} is already an admin."
     elsif bot.nick == nick
       msg.reply "#{msg.sender.nick}: That makes no sense."
     else
-      admins << nick
-      config.save(context.config)
-      msg.reply "#{msg.sender.nick}: Added #{nick} to admins."
+      authname = new_admin.authname
+      if authname
+        admins << authname as String # compiler bug (?)
+        config.save(context.config)
+        msg.reply "#{msg.sender.nick}: Added #{nick} to admins."
+      else
+        msg.reply "#{msg.sender.nick}: #{nick} is not authenticated."
+      end
     end
   end
 
   def rm_admin msg, nick
     return unless superadmin? msg.sender
 
-    if admin? user(nick)
-      admins.delete nick
+    authname = user(nick).authname
+    authname = {authname, nick}.find {|name| admins.includes? name }
+
+    if authname
+      admins.delete authname
       config.save(context.config)
       msg.reply "#{msg.sender.nick}: Removed #{nick} from admins."
     else

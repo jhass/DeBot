@@ -93,9 +93,9 @@ module IRC
       @users.track Mask.parse(@config.nick) # Track self with pseudo mask
     end
 
-    def await type, &callback : Message -> Bool
+    def await *types, &callback : Message -> Bool
       condition = ConditionVariable.new
-      handler = @processor.on(type) do |message|
+      handler = @processor.on(*types) do |message|
         condition.signal if callback.call(message)
       end
 
@@ -106,8 +106,8 @@ module IRC
       @processor.handlers.delete(handler)
     end
 
-    def await type
-      await(type) do |_message|
+    def await *types
+      await(*types) do |_message|
         true
       end
     end

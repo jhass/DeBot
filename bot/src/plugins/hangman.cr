@@ -16,7 +16,8 @@ class Hangman
       "gems"       => word_list_for("gem_names"),
       "ruby"       => word_list_for("ruby"),
       "french"     => word_list_for("wordlist_fr"),
-      "german"     => word_list_for("wordlist_de")
+      "german"     => word_list_for("wordlist_de"),
+      "java"       => word_list_for("java_classes")
     }
 
     DEFAULT_LIST = "nouns"

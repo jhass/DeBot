@@ -19,6 +19,7 @@ class Hangman
       "german"     => word_list_for("wordlist_de"),
       "java"       => word_list_for("java_classes"),
       "c"          => word_list_for("glibc_functions"),
+      "perl"       => word_list_for("perl"),
     }
 
     DEFAULT_LIST = "nouns"

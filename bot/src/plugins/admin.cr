@@ -30,11 +30,12 @@ class Admin
 
   match /^!(join|part)\s+(#[^\s,:]+)?/
   match /^!(msg|sayto|doto)\s+([^ ]+)\s+(.+)/
-  match /^!(quit|reload)$/
   match /^!(addadmin|rmadmin)\s+([^ ]+)/
-  match /^!((?:de)?op)(?:\s+(\w+))?$/
+  match /^!(ignore|unignore)\s+([^ ]+)/
   match /^!(enable|disable)\s+(#[^\s,:]+)\s+([a-zA-Z]+)/
   match /^!(enable|disable)\s+([a-zA-Z]+)$/
+  match /^!((?:de)?op)(?:\s+(\w+))?$/
+  match /^!(quit|reload)$/
 
   def execute msg, match
     return unless admin?(msg.sender)
@@ -45,7 +46,11 @@ class Admin
     when "addadmin"
       add_admin msg, match[2]
     when "rmadmin"
-      rm_admin msg, match[2]
+      remove_admin msg, match[2]
+    when "ignore"
+      add_ignore msg, match[2]
+    when "unignore"
+      remove_ignore msg, match[2]
     when "enable", "disable"
       channel = match[3]? ? channel(match[2]) : msg.channel
       plugin = match[3]? ? match[3] : match[2]
@@ -152,7 +157,7 @@ class Admin
     end
   end
 
-  def rm_admin msg, nick
+  def remove_admin msg, nick
     return unless superadmin? msg.sender
 
     authname = user(nick).authname
@@ -164,6 +169,30 @@ class Admin
       msg.reply "#{msg.sender.nick}: Removed #{nick} from admins."
     else
       msg.reply "#{msg.sender.nick}: #{nick} is not an admin."
+    end
+  end
+
+  def add_ignore msg, nick
+    return unless admin? msg.sender
+
+    unless context.config.ignores.includes? nick
+      context.config.ignores << nick
+      context.config.save
+      msg.reply "#{msg.sender.nick}: I will ignore #{nick} now."
+    else
+      msg.reply "#{msg.sender.nick}: I ignore #{nick} already."
+    end
+  end
+
+  def remove_ignore msg, nick
+    return unless admin? msg.sender
+
+    if context.config.ignores.includes? nick
+      context.config.ignores.delete(nick)
+      context.config.save
+      msg.reply "#{msg.sender.nick}: I will no longer ignore #{nick}."
+    else
+      msg.reply "#{msg.sender.nick}: I do not ignore #{nick}."
     end
   end
 

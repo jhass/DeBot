@@ -249,7 +249,7 @@ module Framework
       @ssl             = false
       @try_sasl        = false
       @log_level       = "info"
-      @ingores         = [] of String
+      @ignores         = [] of String
 
       set_log_level
     end

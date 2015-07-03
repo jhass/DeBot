@@ -34,6 +34,9 @@
   // Valid levels: debug, info, warn, error, fatal
   //"log_level": "info",
 
+  // A list of nicks to ignore all messages from
+  //"ignores": ["troll"],
+
   "plugins": {
     "Admin": {
       "superadmins": ["jhass"],

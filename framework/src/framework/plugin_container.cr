@@ -31,6 +31,7 @@ module Framework
 
     def handle event
       return unless wants? event
+      return if filter? event
 
       if event.type == :message
         plugin = instance event.context
@@ -42,6 +43,10 @@ module Framework
       plugin ||= instance event.context
 
       handle_event event, plugin
+    end
+
+    def filter? event
+      event.context.filter? event
     end
 
     private def handle_event event, plugin

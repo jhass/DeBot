@@ -144,17 +144,18 @@ module Framework
     class Store
       json_mapping({
         server:          {type: String},
-        port:            {type: Int32,     nilable: true},
+        port:            {type: Int32,         nilable: true},
         channels:        {type: Array(String)},
         nick:            {type: String},
-        user:            {type: String,    nilable: true},
-        password:        {type: String,    nilable: true, emit_null: true},
-        nickserv_regain: {type: Bool,      nilable: true},
-        realname:        {type: String,    nilable: true},
-        ssl:             {type: Bool,      nilable: true},
-        try_sasl:        {type: Bool,      nilable: true},
-        log_level:       {type: String,    nilable: true},
-        plugins:         {type: JSON::Any, nilable: true}
+        user:            {type: String,        nilable: true},
+        password:        {type: String,        nilable: true, emit_null: true},
+        nickserv_regain: {type: Bool,          nilable: true},
+        realname:        {type: String,        nilable: true},
+        ssl:             {type: Bool,          nilable: true},
+        try_sasl:        {type: Bool,          nilable: true},
+        log_level:       {type: String,        nilable: true},
+        ignores:         {type: Array(String), nilable: true},
+        plugins:         {type: JSON::Any,     nilable: true}
       }, true)
 
       def self.load_plugins config, json
@@ -191,6 +192,7 @@ module Framework
         self.ssl             = config.ssl?
         self.try_sasl        = config.try_sasl?
         self.log_level       = config.log_level
+        self.ignores         = config.ignores
 
         to_pretty_json
       end
@@ -207,6 +209,7 @@ module Framework
         config.ssl             = ssl             unless ssl.nil?
         config.try_sasl        = try_sasl        unless try_sasl.nil?
         config.log_level       = log_level       unless log_level.nil?
+        config.ignores         = ignores         unless ignores.nil?
       end
     end
 
@@ -229,6 +232,7 @@ module Framework
     property? ssl
     property? try_sasl
     property  log_level
+    property! ignores
     getter    logger
     getter    plugins
 
@@ -245,6 +249,7 @@ module Framework
       @ssl             = false
       @try_sasl        = false
       @log_level       = "info"
+      @ingores         = [] of String
 
       set_log_level
     end

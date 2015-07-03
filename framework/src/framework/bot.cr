@@ -6,6 +6,7 @@ require "irc/message"
 
 require "./configuration"
 require "./event"
+require "./filter"
 require "./message"
 require "./channel"
 require "./plugin_container"
@@ -13,9 +14,11 @@ require "./plugin"
 
 module Framework
   class Bot
-    macro add_plugin klass
-      config.add_plugin Framework::PluginContainer({{klass}}).new
-    end
+    getter    config
+    getter!   connection
+    property! user
+    delegate  channels, config
+    delegate  logger,   config
 
     def self.create
       new.tap do |bot|
@@ -23,15 +26,20 @@ module Framework
       end
     end
 
-    getter    config
-    getter!   connection
-    property! user
-    delegate  channels, config
-    delegate  logger,   config
-
     private def initialize
       @config  = Configuration.new
+      @filters = [] of Filter::Item
       @started = false
+
+      add_filter Filter::NickFilter.new(config)
+    end
+
+    macro add_plugin klass
+      config.add_plugin Framework::PluginContainer({{klass}}).new
+    end
+
+    def add_filter filter : Filter::Item
+      @filters << filter
     end
 
     def join name
@@ -109,6 +117,10 @@ module Framework
       config.plugins.each_value &.handle(event)
 
       connection.block
+    end
+
+    def filter? event
+      @filters.any? &.call(event)
     end
   end
 end

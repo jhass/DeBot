@@ -8,9 +8,6 @@ module Framework
     delegate channels, config
     delegate wants?, config
 
-    def initialize
-    end
-
     def config
       (@config ||= T.config_class.empty).tap do |config|
         config.name = name

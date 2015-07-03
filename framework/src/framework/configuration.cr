@@ -5,6 +5,9 @@ require "irc/connection"
 
 module Framework
   class Configuration
+    class Error < Exception
+    end
+
     module Plugin
       class ChannelList
         def self.new pull : JSON::PullParser
@@ -17,10 +20,10 @@ module Framework
             if pull.read_bool == false
               none
             else
-              raise ArgumentError.new "true is not a valid value for the channel list"
+              raise Error.new "true is not a valid value for the channel list"
             end
           else
-            raise ArgumentError.new "invalid channel list (#{pull.kind}"
+            raise Error.new "invalid channel list (#{pull.kind}"
           end
         end
 
@@ -317,12 +320,12 @@ module Framework
 
     private def read_config
       path = @config_file
-      raise "No configuration file defined" unless path
+      raise Error.new("No configuration file defined") unless path
       File.read_lines(path).reject(&.match(/^\s*\/\//)).join
     end
 
     private def set_log_level
-      raise "Unknown log level #{log_level}" unless LOG_LEVELS.has_key? log_level
+      raise Error.new("Unknown log level #{log_level}") unless LOG_LEVELS.has_key? log_level
 
       logger.level = LOG_LEVELS[log_level]
     end

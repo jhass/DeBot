@@ -9,7 +9,6 @@ module Framework
     delegate wants?, config
 
     def initialize
-
     end
 
     def config
@@ -34,6 +33,8 @@ module Framework
     end
 
     def handle event
+      return unless wants? event
+
       if event.type == :message
         plugin = instance event.context
         handle_message event.message, plugin

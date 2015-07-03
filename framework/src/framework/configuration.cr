@@ -45,7 +45,15 @@ module Framework
           end
         end
 
-        def wants? message
+        def wants? event : Event
+          if event.type == :message && event.message.channel?
+            wants? event.message
+          else
+            true
+          end
+        end
+
+        def wants? message : Message
           listens_to? message.channel
         end
 

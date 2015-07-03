@@ -46,11 +46,8 @@ module Framework
 
       channel.on_message do |message|
         message = Message.new self, message
-        config.plugins.each_value do |container|
-          if container.wants? message
-            container.handle Event.new(self, :message, message)
-          end
-        end
+        event   = Event.new(self, :message, message)
+        config.plugins.each_value &.handle(event)
       end
 
       Channel.from_name(name, self)
@@ -93,6 +90,12 @@ module Framework
         join channel
       end
 
+      @started = true
+
+      Signal.trap(Signal::HUP) do
+        config.reload
+      end
+
       connection.on(IRC::Message::JOIN, IRC::Message::PART) do |message|
         if prefix = message.prefix
           type = message.type == IRC::Message::JOIN ? :join : :part
@@ -102,11 +105,8 @@ module Framework
         end
       end
 
-      Signal.trap(Signal::HUP) do
-        config.reload
-      end
-
-      @started = true
+      event = Event.new self, :connected
+      config.plugins.each_value &.handle(event)
 
       connection.block
     end

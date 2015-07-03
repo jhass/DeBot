@@ -7,7 +7,7 @@ module Framework
   class Event
     getter context
     getter type
-    getter sender
+    getter! sender
     getter! channel
     getter! message
 
@@ -20,6 +20,9 @@ module Framework
     end
 
     def initialize @context : Bot, @type : Symbol, @sender : User, @channel : Channel
+    end
+
+    def initialize @context : Bot, @type : Symbol
     end
   end
 end

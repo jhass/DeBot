@@ -266,22 +266,6 @@ module Framework
       @config_file = path
     end
 
-    def reload
-      json = read_config
-
-      set_log_level
-
-      Store.load_plugins self, json
-
-      store = @store
-      if store
-        pull = JSON::PullParser.new json
-        pull.on_key("plugins") do
-          store.plugins = JSON::Any.new(pull)
-        end
-      end
-    end
-
     def update_plugin_config plugin, config
       store = @store
       path = @config_file
@@ -300,15 +284,18 @@ module Framework
       File.write(path, json)
     end
 
+    def load
+      json = read_config
+      store = Store.from_json(json)
+      store.restore(self)
+      @store = store
+      Store.load_plugins self, json
+      set_log_level
+    end
+    alias_method reload, load
+
     def to_connection
-      if @config_file
-        json = read_config
-        store = Store.from_json(json)
-        store.restore(self)
-        @store = store
-        Store.load_plugins self, json
-        set_log_level
-      end
+      load if @config_file
 
       IRC::Connection.build do |config|
         config.server   = server

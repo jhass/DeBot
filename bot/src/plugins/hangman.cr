@@ -10,16 +10,17 @@ class Hangman
     end
 
     WORDLISTS = {
+      "c"          => word_list_for("glibc_functions"),
       "codepoints" => word_list_for("unicode_codepoint_names"),
+      "crystal"    => word_list_for("crystal"),
       "distros"    => word_list_for("distros"),
-      "nouns"      => word_list_for("wordlist"),
-      "gems"       => word_list_for("gem_names"),
-      "ruby"       => word_list_for("ruby"),
       "french"     => word_list_for("wordlist_fr"),
+      "gems"       => word_list_for("gem_names"),
       "german"     => word_list_for("wordlist_de"),
       "java"       => word_list_for("java_classes"),
-      "c"          => word_list_for("glibc_functions"),
+      "nouns"      => word_list_for("wordlist"),
       "perl"       => word_list_for("perl"),
+      "ruby"       => word_list_for("ruby")
     }
 
     DEFAULT_LIST = "nouns"

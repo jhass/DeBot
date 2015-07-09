@@ -10,6 +10,7 @@ class Hangman
     end
 
     WORDLISTS = {
+      "brainfuck"  => word_list_for("brainfuck"),
       "c"          => word_list_for("glibc_functions"),
       "codepoints" => word_list_for("unicode_codepoint_names"),
       "crystal"    => word_list_for("crystal"),
@@ -17,12 +18,12 @@ class Hangman
       "french"     => word_list_for("wordlist_fr"),
       "gems"       => word_list_for("gem_names"),
       "german"     => word_list_for("wordlist_de"),
+      "haskell"    => word_list_for("haskell"),
       "java"       => word_list_for("java_classes"),
       "nouns"      => word_list_for("wordlist"),
       "perl"       => word_list_for("perl"),
-      "ruby"       => word_list_for("ruby"),
-      "haskell"    => word_list_for("haskell"),
-      "brainfuck"  => word_list_for("brainfuck")
+      "php"        => word_list_for("php"),
+      "ruby"       => word_list_for("ruby")
     }
 
     DEFAULT_LIST = "nouns"

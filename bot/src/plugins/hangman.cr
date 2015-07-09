@@ -29,7 +29,7 @@ class Hangman
     DEFAULT_LIST = "nouns"
     PLACEHOLDER  = '␣'
 
-    def initialize list=DEFAULT_LIST
+    def initialize @list=DEFAULT_LIST
       @word = pick_word list
       @guesses = [] of Char|String
     end
@@ -39,6 +39,7 @@ class Hangman
         io << current_word
         io << " [#{wrong_guesses.join}]"
         io << " #{wrong_guesses.size}/12"
+        io << " (#{@list})"
         io << " You won!" if won?
         io << " You lost!" if lost?
       end
@@ -102,16 +103,26 @@ class Hangman
     message = msg.message
     return unless message.starts_with? bot.nick
 
-    return unless LIMITS.pass? msg.sender
-    LIMITS.hit msg.sender
 
     command = message.gsub(/^#{bot.nick}[:,]?\s*/, "")
     case command
+    when /^!hangman\s+(?:lists?|help)$/
+      list msg
     when /^!hangman\s+\w+$/
       _c, list = command.split
       start_game msg, list
     when /^!hangman$/
       start_game msg, Game::DEFAULT_LIST
+    else
+      react_to_guess msg, command
+    end
+  end
+
+  def react_to_guess msg, command
+    return unless LIMITS.pass? msg.sender
+    LIMITS.hit msg.sender
+
+    case command
     when /^space$/
       guess msg, ' '
     when /^[a-zA-Z0-9!"#\$%&'\*\+,\-\.\/:;<=>\?@\[\]\\^_`|~ ]+$/
@@ -121,10 +132,18 @@ class Hangman
 
   def start_game msg, list
     unless GAMES.has_key? msg.channel.name
-      GAMES[msg.channel.name] = Game.new list
+      if Game::WORDLISTS.has_key? list
+        GAMES[msg.channel.name] = Game.new list
+      else
+        return
+      end
     end
 
     msg.reply GAMES[msg.channel.name].status
+  end
+
+  def list msg
+    msg.reply "#{msg.sender.nick}: The following word lists are available: #{Game::WORDLISTS.keys.join(", ")}"
   end
 
   def guess msg, guess

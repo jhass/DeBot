@@ -20,6 +20,7 @@ class Hangman
       "java"       => word_list_for("java_classes"),
       "nouns"      => word_list_for("wordlist"),
       "perl"       => word_list_for("perl"),
+      "php"        => word_list_for("php"),
       "ruby"       => word_list_for("ruby")
     }
 

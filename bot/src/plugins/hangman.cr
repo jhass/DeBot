@@ -20,7 +20,9 @@ class Hangman
       "java"       => word_list_for("java_classes"),
       "nouns"      => word_list_for("wordlist"),
       "perl"       => word_list_for("perl"),
-      "ruby"       => word_list_for("ruby")
+      "ruby"       => word_list_for("ruby"),
+      "haskell"    => word_list_for("haskell"),
+      "brainfuck"  => word_list_for("brainfuck")
     }
 
     DEFAULT_LIST = "nouns"

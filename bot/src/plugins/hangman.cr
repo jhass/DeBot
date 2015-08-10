@@ -24,7 +24,8 @@ class Hangman
       "perl"       => word_list_for("perl"),
       "php"        => word_list_for("php"),
       "ruby"       => word_list_for("ruby"),
-      "coreutils"  => word_list_for("coreutils")
+      "coreutils"  => word_list_for("coreutils"),
+      "git"        => word_list_for("git")
     }
 
     DEFAULT_LIST = "nouns"

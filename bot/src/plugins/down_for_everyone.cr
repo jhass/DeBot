@@ -9,8 +9,7 @@ class DownForEveryone
   match /^!(?:down|up)\s+(?:(https?):\/\/?)?(\S+)/
 
   def execute msg, match
-    scheme = match[1]
-    scheme = "http" if scheme.empty?
+    scheme = match[1]? || "http"
     uri = URI.parse "#{scheme}://#{match[2]}"
     url = "#{uri.scheme}://#{uri.host}"
     body = HTTP::Client.get("http://downforeveryoneorjustme.com/#{uri.host}").body

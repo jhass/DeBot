@@ -27,9 +27,9 @@ __expr__ = begin
 %s
 
 end
-puts "\n# => #{__expr__.inspect}"
+puts "\n# => \#{__expr__.inspect}"
 rescue e
-  puts "#{e.class}: #{e.message}"
+  puts "\#{e.class}: \#{e.message}"
   puts e.backtrace.join("\n")
 end
 END
@@ -74,7 +74,7 @@ END
     reply = prettify_error reply
     reply = limit_size reply
 
-    msg.reply "#{msg.sender.nick}: #{reply} - #{"more at " if success && output.lines.size > 2}#{run.html_url}"
+    msg.reply "#{msg.sender.nick}: #{reply.chomp} - #{"more at " if success && output.lines.size > 2}#{run.html_url}"
   end
 
   def separate_playpen stderr

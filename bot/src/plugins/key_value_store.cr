@@ -43,7 +43,7 @@ class KeyValueStore
       else
         content = get_key msg.channel.name, match[1]
         if content
-          prefix = "#{match[2]}: " unless match[2].empty?
+          prefix = "#{match[2]}: " if match[2]?
           msg.reply "#{prefix}#{content}"
         else
           msg.reply "#{msg.sender.nick}: Nothing known about #{match[1]}."

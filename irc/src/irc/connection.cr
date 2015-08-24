@@ -2,11 +2,8 @@ require "socket"
 require "signal"
 require "base64"
 
-# Due to lazy initialization of constants, we need to load this before the logger :(
-require "core_ext/openssl"
 require "logger"
 
-require "thread/queue"
 require "thread/repository"
 
 require "./channel"
@@ -28,7 +25,6 @@ module IRC
       property! ssl
       property! try_sasl
       setter    logger
-      property  processors
 
       private def initialize
         @port       = 6667
@@ -39,7 +35,6 @@ module IRC
         @ssl        = false
         @try_sasl   = false
         @logger     = nil
-        @processors = 4
       end
 
       def self.new server : String
@@ -83,10 +78,10 @@ module IRC
     end
 
     def initialize @config : Config
-      @send_queue = Queue(String|Symbol).new
+      @send_queue = ::Channel(String).new(64)
       @users      = UserManager.new
       @channels   = Repository(String, Channel).new
-      @processor  = ProcessorPool.new(config.processors, logger)
+      @processor  = Processor.new(logger)
       @network    = Network.new
       @connected  = false
 
@@ -94,16 +89,15 @@ module IRC
     end
 
     def await *types, &callback : Message -> Bool
-      condition = ConditionVariable.new
+      channel = ::Channel(Message).new
       handler = @processor.on(*types) do |message|
-        condition.signal if callback.call(message)
+        channel.send(message) if callback.call(message)
       end
 
-      Mutex.new.synchronize do |mutex|
-        condition.wait mutex
+      channel.receive.tap do
+        @processor.handlers.delete(handler)
+        @processor.handle_others
       end
-
-      @processor.handlers.delete(handler)
     end
 
     def await *types
@@ -114,13 +108,13 @@ module IRC
 
     def quit message="Crystal IRC"
       send Message::QUIT, message
-      sleep 3
-      stop_threads
+      @processor.handle_others
+      stop_workers
       exit
     end
 
     def send message : Message
-      @send_queue << message.to_s
+      @send_queue.send message.to_s
     end
 
     def send type : String, parameters : Array(String)
@@ -221,7 +215,7 @@ module IRC
       end
 
       on Message::AUTHENTICATE do
-        send Message::AUTHENTICATE, Base64.strict_encode64("#{config.nick}\0#{config.nick}\0#{config.password}")
+        send Message::AUTHENTICATE, Base64.strict_encode("#{config.nick}\0#{config.nick}\0#{config.password}")
       end
 
       on(Message::RPL_LOGGEDIN,     Message::RPL_LOGGEDOUT, Message::ERR_NICKLOCKED,
@@ -244,11 +238,11 @@ module IRC
       self.nick = config.nick
       send Message::USER, config.user, "0", "*", config.realname
 
-      Signal.trap(Signal::INT) do
+      Signal::INT.trap do
         quit
       end
 
-      Signal.trap(Signal::TERM) do
+      Signal::TERM.trap do
         quit
       end
 
@@ -256,7 +250,7 @@ module IRC
         if error.message.starts_with? "Closing Link"
           logger.warn "Server closed connection (#{error.message}), shutting down"
 
-          stop_threads
+          stop_workers
           exit
         end
       end
@@ -285,10 +279,10 @@ module IRC
       @users.register_handlers self
 
       processor = @processor.not_nil!
-      reader = Reader.new socket, processor.queue, logger
+      reader = Reader.new socket, processor.channel, logger
       sender = Sender.new socket, @send_queue, logger
 
-      @threads = {processor, reader, sender}
+      @workers = {processor, reader, sender}
 
       await(Message::RPL_WELCOME)
 
@@ -296,11 +290,11 @@ module IRC
     end
 
     def block
-      @threads.not_nil!.each &.join
+      ::Channel(Nil).new.receive
     end
 
-    private def stop_threads
-      @threads.not_nil!.each &.stop
+    private def stop_workers
+      @workers.not_nil!.each &.stop
     end
   end
 

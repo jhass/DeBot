@@ -63,7 +63,7 @@ module Framework
       ban user.mask
     end
 
-    def ban mask : Mask
+    def ban mask : IRC::Mask
       ban mask.to_s
     end
 
@@ -75,7 +75,7 @@ module Framework
       unban user.mask
     end
 
-    def unban mask : Mask
+    def unban mask : IRC::Mask
       unban mask.to_s
     end
 

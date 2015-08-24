@@ -8,7 +8,7 @@ class Repository(K,V)
   end
 
   def fetch key
-    fetch(key) { raise MissingKey.new "Repository #{self} doesn't have key #{key}" }
+    fetch(key) { raise KeyError.new "Repository #{self} doesn't have key #{key}" }
   end
 
   def fetch key : K

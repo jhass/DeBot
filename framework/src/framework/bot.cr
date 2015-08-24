@@ -100,7 +100,7 @@ module Framework
 
       @started = true
 
-      Signal.trap(Signal::HUP) do
+      Signal::HUP.trap do
         config.reload
       end
 

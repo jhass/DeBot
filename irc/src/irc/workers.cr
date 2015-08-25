@@ -106,8 +106,9 @@ module IRC
         loop do
           message = @channel.receive
           @handlers.each do |handler|
+            handle_others if @pending_handlers >= 100
+            @pending_handlers += 1
             spawn do
-              @pending_handlers += 1
               handler.call(message)
               @pending_handlers -= 1
             end

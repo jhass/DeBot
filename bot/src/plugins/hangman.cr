@@ -10,22 +10,22 @@ class Hangman
     end
 
     WORDLISTS = {
-      "brainfuck"  => word_list_for("brainfuck"),
-      "c"          => word_list_for("glibc_functions"),
-      "codepoints" => word_list_for("unicode_codepoint_names"),
-      "coreutils"  => word_list_for("coreutils"),
-      "crystal"    => word_list_for("crystal"),
-      "distros"    => word_list_for("distros"),
-      "french"     => word_list_for("wordlist_fr"),
-      "gems"       => word_list_for("gem_names"),
-      "german"     => word_list_for("wordlist_de"),
-      "git"        => word_list_for("git"),
-      "haskell"    => word_list_for("haskell"),
-      "java"       => word_list_for("java_classes"),
-      "nouns"      => word_list_for("wordlist"),
-      "perl"       => word_list_for("perl"),
-      "php"        => word_list_for("php"),
-      "ruby"       => word_list_for("ruby")
+      "brainfuck"      => word_list_for("brainfuck"),
+      "c"              => word_list_for("glibc_functions"),
+      "codepoints"     => word_list_for("unicode_codepoint_names"),
+      "coreutils"      => word_list_for("coreutils"),
+      "crystal"        => word_list_for("crystal"),
+      "distros"        => word_list_for("distros"),
+      "french"         => word_list_for("wordlist_fr"),
+      "gems"           => word_list_for("gem_names"),
+      "german"         => word_list_for("wordlist_de"),
+      "git"            => word_list_for("git"),
+      "haskell"        => word_list_for("haskell_prelude"),
+      "java"           => word_list_for("java_classes"),
+      "nouns"          => word_list_for("wordlist"),
+      "perl"           => word_list_for("perl"),
+      "php"            => word_list_for("php"),
+      "ruby"           => word_list_for("ruby")
     }
 
     DEFAULT_LIST = "nouns"

@@ -1,0 +1,226 @@
+Bool
+False
+True
+not
+otherwise
+Maybe a
+Just a
+maybe
+Either a b
+Left a
+Right b
+either
+Ordering
+LT
+EQ
+GT
+Char
+String
+fst
+snd
+curry
+uncurry
+Eq a
+Ord a
+compare
+max
+min
+Enum a
+succ
+pred
+toEnum
+fromEnum
+enumFrom
+enumFromThen
+enumFromTo
+enumFromThenTo
+Bounded a
+minBound
+maxBound
+Int
+Integer
+Float
+Double
+Rational
+Ratio Integer
+Word
+Num a
+negate
+abs
+signum
+fromInteger
+Real a
+toRational
+Integral a
+quot
+rem
+div
+mod
+quotRem
+divMod
+toInteger
+Fractional a
+recip
+fromRational
+Floating a
+pi
+exp
+log
+sqrt
+logBase
+sin
+cos
+tan
+asin
+acos
+atan
+sinh
+cosh
+tanh
+asinh
+acosh
+atanh
+RealFrac a
+properFraction
+truncate
+round
+ceiling
+floor
+RealFloat a
+floatRadix
+floatDigits
+floatRange
+decodeFloat
+encodeFloat
+exponent
+significand
+scaleFloat
+isNaN
+isInfinite
+isDenormalized
+isNegativeZero
+isIEEE
+atan2
+subtract
+even
+odd
+gcd
+lcm
+fromIntegral
+realToFrac
+Monoid a
+mempty
+mappend
+mconcat
+Functo
+fmap
+Applicative f
+pure
+Monad m
+return
+fail
+mapM_
+sequence_
+Foldable t
+foldMap
+foldr
+foldl
+foldr1
+foldl1
+null
+length
+elem
+maximum
+minimum
+sum
+product
+Traversable t
+traverse
+sequenceA
+mapM
+sequence
+id
+const
+flip
+until
+asTypeOf
+error
+undefined
+seq
+map
+filter
+head
+last
+tail
+init
+reverse
+and
+or
+any
+all
+concat
+concatMap
+scanl
+scanl1
+scanr
+scanr1
+iterate
+repeat
+replicate
+cycle
+take
+drop
+splitAt
+takeWhile
+dropWhile
+span
+break
+notElem
+lookup
+zip
+zip3
+zipWith
+zipWith3
+unzip
+unzip3
+lines
+words
+unlines
+unwords
+ShowS
+Show a
+showsPrec
+show
+showList
+shows
+showChar
+showString
+showParen
+ReadS a
+Read a
+readsPrec
+readList
+reads
+readParen
+read
+lex
+IO a
+putChar
+putStr
+putStrLn
+print
+getChar
+getLine
+getContents
+interact
+FilePath
+String
+readFile
+writeFile
+appendFile
+readIO
+readLn
+IOError
+IOException
+ioError
+userError

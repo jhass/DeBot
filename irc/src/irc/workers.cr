@@ -2,7 +2,7 @@ require "./message"
 
 module IRC
   class Reader
-    getter logger
+    private getter logger
 
     def initialize socket, channel, @logger
       spawn do
@@ -13,17 +13,20 @@ module IRC
               logger.debug "r> #{line.chomp}"
               message = Message.from(line)
               channel.send message if message
+            else
+              logger.fatal "Socket closed, EOF!"
+              break
             end
           rescue e : InvalidByteSequenceError
             logger.warn "Failed to decode message: #{line.try &.bytes.inspect}"
           rescue e : Errno
             unless e.errno == Errno::EINTR
               logger.fatal "Failed to read message: #{e.message} (#{e.class})"
-              exit 1
+            else
+              logger.debug "Got #{e.class}: #{e.message}"
             end
           rescue e
             logger.fatal "Failed to read message: #{e.message} (#{e.class})"
-            exit 1
           end
         end
         logger.debug "Stopped reader"
@@ -36,7 +39,7 @@ module IRC
   end
 
   class Sender
-    getter logger
+    private getter logger
 
     def initialize socket, channel, @logger
       @stop_signal = ::Channel(Symbol).new
@@ -55,7 +58,6 @@ module IRC
           end
         rescue e
           logger.fatal "Failed to send message: #{e.message} (#{e.class})"
-          exit 1
         end
       end
     end
@@ -69,11 +71,13 @@ module IRC
   class Processor
     getter channel
     getter handlers
+    private getter logger
 
     def initialize @logger
       @channel = ::Channel(Message).new(64)
       @handlers = Array(Message ->).new
       @pending_handlers = 0
+      @stop_signal = ::Channel(Symbol).new
 
       process
     end
@@ -90,7 +94,8 @@ module IRC
     end
 
     def stop
-      # We'll just die as main exits
+      logger.debug "Stopping processor"
+      @stop_signal.send :stop
     end
 
     def handle_others
@@ -104,15 +109,25 @@ module IRC
     def process
       spawn do
         loop do
-          message = @channel.receive
-          @handlers.each do |handler|
-            handle_others if @pending_handlers >= 100
-            @pending_handlers += 1
-            spawn do
-              handler.call(message)
-              @pending_handlers -= 1
-            end
+          message = ::Channel.select(@stop_signal, @channel).receive
+          if message.is_a? Message
+            spawn_handlers message
+          elsif message == :stop
+            logger.debug "Processor received stop signal, shutting down"
+            break
           end
+        end
+        logger.debug "Stopped processor"
+      end
+    end
+
+    private def spawn_handlers message
+      @handlers.each do |handler|
+        handle_others if @pending_handlers >= 100
+        @pending_handlers += 1
+        spawn do
+          handler.call(message)
+          @pending_handlers -= 1
         end
       end
     end

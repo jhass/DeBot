@@ -78,12 +78,13 @@ module IRC
     end
 
     def initialize @config : Config
-      @send_queue = ::Channel(String).new(64)
-      @users      = UserManager.new
-      @channels   = Repository(String, Channel).new
-      @processor  = Processor.new(logger)
-      @network    = Network.new
-      @connected  = false
+      @send_queue   = ::Channel(String).new(64)
+      @users        = UserManager.new
+      @channels     = Repository(String, Channel).new
+      @processor    = Processor.new(logger)
+      @network      = Network.new
+      @connected    = false
+      @exit_channel = ::Channel(Int32).new
 
       @users.track Mask.parse(@config.nick) # Track self with pseudo mask
     end
@@ -104,13 +105,6 @@ module IRC
       await(*types) do |_message|
         true
       end
-    end
-
-    def quit message="Crystal IRC"
-      send Message::QUIT, message
-      @processor.handle_others
-      stop_workers
-      exit
     end
 
     def send message : Message
@@ -251,7 +245,7 @@ module IRC
           logger.warn "Server closed connection (#{error.message}), shutting down"
 
           stop_workers
-          exit
+          exit 1
         end
       end
 
@@ -289,12 +283,26 @@ module IRC
       logger.info "Connected"
     end
 
+    def quit message="Crystal IRC"
+      send Message::QUIT, message
+      @processor.handle_others
+      stop_workers
+      exit
+    end
+
+    def exit(code=0)
+      @exit_channel.send code
+      @processor.handle_others
+      Scheduler.yield
+    end
+
     def block
-      ::Channel(Nil).new.receive
+      ::exit @exit_channel.receive
     end
 
     private def stop_workers
       @workers.not_nil!.each &.stop
+      Scheduler.yield
     end
   end
 

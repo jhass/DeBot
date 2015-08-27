@@ -237,7 +237,7 @@ module Framework
     getter    plugins
 
     def initialize
-      @plugins  = Hash(String, PluginContainer).new
+      @plugins  = Hash(String, PluginContainer(Framework::Plugin)).new
       @channels = [] of String
       @logger   = Logger.new(STDOUT)
 

@@ -314,7 +314,7 @@ module IRC
     end
 
     def to_s(io)
-      io << ':' << @prefix if @prefix
+      io << ':' << @prefix << ' ' if @prefix
       io << @type
       parameters = @parameters.dup
       last = parameters.pop { nil }

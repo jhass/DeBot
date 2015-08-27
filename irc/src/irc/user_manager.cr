@@ -149,7 +149,10 @@ module IRC
     def part mask, channel
       find_membership(mask, channel).tap &.part
     end
-    alias_method kick, part
+
+    def kick mask, channel
+      part mask, channel
+    end
 
     def quit mask
       @users.delete(mask.nick)

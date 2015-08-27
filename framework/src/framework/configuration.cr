@@ -292,7 +292,10 @@ module Framework
       Store.load_plugins self, json
       set_log_level
     end
-    alias_method reload, load
+
+    def reload
+      load
+    end
 
     def to_connection
       load if @config_file

@@ -15,7 +15,7 @@ module IRC
               channel.send message if message
             end
           rescue e : InvalidByteSequenceError
-            logger.warn "Failed to decode message: #{line.try(&.dump) || line.inspect}"
+            logger.warn "Failed to decode message: #{line.try &.bytes.inspect}"
           rescue e : Errno
             unless e.errno == Errno::EINTR
               logger.fatal "Failed to read message: #{e.message} (#{e.class})"

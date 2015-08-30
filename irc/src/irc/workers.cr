@@ -46,7 +46,7 @@ module IRC
       spawn do
         begin
           loop do
-            message = ::Channel.select(@stop_signal, channel).receive
+            _, message = ::Channel.select(@stop_signal.receive_op, channel.receive_op)
             if message.is_a? String
               logger.debug "w> #{message.chomp}"
               message.to_s(socket)
@@ -109,7 +109,7 @@ module IRC
     def process
       spawn do
         loop do
-          message = ::Channel.select(@stop_signal, @channel).receive
+          _, message = ::Channel.select(@stop_signal.receive_op, @channel.receive_op)
           if message.is_a? Message
             spawn_handlers message
           elsif message == :stop

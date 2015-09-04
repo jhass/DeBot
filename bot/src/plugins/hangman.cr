@@ -21,6 +21,7 @@ class Hangman
       "german"     => word_list_for("wordlist_de"),
       "git"        => word_list_for("git"),
       "haskell"    => word_list_for("haskell"),
+      "irssi"      => word_list_for("irssi"),
       "java"       => word_list_for("java_classes"),
       "nouns"      => word_list_for("wordlist"),
       "perl"       => word_list_for("perl"),

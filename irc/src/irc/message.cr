@@ -62,11 +62,13 @@ module IRC
     ACCOUNT          = "ACCOUNT"
     RPL_WHOISACCOUNT = "330"
 
+    RPL_BOUNCE = "005" # According to RFC
+    ISUPPORT   = "005" # In practice
+
     RPL_WELCOME           = "001"
     RPL_YOURHOST          = "002"
     RPL_CREATED           = "003"
     RPL_MYINFO            = "004"
-    RPL_BOUNCE            = "005"
     RPL_USERHOST          = "302"
     RPL_ISON              = "303"
     RPL_AWAY              = "301"
@@ -266,19 +268,24 @@ module IRC
           when ' '
             parameters << parameter.to_s
             parameter = StringIO.new
+            state = :trail if parameters.size == 14
           else
             parameter << char
           end
         when :trail
           case char
           when '\r', '\n'
+          when ':'
+            parameter << char unless parameter.empty? # skip leading :
           else
             parameter << char
           end
         end
       end
 
-      parameters << parameter.to_s.strip
+      # Freenode violates the RFC and may send us trailing whitespace
+      parameter = parameter.to_s.strip
+      parameters << parameter unless parameter.empty?
 
       prefix = prefix.to_s
       prefix = nil if prefix.empty?

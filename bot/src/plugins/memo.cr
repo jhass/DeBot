@@ -9,7 +9,7 @@ class Memo
       content: {type: String},
       sender: {type: String},
       context: {type: String, nilable: true, emit_null: true},
-      timestamp: {type: Time, converter: TimeFormat.new("%F %T")}
+      timestamp: {type: Time, converter: Time::Format.new("%F %T")}
     })
 
     def initialize @content, @sender : String, @context : String?, @timestamp : Time

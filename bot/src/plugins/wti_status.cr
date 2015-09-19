@@ -34,8 +34,8 @@ class WtiStatus
   match /^!(?:ts|trans(?:lation)?stati?s(?:tics)?)\s+(\w+)\s+([a-zA-Z0-9_-]+)/
 
   def execute msg, match
-    project = match.length == 2 ? match[1] : config.default_project
-    code = match.length == 2 ? match[2] : match[1]
+    project = match.size == 2 ? match[1] : config.default_project
+    code = match.size == 2 ? match[2] : match[1]
     code = code.tr("_", "-")
 
     if code == "en"

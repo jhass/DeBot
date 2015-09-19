@@ -3,7 +3,7 @@ require "thread/synchronized"
 module Framework
   class Limiter
     def initialize(@limit=5, time_span=60)
-      @time_span = time_span.is_a?(TimeSpan) ? time_span : TimeSpan.new(0, 0, time_span)
+      @time_span = time_span.is_a?(Time::Span) ? time_span : Time::Span.new(0, 0, time_span)
       @hits      = [] of Time
     end
 

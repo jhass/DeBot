@@ -41,7 +41,7 @@ macro __wrap_last_expression(exprs)
   {% end %}
 end
 
-__wrap_last_expression begin
+__wrap_last_expression begin; nil
   #{TEMPLATE_PLACEHOLDER}
 end
 END
@@ -71,11 +71,16 @@ END
     if stderr && !stderr.strip.empty?
       playpen, crystal = separate_playpen stderr
       reply = crystal.last?
+
+      # Exception?
+      reply = crystal.first if reply && reply.match(/^\[\d+\]/)
+
       reply = "Sorry, that took too long." if playpen.includes?("playpen: timeout triggered!")
     end
 
     if reply.nil? && output && !output.strip.empty?
-      reply = success ? output.lines.find {|line| !line.strip.empty? } : find_error_message(output)
+      reply = success ? output.lines.find {|line| !line.strip.empty? } :
+                        filter_wrapper_macro(find_error_message(output))
     elsif success
       reply ||= output # Return the empty string
     end
@@ -108,9 +113,9 @@ END
     end
 
     # Rip out any type traces
-    if separator = lines.find {|line| line =~ /^[=]+$/ }
+    if separator = lines.find {|line| line =~ /^=+$/ }
       if index = lines.index(separator)
-        lines = lines[0..index]
+        lines = lines[0...index]
       end
     end
 
@@ -136,6 +141,12 @@ END
 
     # No traceback, first line that starts with "Error" then
     lines.find &.starts_with?("Error")
+  end
+
+  def filter_wrapper_macro(error)
+    error && error.lines.reject {|e|
+      e.includes?("in macro '__wrap_last_expression'")
+    }.join(" ")
   end
 
   def strip_ansi_codes text

@@ -20,6 +20,7 @@ class CrystalEval
     })
   end
 
+  TEMPLATE_PLACEHOLDER = "%body"
   TEMPLATE = <<-END
 macro __wrap_last_expression(exprs)
   {% i = 0 %}
@@ -41,14 +42,14 @@ macro __wrap_last_expression(exprs)
 end
 
 __wrap_last_expression begin
-  %s
+  #{TEMPLATE_PLACEHOLDER}
 end
 END
 
   match /^>>\s*(.+)/
 
   def execute msg, match
-    source = TEMPLATE % [match[1]]
+    source = TEMPLATE.sub(TEMPLATE_PLACEHOLDER, match[1])
 
     run = Request.from_json((JSON.parse(
       HTTP::Client.post(

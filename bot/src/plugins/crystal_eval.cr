@@ -21,16 +21,27 @@ class CrystalEval
   end
 
   TEMPLATE = <<-END
-begin;
-__expr__ = begin
-
-%s
-
+macro __wrap_last_expression(exprs)
+  {% i = 0 %}
+  {% for expression in exprs.expressions %}
+    {% i += 1 %}
+    {% if i <= exprs.expressions.size-1 %}
+      {{expression}}
+    {% end %}
+  {% end %}
+  {% if %w[Def FunDef Macro ClassDef LibDef].includes? exprs.expressions.last.class_name %}
+    {{exprs.expressions.last}}
+    puts "#=> nil"
+  {% else %}
+    %expr = begin
+      {{exprs.expressions.last}}
+    end
+    puts "\\n# => \#{ %expr.inspect}"
+  {% end %}
 end
-puts "\n# => \#{__expr__.inspect}"
-rescue e
-  puts "\#{e.class}: \#{e.message}"
-  puts e.backtrace.join("\n")
+
+__wrap_last_expression begin
+  %s
 end
 END
 

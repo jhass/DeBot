@@ -112,6 +112,11 @@ END
       end
     end
 
+    # Overload listing? Error is before that
+    if index = lines.index {|line| line.starts_with? "Overloads are:" }
+      return lines[index-1]
+    end
+
     # Rip out any type traces
     if separator = lines.find {|line| line =~ /^=+$/ }
       if index = lines.index(separator)

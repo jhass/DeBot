@@ -269,7 +269,7 @@ state
 study
 sub
 substr
-sym
+gensym
 syscall
 sysopen
 sysread

@@ -16,6 +16,7 @@ class Hangman
       "coreutils"  => word_list_for("coreutils"),
       "crystal"    => word_list_for("crystal"),
       "distros"    => word_list_for("distros"),
+      "english"    => word_list_for("wordlist"),
       "french"     => word_list_for("wordlist_fr"),
       "gems"       => word_list_for("gem_names"),
       "german"     => word_list_for("wordlist_de"),
@@ -23,13 +24,12 @@ class Hangman
       "haskell"    => word_list_for("haskell"),
       "irssi"      => word_list_for("irssi"),
       "java"       => word_list_for("java_classes"),
-      "nouns"      => word_list_for("wordlist"),
       "perl"       => word_list_for("perl"),
       "php"        => word_list_for("php"),
       "ruby"       => word_list_for("ruby")
     }
 
-    DEFAULT_LIST = "nouns"
+    DEFAULT_LIST = "english"
     PLACEHOLDER  = '␣'
 
     def initialize @list=DEFAULT_LIST

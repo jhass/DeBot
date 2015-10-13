@@ -5,12 +5,19 @@ require "./bot"
 
 module Framework
   class Message
+    VALID_TYPES = %w(PRIVMSG NOTICE)
+
     getter target
     getter message
     getter sender
     getter context
 
-    def initialize @context : Bot, @target : String, @message : String
+    def initialize @context : Bot, @target : String, @message : String, @type="PRIVMSG" : Symbol|String
+      @type = @type.to_s.upcase
+      unless VALID_TYPES.includes? @type
+        raise ArgumentError.new("Only valid types are #{VALID_TYPES.join(", ")}")
+      end
+
       @sender = context.user
     end
 
@@ -22,6 +29,8 @@ module Framework
       else
         @sender = @context.user
       end
+      @type = message.type
+      @type = "PRIVMSG" unless VALID_TYPES.includes? @type
     end
 
     def as_action
@@ -30,13 +39,13 @@ module Framework
 
     def reply text
       target =  @target.starts_with?('#') ? @target : @sender.nick
-      Message.new(@context, target, text).send
+      Message.new(@context, target, text, @type).send
     end
 
     def send
       userhost = @context.user.mask.to_s
       nick = @context.user.nick
-      prefix = "PRIVMSG #{@target} :"
+      prefix = "#{@type} #{@target} :"
       # 512 max message length according RFC, but Freenode only allows 510
       # -3 for :, ! and space
       # userhost fallback: hostname(63)+nickname(9)+@(1) = 73

@@ -7,6 +7,7 @@ module IRC
     def initialize socket, channel, @logger
       spawn do
         loop do
+          break if channel.closed?
           begin
             line = socket.gets
             if line
@@ -15,6 +16,9 @@ module IRC
               channel.send message if message
             else
               logger.fatal "Socket closed, EOF!"
+              channel.close
+              socket.close unless socket.closed?
+              exit 1
               break
             end
           rescue e : InvalidByteSequenceError
@@ -46,6 +50,7 @@ module IRC
       spawn do
         begin
           loop do
+            break if channel.closed? || @stop_signal.closed?
             message = ::Channel.receive_first(@stop_signal, channel)
             if message.is_a? String
               logger.debug "w> #{message.chomp}"
@@ -53,6 +58,8 @@ module IRC
               socket.flush
             elsif message == :stop
               logger.debug "Sender received stop signal, shutting down"
+              channel.close
+              socket.close unless socket.closed?
               break
             end
           end
@@ -65,6 +72,7 @@ module IRC
     def stop
       logger.debug "Stopping sender"
       @stop_signal.send :stop
+      @stop_signal.close
     end
   end
 
@@ -96,6 +104,7 @@ module IRC
     def stop
       logger.debug "Stopping processor"
       @stop_signal.send :stop
+      @stop_signal.close
     end
 
     def handle_others
@@ -109,11 +118,13 @@ module IRC
     def process
       spawn do
         loop do
+          break if @channel.closed? || @stop_signal.closed?
           message = ::Channel.receive_first(@stop_signal, @channel)
           if message.is_a? Message
             spawn_handlers message
           elsif message == :stop
             logger.debug "Processor received stop signal, shutting down"
+            @channel.close
             break
           end
         end

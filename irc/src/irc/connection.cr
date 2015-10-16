@@ -4,6 +4,7 @@ require "base64"
 
 require "logger"
 
+require "core_ext/openssl"
 require "thread/repository"
 
 require "./channel"
@@ -292,6 +293,7 @@ module IRC
 
     def exit(code=0)
       @exit_channel.send code
+      @exit_channel.close
       @processor.handle_others
       Scheduler.yield
     end

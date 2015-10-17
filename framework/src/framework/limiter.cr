@@ -33,7 +33,7 @@ module Framework
 
     private def cleanup_hits
       now = Time.now
-      @hits.delete_if {|hit| now-hit > @time_span }
+      @hits.reject! {|hit| now-hit > @time_span }
     end
   end
 

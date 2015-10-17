@@ -43,7 +43,7 @@ class Google
   end
 
   def query query
-    fetch "https://www.google.com/search?q=#{CGI.escape(query)}&safe=none&ie=utf-8&oe=utf-8&hl=en"
+    fetch "https://www.google.com/search?q=#{URI.escape(query)}&safe=none&ie=utf-8&oe=utf-8&hl=en"
   end
 
   def fetch url, redirect_limit=10

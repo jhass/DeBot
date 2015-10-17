@@ -110,7 +110,7 @@ module IRC
     def handle_others
       loop do
         pending_handlers = @pending_handlers
-        Scheduler.yield
+        Fiber.yield
         break if pending_handlers == @pending_handlers
       end
     end

@@ -295,7 +295,7 @@ module IRC
       @exit_channel.send code
       @exit_channel.close
       @processor.handle_others
-      Scheduler.yield
+      Fiber.yield
     end
 
     def block
@@ -304,7 +304,6 @@ module IRC
 
     private def stop_workers
       @workers.not_nil!.each &.stop
-      Scheduler.yield
     end
   end
 

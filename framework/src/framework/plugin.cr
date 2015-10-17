@@ -15,7 +15,7 @@ module Framework
       class Config
         include Framework::Configuration::Plugin
 
-        json_mapping({
+        JSON.mapping({
           :channels => {type: Framework::Configuration::Plugin::ChannelList, nilable: true, emit_null: true},
           {% for key, value in properties %}
             {{key}} => {{value}},

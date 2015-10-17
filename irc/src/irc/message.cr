@@ -219,10 +219,10 @@ module IRC
     end
 
     private def self.parse message
-      prefix = StringIO.new
-      type = StringIO.new
+      prefix = MemoryIO.new
+      type = MemoryIO.new
       parameters = [] of String
-      parameter = StringIO.new
+      parameter = MemoryIO.new
       state = :start
 
       message.each_char do |char|
@@ -267,7 +267,7 @@ module IRC
           when '\r', '\n'
           when ' '
             parameters << parameter.to_s
-            parameter = StringIO.new
+            parameter = MemoryIO.new
             state = :trail if parameters.size == 14
           else
             parameter << char

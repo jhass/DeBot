@@ -6,13 +6,13 @@ class CrystalEval
   include Framework::Plugin
 
   class Request
-    json_mapping({
+    JSON.mapping({
       run: Run
     })
   end
 
   class Run
-    json_mapping({
+    JSON.mapping({
       stdout:     String,
       stderr:     String,
       exit_code:  Int32,

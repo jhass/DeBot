@@ -7,13 +7,13 @@ require "framework/plugin"
 class DiasporaStats
   class Graph
     class Datapoint
-      json_mapping({
+      JSON.mapping({
         x: {type: Int32},
         y: {type: Int32}
       })
     end
 
-    json_mapping({
+    JSON.mapping({
       name: {type: String},
       color: {type: String},
       renderer: {type: String},

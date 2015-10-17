@@ -6,9 +6,9 @@ class GithubIssues
   include Framework::Plugin
 
   class Issue
-    json_mapping({
-        html_url: String,
-        title: String
+    JSON.mapping({
+      html_url: String,
+      title: String
     })
 
     def to_s(io)

@@ -119,7 +119,7 @@ module Framework
       class Default
         include Plugin
 
-        json_mapping({
+        JSON.mapping({
           channels: {type: Framework::Configuration::Plugin::ChannelList, nilable: true, emit_null: true}
         })
 
@@ -142,7 +142,7 @@ module Framework
     end
 
     class Store
-      json_mapping({
+      JSON.mapping({
         server:          {type: String},
         port:            {type: Int32,         nilable: true},
         channels:        {type: Array(String)},

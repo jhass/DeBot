@@ -5,7 +5,7 @@ require "framework/json_store"
 
 class Memo
   class Memo
-    json_mapping({
+    JSON.mapping({
       content: {type: String},
       sender: {type: String},
       context: {type: String, nilable: true, emit_null: true},

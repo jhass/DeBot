@@ -5,7 +5,7 @@ require "framework/plugin"
 
 class WtiStatus
   class Stats
-    json_mapping({
+    JSON.mapping({
       count_strings_done: Int32,
       count_strings: Int32,
       count_strings_to_translate: Int32,
@@ -15,7 +15,7 @@ class WtiStatus
   end
 
   class Project
-    json_mapping({
+    JSON.mapping({
       api_key: String,
       slug: String
     })

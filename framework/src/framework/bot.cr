@@ -92,6 +92,11 @@ module Framework
         end
       end
 
+      connection.on(IRC::Message::KICK) do |message|
+        channel, nick = message.parameters
+        part channel if nick == user.nick
+      end
+
       connection.connect
 
       channels.each do |channel|
@@ -108,8 +113,11 @@ module Framework
         if prefix = message.prefix
           type = message.type == IRC::Message::JOIN ? :join : :part
           channel = message.parameters.first
-          event = Event.new self, type, User.from_mask(prefix, self), Channel.from_name(channel, self)
+          user = User.from_mask(prefix, self)
+          event = Event.new self, type, user, Channel.from_name(channel, self)
           config.plugins.each_value &.handle(event)
+
+          part channel if message.type == IRC::Message::PART && user.nick == self.user.nick
         end
       end
 

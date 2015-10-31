@@ -48,7 +48,11 @@ module IRC
       connection.on Message::PART do |message|
         with_mask(message) do |mask|
           channel = connection.channels[message.parameters.first]
-          part mask, channel
+          if mask.nick == connection.config.nick
+            connection.part channel.name
+          else
+            part mask, channel
+          end
         end
       end
 
@@ -60,7 +64,11 @@ module IRC
 
       connection.on Message::KICK do |message|
         channel, nick = message.parameters
-        kick Mask.parse(nick), connection.channels[channel]
+        if nick == connection.config.nick
+          connection.part channel
+        else
+          kick Mask.parse(nick), connection.channels[channel]
+        end
       end
 
       connection.on Message::NICK do |message|

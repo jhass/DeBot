@@ -158,6 +158,7 @@ module IRC
         if channel
           channel.part
           @users.part Mask.parse(config.nick), channel
+          channel.clear_handlers
           @channels.delete channel_name
         end
       end

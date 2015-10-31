@@ -95,6 +95,10 @@ module IRC
       @message_handlers << block
     end
 
+    def clear_handlers
+      @message_handlers.clear
+    end
+
     def join
       @connection.send "JOIN #{@name}"
     end

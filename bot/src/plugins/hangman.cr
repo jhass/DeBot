@@ -31,10 +31,12 @@ class Hangman
     }
 
     DEFAULT_LIST = "nouns"
+    DEFAULT_GUESS_MAX = 12
     PLACEHOLDER  = '␣'
 
-    def initialize @list=DEFAULT_LIST
+    def initialize @list=DEFAULT_LIST, @guess_max=DEFAULT_GUESS_MAX
       @word = pick_word list
+      @guess_max = guess_max
       @guesses = [] of Char|String
     end
 
@@ -42,7 +44,7 @@ class Hangman
       String.build do |io|
         io << current_word
         io << " [#{wrong_guesses.join}]"
-        io << " #{wrong_guesses.size}/12"
+        io << " #{wrong_guesses.size}/#{@guess_max}"
         io << " (#{@list})"
         io << " You won!" if won?
         io << " You lost!" if lost?
@@ -80,7 +82,7 @@ class Hangman
     end
 
     def lost?
-      wrong_guesses.size >= 12
+      wrong_guesses.size >= @guess_max
     end
 
     def won?
@@ -114,9 +116,12 @@ class Hangman
       list msg
     when /^!hangman\s+\w+$/
       _c, list = command.split
-      start_game msg, list
+      start_game msg, list, Game::DEFAULT_GUESS_MAX
+    when /^!hangman\s+\w+\s+\d+$/
+      _c, list, guess_max = command.split
+      start_game msg, list, guess_max.to_i
     when /^!hangman$/
-      start_game msg, Game::DEFAULT_LIST
+      start_game msg, Game::DEFAULT_LIST, Game::DEFAULT_GUESS_MAX
     else
       react_to_guess msg, command
     end
@@ -134,10 +139,10 @@ class Hangman
     end
   end
 
-  def start_game msg, list
+  def start_game msg, list, guess_max
     unless GAMES.has_key? msg.channel.name
       if Game::WORDLISTS.has_key? list
-        GAMES[msg.channel.name] = Game.new list
+        GAMES[msg.channel.name] = Game.new list, {guess_max, Game::DEFAULT_GUESS_MAX}.min
       else
         return
       end

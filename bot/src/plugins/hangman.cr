@@ -142,7 +142,7 @@ class Hangman
   def start_game msg, list, guess_max
     unless GAMES.has_key? msg.channel.name
       if Game::WORDLISTS.has_key? list
-        GAMES[msg.channel.name] = Game.new list, {guess_max, Game::DEFAULT_GUESS_MAX}.min
+        GAMES[msg.channel.name] = Game.new list, guess_max.clamp(1, Game::DEFAULT_GUESS_MAX)
       else
         return
       end

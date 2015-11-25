@@ -27,6 +27,7 @@ class Hangman
       "nouns"      => word_list_for("wordlist"),
       "perl"       => word_list_for("perl"),
       "php"        => word_list_for("php"),
+      "pokemon"    => word_list_for("pokemon"),
       "ruby"       => word_list_for("ruby")
     }
 

@@ -14,6 +14,7 @@ class Hangman
       "c"          => word_list_for("glibc_functions"),
       "codepoints" => word_list_for("unicode_codepoint_names"),
       "coreutils"  => word_list_for("coreutils"),
+      "cpan"       => word_list_for("cpan_packages"),
       "crystal"    => word_list_for("crystal"),
       "distros"    => word_list_for("distros"),
       "french"     => word_list_for("wordlist_fr"),

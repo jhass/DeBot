@@ -53,7 +53,7 @@ END
 
     run = Request.from_json((JSON.parse(
       HTTP::Client.post(
-        "http://carc.in/run_requests",
+        "https://carc.in/run_requests",
         HTTP::Headers {"Content-Type" => "application/json; charset=utf8"},
         {
           run_request: {

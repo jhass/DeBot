@@ -22,17 +22,25 @@ class KeyValueStore
     @@store.not_nil!
   end
 
-  match /^!(keys)\s+(#[^ ]+)?/
+  match /^!(keys)\s*(#[^ ]+)?/
   match /^\?((?:[\d\w]+))\s*([\w\[\]\\`\^\{\}\|][\w\[\]\\`\^\{\}|\d\-]{0,15})?\s*$/
   match /^\?((?:[\d\w]+)=)(.+)/
 
   def execute msg, match
     if match[1] == "keys"
-      channel = match[2] unless match[2].empty?
-      channel ||= msg.channel.name if msg.channel?
+      explicit_channel = match[2] if match[2]?
+      channel = msg.channel.name if msg.channel?
+      channel = explicit_channel || channel
       return unless channel
 
-      msg.reply "I know the following keys: #{known_keys(channel).join(", ")}"
+      keys    = known_keys(channel)
+      channel = explicit_channel ? " for #{channel}" : ""
+
+      unless keys.empty?
+        msg.reply "I know the following keys#{channel}: #{keys.join(", ")}"
+      else
+        msg.reply "No keys known#{channel}."
+      end
     else
       return unless msg.channel?
 

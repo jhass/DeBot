@@ -23,8 +23,9 @@ class KeyValueStore
   end
 
   match /^!(keys)\s*(#[^ ]+)?/
-  match /^\?((?:[\d\w]+))\s*([\w\[\]\\`\^\{\}\|][\w\[\]\\`\^\{\}|\d\-]{0,15})?\s*$/
-  match /^\?((?:[\d\w]+)=)(.+)/
+  match /^\?([\d\w\-]++)(?!=)\s*([\w\[\]\\`\^\{\}\|][\w\[\]\\`\^\{\}|\d\-]{0,15})?/
+  match /^\?([\d\w\-]+=)(\?[\d\w\-]+)\s*$/
+  match /^\?([\d\w\-]+=)(?!\?)(.+)/
 
   def execute msg, match
     if match[1] == "keys"
@@ -74,9 +75,13 @@ class KeyValueStore
     end
   end
 
-  def get_key channel, key
+  def get_key channel, key, nesting=0
+    return if nesting > 10
+
     store.fetch(channel) do |data|
-      data && data[key]?
+      value = data && data[key]?
+      value = get_key(channel, value[1..-1], nesting+1) if value && value.starts_with?('?')
+      value
     end
   end
 end

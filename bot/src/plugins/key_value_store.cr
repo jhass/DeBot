@@ -70,18 +70,31 @@ class KeyValueStore
   def set_key channel, key, value
     store.modify(channel) do |data|
       data ||= Hash(String, String).new
+
+      10.times do
+        current_value = data[key]?
+        if current_value && current_value.starts_with?('?') && !value.starts_with?('?')
+          key = current_value[1..-1]
+        else
+          break
+        end
+      end
+
       data[key] = value
       data
     end
   end
 
-  def get_key channel, key, nesting=0
-    return if nesting > 10
-
+  def get_key channel, key
     store.fetch(channel) do |data|
-      value = data && data[key]?
-      value = get_key(channel, value[1..-1], nesting+1) if value && value.starts_with?('?')
-      value
+      10.times do
+        value = data && data[key]?
+        if value && value.starts_with?('?')
+          key = value[1..-1]
+        else
+          return value
+        end
+      end
     end
   end
 end

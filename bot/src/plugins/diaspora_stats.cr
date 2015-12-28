@@ -25,7 +25,7 @@ class DiasporaStats
 
   match /^!dstats/
 
-  def execute msg, _match
+  def execute(msg, _match)
     json = HTTP::Client.get("http://pods.jasonrobinson.me/stats/global").body
     statistics = Array(Graph).from_json json
     statistics = {

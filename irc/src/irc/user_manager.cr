@@ -13,7 +13,7 @@ module IRC
       @users = Repository(String, User).new
     end
 
-    def register_handlers connection
+    def register_handlers(connection)
       connection.on Message::RPL_NAMREPLY do |message|
         channel = connection.channels[message.parameters[2]]
 
@@ -123,58 +123,58 @@ module IRC
       end
     end
 
-    def with_mask message
+    def with_mask(message)
       if prefix = message.prefix
         mask = Mask.parse prefix
         yield mask
       end
     end
 
-    def find_user mask : Mask
+    def find_user(mask : Mask)
       @users.fetch(mask.nick) { User.new(mask) }.tap &.mask.update(mask)
     end
 
-    def find_membership mask, channel : Channel
+    def find_membership(mask, channel : Channel)
       find_user(mask).channels.fetch(channel.name) { Membership.new(channel) }
     end
 
-    def track mask
+    def track(mask)
       find_user mask
     end
 
-    def nick mask, new_nick
+    def nick(mask, new_nick)
       find_user(mask).tap do |user|
         @users.rename(mask.nick, new_nick)
         user.mask.nick = new_nick
       end
     end
 
-    def join mask, channel, authname=nil
+    def join(mask, channel, authname=nil)
       find_user(mask).authname = authname if authname
       find_membership(mask, channel).tap &.join
     end
 
-    def part mask, channel
+    def part(mask, channel)
       find_membership(mask, channel).tap &.part
     end
 
-    def kick mask, channel
+    def kick(mask, channel)
       part mask, channel
     end
 
-    def quit mask
+    def quit(mask)
       @users.delete(mask.nick)
     end
 
-    def auth_change mask, authname
+    def auth_change(mask, authname)
       find_user(mask).tap &.authname=(authname)
     end
 
-    def umode mask, flag, gained
+    def umode(mask, flag, gained)
       find_user(mask).tap &.mode(flag, gained)
     end
 
-    def cmode mask, channel, flag, gained, parameter=nil
+    def cmode(mask, channel, flag, gained, parameter=nil)
       find_membership(mask, channel).tap &.mode(flag, gained, parameter)
     end
   end

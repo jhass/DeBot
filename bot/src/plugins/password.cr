@@ -10,7 +10,7 @@ class Password
 
   match /^!password\s*$/
   match /^!password\s+(\w\w)/
-  def execute msg, match
+  def execute(msg, match)
     lang = match[1]? || "default"
     dict = AVAILABLE_DICTS[lang.strip]
     dict ||= AVAILABLE_DICTS["default"]

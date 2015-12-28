@@ -28,7 +28,7 @@ module IRC
     getter? active
     getter  modes
 
-    def initialize @channel
+    def initialize(@channel)
       @active = false
       @modes  = Modes.new
     end
@@ -45,7 +45,7 @@ module IRC
       @modes.unset 'a'
     end
 
-    def mode flag, gained, parameter=nil
+    def mode(flag, gained, parameter=nil)
       if gained
         @modes.set flag, parameter
       else

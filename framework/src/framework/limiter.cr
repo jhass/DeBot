@@ -42,19 +42,19 @@ module Framework
       @limiters = Repository(T, Synchronized(Limiter)).new
     end
 
-    def pass? key : T
+    def pass?(key : T)
       fetch(key).pass?
     end
 
-    def exceeded? key : T
+    def exceeded?(key : T)
       fetch(key).exceeded?
     end
 
-    def hit key : T
+    def hit(key : T)
       fetch(key).hit
     end
 
-    private def fetch key
+    private def fetch(key)
       @limiters.rehash
       @limiters.fetch(key) { Synchronized.new Limiter.new(@limit, @time_span) }
     end

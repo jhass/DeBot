@@ -9,7 +9,7 @@ class DiasporaVersion
 
   match /^!rev\s+([a-zA-Z0-9]+[a-zA-Z0-9\-\.]*\.[a-zA-Z]+)/
 
-  def execute msg, match
+  def execute(msg, match)
     resp = HTTP::Client.get API_ENDPOINT % [match[1]]
     msg.reply resp.body
   end

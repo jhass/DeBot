@@ -18,18 +18,18 @@ module Framework
       T.to_s
     end
 
-    def read_config pull : JSON::PullParser
+    def read_config(pull : JSON::PullParser)
       (@config = T.config_class.new pull).tap do |config|
         config.name = name
         T.config_loaded(config)
       end
     end
 
-    def instance context
+    def instance(context)
       T.new(context, config)
     end
 
-    def handle event
+    def handle(event)
       return unless wants? event
       return if filter? event
 
@@ -45,21 +45,19 @@ module Framework
       handle_event event, plugin
     end
 
-    def filter? event
+    def filter?(event)
       event.context.filter? event
     end
 
-    private def handle_event event, plugin
-      begin
-        plugin.react_to(event) if plugin.responds_to?(:react_to)
-      rescue e
-        puts "Couldn't run plugin #{self} for #{event}:"
-        puts e
-        puts e.backtrace.join("\n")
-      end
+    private def handle_event(event, plugin)
+      plugin.react_to(event) if plugin.responds_to?(:react_to)
+    rescue e
+      puts "Couldn't run plugin #{self} for #{event}:"
+      puts e
+      puts e.backtrace.join("\n")
     end
 
-    private def handle_message message, plugin
+    private def handle_message(message, plugin)
       T.matchers.each do |regex|
         match = message.message.match regex
         if match

@@ -12,12 +12,12 @@ class Admin
     config.admins ||= [] of String
   end
 
-  def superadmin? user
+  def superadmin?(user)
     return false unless user.authname
     config.superadmins.includes? user.authname
   end
 
-  def admin? user
+  def admin?(user)
     return true if superadmin? user
     return false unless user.authname
     admins.includes? user.authname
@@ -37,7 +37,7 @@ class Admin
   match /^!((?:de)?op)(?:\s+(\w+))?$/
   match /^!(quit|reload)$/
 
-  def execute msg, match
+  def execute(msg, match)
     return unless admin?(msg.sender)
 
     case match[1]
@@ -71,7 +71,7 @@ class Admin
     end
   end
 
-  def with_channel msg, match
+  def with_channel(msg, match)
     channel = match[2]
     if channel.empty?
       return unless msg.channel?
@@ -92,19 +92,19 @@ class Admin
     end
   end
 
-  def sayto msg, dst, message
+  def sayto(msg, dst, message)
     sendto(msg, dst) do |target|
       target.send message
     end
   end
 
-  def doto msg, dst, message
+  def doto(msg, dst, message)
     sendto(msg, dst) do |target|
       target.action message
     end
   end
 
-  def sendto msg, dst
+  def sendto(msg, dst)
     if dst.starts_with? '#'
       if context.channels.includes?(dst)
         yield channel(dst)
@@ -116,7 +116,7 @@ class Admin
     end
   end
 
-  def op mode, msg, target
+  def op(mode, msg, target)
     return unless msg.channel?
 
     target = target.empty? ? bot : user(target)
@@ -136,7 +136,7 @@ class Admin
     end
   end
 
-  def add_admin msg, nick
+  def add_admin(msg, nick)
     return unless superadmin? msg.sender
 
     new_admin = user(nick)
@@ -157,7 +157,7 @@ class Admin
     end
   end
 
-  def remove_admin msg, nick
+  def remove_admin(msg, nick)
     return unless superadmin? msg.sender
 
     authname = user(nick).authname
@@ -172,7 +172,7 @@ class Admin
     end
   end
 
-  def add_ignore msg, nick
+  def add_ignore(msg, nick)
     return unless admin? msg.sender
 
     unless context.config.ignores.includes? nick
@@ -184,7 +184,7 @@ class Admin
     end
   end
 
-  def remove_ignore msg, nick
+  def remove_ignore(msg, nick)
     return unless admin? msg.sender
 
     if context.config.ignores.includes? nick
@@ -196,7 +196,7 @@ class Admin
     end
   end
 
-  def enable_plugin msg, channel, name
+  def enable_plugin(msg, channel, name)
     unless context.config.plugins.has_key? name
       msg.reply "#{msg.sender.nick}: Unknown plugin #{name}."
       return
@@ -215,7 +215,7 @@ class Admin
     msg.reply "#{msg.sender.nick}: Enabled #{name}."
   end
 
-  def disable_plugin msg, channel, name
+  def disable_plugin(msg, channel, name)
     unless context.config.plugins.has_key? name
       msg.reply "#{msg.sender.nick}: Unknown plugin #{name}."
       return

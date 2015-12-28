@@ -9,10 +9,10 @@ module Framework
     class NickFilter
       include Filter
 
-      def initialize @config
+      def initialize(@config)
       end
 
-      def call event
+      def call(event)
         return false unless event.sender?
 
         @config.ignores.includes? event.sender.nick

@@ -10,7 +10,7 @@ module Framework
 
     module Plugin
       class ChannelList
-        def self.new pull : JSON::PullParser
+        def self.new(pull : JSON::PullParser)
           case pull.kind
           when :null
             default
@@ -35,7 +35,7 @@ module Framework
           new false
         end
 
-        def initialize channels : Array(String)|Bool
+        def initialize(channels : Array(String)|Bool)
           case channels
           when Bool
             @wants_channel_messsages = channels
@@ -48,7 +48,7 @@ module Framework
           end
         end
 
-        def wants? event : Event
+        def wants?(event : Event)
           if event.type == :message && event.message.channel?
             wants? event.message
           else
@@ -56,18 +56,18 @@ module Framework
           end
         end
 
-        def wants? message : Message
+        def wants?(message : Message)
           listens_to? message.channel
         end
 
-        def listens_to? channel
+        def listens_to?(channel)
           return false unless @wants_channel_messsages
           return true if @channels.empty?
 
           @channels.includes? channel.name
         end
 
-        def add channel : Channel
+        def add(channel : Channel)
           if @wants_channel_messsages
             unless @channels.empty? || @channels.includes?(channel.name)
               @channels << channel.name
@@ -81,7 +81,7 @@ module Framework
           end
         end
 
-        def remove channel : Channel
+        def remove(channel : Channel)
           if @channels.includes? channel.name
             @channels.delete channel.name
             if @channels.empty?
@@ -93,7 +93,7 @@ module Framework
           end
         end
 
-        def to_json io
+        def to_json(io)
           value = if @wants_channel_messsages
             if @channels.empty?
               nil
@@ -158,7 +158,7 @@ module Framework
         plugins:         {type: JSON::Any,     nilable: true}
       }, true)
 
-      def self.load_plugins config, json
+      def self.load_plugins(config, json)
         pull = JSON::PullParser.new json
         pull.on_key("plugins") do
           pull.read_object do |key|
@@ -170,19 +170,19 @@ module Framework
       def plugins
         plugins = @plugins
 
-        unless plugins.is_a? Hash(String, JSON::Type)
-          plugins = Hash(String, JSON::Type).new
+        unless plugins.is_a? Hash(String, JSON::Any)
+          plugins = Hash(String, JSON::Any).new
           @plugins = plugins
         end
 
         plugins
       end
 
-      def plugins= value : JSON::Type
+      def plugins=(value : JSON::Any)
         @plugins = value
       end
 
-      def to_json config : Configuration
+      def to_json(config : Configuration)
         self.port            = config.port
         self.channels        = config.channels
         self.user            = config.user
@@ -197,7 +197,7 @@ module Framework
         to_pretty_json
       end
 
-      def restore config
+      def restore(config)
         config.server          = server
         config.port            = port            unless port.nil?
         config.channels        = channels
@@ -258,15 +258,15 @@ module Framework
       @port || (@ssl ? 6697 : 6667)
     end
 
-    def add_plugin plugin : PluginContainer
+    def add_plugin(plugin : PluginContainer)
       plugins[plugin.name] = plugin
     end
 
-    def from_file path
+    def from_file(path)
       @config_file = path
     end
 
-    def update_plugin_config plugin, config
+    def update_plugin_config(plugin, config)
       store = @store
       path = @config_file
       return unless store && path

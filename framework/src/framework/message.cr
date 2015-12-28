@@ -12,7 +12,7 @@ module Framework
     getter sender
     getter context
 
-    def initialize @context : Bot, @target : String, @message : String, @type="PRIVMSG" : Symbol|String
+    def initialize(@context : Bot, @target : String, @message : String, @type="PRIVMSG" : Symbol|String)
       @type = @type.to_s.upcase
       unless VALID_TYPES.includes? @type
         raise ArgumentError.new("Only valid types are #{VALID_TYPES.join(", ")}")
@@ -21,7 +21,7 @@ module Framework
       @sender = context.user
     end
 
-    def initialize @context : Bot, message = IRC::Message
+    def initialize(@context : Bot, message = IRC::Message)
       @target, @message = message.parameters
       prefix = message.prefix
       if prefix
@@ -37,7 +37,7 @@ module Framework
       Message.new(@context, @target, "\001ACTION #{@message}\001")
     end
 
-    def reply text
+    def reply(text)
       target =  @target.starts_with?('#') ? @target : @sender.nick
       Message.new(@context, target, text, @type).send
     end

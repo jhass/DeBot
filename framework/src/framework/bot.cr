@@ -34,15 +34,15 @@ module Framework
       add_filter Filter::NickFilter.new(config)
     end
 
-    macro add_plugin klass
+    macro add_plugin(klass)
       config.add_plugin Framework::PluginContainer({{klass}}).new
     end
 
-    def add_filter filter : Filter::Item
+    def add_filter(filter : Filter::Item)
       @filters << filter
     end
 
-    def join name
+    def join(name)
       return if config.channels.includes?(name) && @started
 
       channel = connection.join name
@@ -61,7 +61,7 @@ module Framework
       Channel.from_name(name, self)
     end
 
-    def part name
+    def part(name)
       connection.part name if config.channels.includes? name
       config.channels.delete name
       config.save
@@ -127,7 +127,7 @@ module Framework
       connection.block
     end
 
-    def filter? event
+    def filter?(event)
       @filters.any? &.call(event)
     end
   end

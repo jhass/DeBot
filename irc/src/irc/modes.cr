@@ -1,7 +1,7 @@
 module IRC
   class Modes
     module Parser
-      def self.parse modes
+      def self.parse(modes)
         parameters = modes.split(" ")
         modes      = seperate_flags parameters.shift? || ""
 
@@ -18,7 +18,7 @@ module IRC
         end
       end
 
-      private def self.seperate_flags modes
+      private def self.seperate_flags(modes)
         modifier = '+'
         separated = [] of {Char, Char}
 
@@ -45,7 +45,7 @@ module IRC
       parse modes
     end
 
-    def parse modes
+    def parse(modes)
       Parser.parse(modes) do |modifier, flag, parameter|
         if modifier == '+'
           set flag, parameter
@@ -55,11 +55,11 @@ module IRC
       end
     end
 
-    def get flag : Char
+    def get(flag : Char)
       @parameterized_flags.find {|item| item.flag == flag }.try(&.parameter)
     end
 
-    def set flag : Char, parameter=nil
+    def set(flag : Char, parameter=nil)
       mode = Flag.new(flag, parameter)
 
       if parameter
@@ -69,7 +69,7 @@ module IRC
       end
     end
 
-    def unset flag : Char, parameter=nil
+    def unset(flag : Char, parameter=nil)
       mode = Flag.new(flag, parameter)
 
       if parameter
@@ -81,7 +81,7 @@ module IRC
 
     # pass false as parameter to look only at the flag but only in the
     # parameterized flags
-    def set? flag : Char, parameter=nil
+    def set?(flag : Char, parameter=nil)
       mode = Flag.new(flag, parameter)
 
       if parameter

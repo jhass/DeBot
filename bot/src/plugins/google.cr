@@ -20,7 +20,7 @@ class Google
   match /^!(gf)\s+([^,]+)\s+(?:vs\.?|,)\s+([^,]+)/
   match /^!(gf)\s+([^ ]+)\s+([^ ]+)/
 
-  def execute msg, match
+  def execute(msg, match)
     if match[1] == "g"
       msg.reply search(match[2])
     elsif match[1] == "gf"
@@ -28,7 +28,7 @@ class Google
     end
   end
 
-  def search query
+  def search(query)
     html = query query
     ua = query.gsub(/-?site:\S+/, "").strip
     if match = html.match /<a href="?\/url\?q=([^"&]+).*?".*?>(.+?)<\/a>/m
@@ -42,11 +42,11 @@ class Google
     "[#{ua}]: No results found!"
   end
 
-  def query query
+  def query(query)
     fetch "https://www.google.com/search?q=#{URI.escape(query)}&safe=none&ie=utf-8&oe=utf-8&hl=en"
   end
 
-  def fetch url, redirect_limit=10
+  def fetch(url, redirect_limit=10)
     resp = HTTP::Client.get(
       url,
       HTTP::Headers {
@@ -63,7 +63,7 @@ class Google
     end
   end
 
-  def fight a, b
+  def fight(a, b)
     count1 = result_count a
     count2 = result_count b
     ratio1 = count2 != 0 ? count1.fdiv(count2) : 99
@@ -83,12 +83,12 @@ class Google
     "#{a} and #{b} are too difficult even for Google!"
   end
 
-  def result_count query
+  def result_count(query)
     html = query query
     html[/About ([\d\.,]+) results/, 1].delete(/[,\.]/).to_u64
   end
 
-  def number_with_delimiter number, delimiter=','
+  def number_with_delimiter(number, delimiter=',')
     number.to_s.gsub(/(\d)(?=(\d\d\d)+(?!\d))/) {|_s, match| "#{match[1]}#{delimiter}" }
   end
 end

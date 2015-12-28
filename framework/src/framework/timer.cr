@@ -1,6 +1,6 @@
 module Framework
   class Timer
-    def initialize delay, limit=nil, &block
+    def initialize(delay, limit=nil, &block)
       spawn do
         runs = 0
         loop do

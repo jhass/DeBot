@@ -203,7 +203,7 @@ module IRC
     ERR_UMODEUNKNOWNFLAG  = "501"
     ERR_USERSDONTMATCH    = "502"
 
-    def self.from message
+    def self.from(message)
       prefix, type, parameters = parse(message)
 
       case type
@@ -218,7 +218,7 @@ module IRC
     rescue e : Malformed
     end
 
-    private def self.parse message
+    private def self.parse(message)
       prefix = MemoryIO.new
       type = MemoryIO.new
       parameters = [] of String

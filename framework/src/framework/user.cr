@@ -11,24 +11,24 @@ module Framework
     delegate host,     irc_user
     delegate modes,    irc_user
 
-    def self.from_nick nick : String, context : Bot
+    def self.from_nick(nick : String, context : Bot)
       from_mask nick, context
     end
 
-    def self.from_mask mask : String, context : Bot
+    def self.from_mask(mask : String, context : Bot)
       from_mask IRC::Mask.parse(mask), context
     end
 
-    def self.from_mask mask : IRC::Mask, context : Bot
+    def self.from_mask(mask : IRC::Mask, context : Bot)
       user = context.connection.users.find_user(mask)
       new user, context
     end
 
-    def send text : String
+    def send(text : String)
       Message.new(@context, nick, text).send
     end
 
-    def action text : String
+    def action(text : String)
       Message.new(@context, nick, text).as_action.send
     end
 

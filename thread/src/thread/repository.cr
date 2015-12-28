@@ -7,11 +7,11 @@ class Repository(K,V)
     @lock = ReadWriteLock.new
   end
 
-  def fetch key
+  def fetch(key)
     fetch(key) { raise KeyError.new "Repository #{self} doesn't have key #{key}" }
   end
 
-  def fetch key : K
+  def fetch(key : K)
     if exists? key
       @lock.read_lock do
         @store[key]
@@ -23,35 +23,35 @@ class Repository(K,V)
     end
   end
 
-  def [] key
+  def [](key)
     fetch(key)
   end
 
-  def []? key
+  def []?(key)
     @lock.read_lock do
       @store[key]?
     end
   end
 
-  def []= key : K, value : V
+  def []=(key : K, value : V)
     @lock.write_lock do
       @store[key] = value
     end
   end
 
-  def exists? key
+  def exists?(key)
     @lock.read_lock do
       @store.has_key?(key)
     end
   end
 
-  def delete key
+  def delete(key)
     @lock.write_lock do
       @store.delete key
     end
   end
 
-  def rename oldkey, newkey
+  def rename(oldkey, newkey)
     unless exists? oldkey
       raise ArgumentError.new "#{oldkey.inspect} not present in repository"
     end

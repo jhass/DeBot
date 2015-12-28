@@ -8,7 +8,7 @@ class DownForEveryone
 
   match /^!(?:down|up)\s+(?:(https?):\/\/?)?(\S+)/
 
-  def execute msg, match
+  def execute(msg, match)
     scheme = match[1]? || "http"
     uri = URI.parse "#{scheme}://#{match[2]}"
     url = "#{uri.scheme}://#{uri.host}"

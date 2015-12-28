@@ -5,7 +5,7 @@ module IRC
     property host
     def_equals_and_hash nick
 
-    def self.parse mask
+    def self.parse(mask)
       if mask.includes? '@'
         local, host = mask.split '@'
       else
@@ -24,14 +24,14 @@ module IRC
     def initialize(@nick : String, @user : String?, @host : String?)
     end
 
-    def update mask
+    def update(mask)
       if mask.nick == @nick
         @user = mask.user if mask.user
         @host = mask.host if mask.host
       end
     end
 
-    def matches? other
+    def matches?(other)
       return true if !has_wildcard? && nick == other.nick && user == other.user && host == other.host
       return false unless has_wildcard?
 
@@ -60,7 +60,7 @@ module IRC
       io << '@' << @host if @host
     end
 
-    private def contains_wildcard? part
+    private def contains_wildcard?(part)
       prev = nil
       part.each_char do |char|
         return true if prev != '\\' && (char == '*' || char == '?')

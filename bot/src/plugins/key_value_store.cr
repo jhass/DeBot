@@ -14,7 +14,7 @@ class KeyValueStore
     store: {type: String, default: "data/key_value_store.json"}
   })
 
-  def self.config_loaded config
+  def self.config_loaded(config)
     @@store = Framework::JsonStore(String, Hash(String, String)).new config.store
   end
 
@@ -27,7 +27,7 @@ class KeyValueStore
   match /^\?([\d\w\-]+=)(\?[\d\w\-]+)\s*$/
   match /^\?([\d\w\-]+=)(?!\?)(.+)/
 
-  def execute msg, match
+  def execute(msg, match)
     if match[1] == "keys"
       explicit_channel = match[2] if match[2]?
       channel = msg.channel.name if msg.channel?
@@ -61,13 +61,13 @@ class KeyValueStore
     end
   end
 
-  def known_keys channel
+  def known_keys(channel)
     store.fetch(channel) do |data|
       data ? data.keys : Tuple.new
     end
   end
 
-  def set_key channel, key, value
+  def set_key(channel, key, value)
     store.modify(channel) do |data|
       data ||= Hash(String, String).new
 
@@ -85,7 +85,7 @@ class KeyValueStore
     end
   end
 
-  def get_key channel, key
+  def get_key(channel, key)
     store.fetch(channel) do |data|
       10.times do
         value = data && data[key]?

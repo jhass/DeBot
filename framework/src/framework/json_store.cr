@@ -4,19 +4,19 @@ require "thread/read_write_lock"
 
 module Framework
   class JsonStore(K, V)
-    def initialize @path
+    def initialize(@path)
       @lock = ReadWriteLock.new
       @data = Hash(K, V).new
       load
     end
 
-    def fetch key
+    def fetch(key)
       @lock.read_lock do
         yield @data[key]?
       end
     end
 
-    def modify key
+    def modify(key)
       @lock.write_lock do
         value = yield @data[key]?
         @data[key] = value
@@ -24,7 +24,7 @@ module Framework
       end
     end
 
-    def set key, value
+    def set(key, value)
       @lock.write_lock do
         @data[key] = value
         write

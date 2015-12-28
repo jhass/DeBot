@@ -38,7 +38,7 @@ module IRC
         @logger     = nil
       end
 
-      def self.new server : String
+      def self.new(server : String)
         build.tap do |config|
           config.server = server
         end
@@ -70,15 +70,15 @@ module IRC
     getter network
     delegate logger, config
 
-    def self.build &block : Config ->
+    def self.build(&block : Config ->)
       new Config.build(&block)
     end
 
-    def self.new server : String
+    def self.new(server : String)
       new Config.new(server)
     end
 
-    def initialize @config : Config
+    def initialize(@config : Config)
       @send_queue   = ::Channel(String).new(64)
       @users        = UserManager.new
       @channels     = Repository(String, Channel).new
@@ -90,7 +90,7 @@ module IRC
       @users.track Mask.parse(@config.nick) # Track self with pseudo mask
     end
 
-    def await *types, &callback : Message -> Bool
+    def await(*types, &callback : Message -> Bool)
       channel = ::Channel(Message).new
       handler = @processor.on(*types) do |message|
         channel.send(message) if callback.call(message)
@@ -102,21 +102,21 @@ module IRC
       end
     end
 
-    def await *types
+    def await(*types)
       await(*types) do |_message|
         true
       end
     end
 
-    def send message : Message
+    def send(message : Message)
       @send_queue.send message.to_s
     end
 
-    def send type : String, parameters : Array(String)
+    def send(type : String, parameters : Array(String))
       send message_for(type, parameters)
     end
 
-    def send type : String, *parameters
+    def send(type : String, *parameters)
       # Compiler bug: get rid of NoReturn the manual way
       converted_parameters = [] of String
       parameters.each do |parameter|
@@ -125,7 +125,7 @@ module IRC
       send message_for(type, converted_parameters)
     end
 
-    private def message_for type, parameters
+    private def message_for(type, parameters)
       if parameters.empty?
         message = Message.from(type)
         unless message
@@ -138,14 +138,14 @@ module IRC
       message
     end
 
-    def nick= nick : String
+    def nick=(nick : String)
       oldnick = config.nick
       config.nick = nick
       @users.nick Mask.parse(oldnick), nick unless nick == oldnick
       send Message::NICK, nick unless connected? && nick == oldnick
     end
 
-    def join channel_name
+    def join(channel_name)
       Channel.new(self, channel_name).tap do |channel|
         channel.join
         @users.join Mask.parse(config.nick), channel
@@ -153,7 +153,7 @@ module IRC
       end
     end
 
-    def part channel_name
+    def part(channel_name)
       @channels[channel_name]?.tap do |channel|
         if channel
           channel.part
@@ -164,7 +164,7 @@ module IRC
       end
     end
 
-    def on *args, &handler : Message ->
+    def on(*args, &handler : Message ->)
       @processor.on *args, &handler
     end
 
@@ -285,7 +285,7 @@ module IRC
       logger.info "Connected"
     end
 
-    def quit message="Crystal IRC"
+    def quit(message="Crystal IRC")
       send Message::QUIT, message
       @processor.handle_others
       stop_workers

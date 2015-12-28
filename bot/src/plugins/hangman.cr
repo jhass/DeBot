@@ -5,7 +5,7 @@ class Hangman
   include Framework::Plugin
 
   class Game
-    def self.word_list_for name
+    def self.word_list_for(name)
        File.read_lines(File.join(__DIR__, "..", "..", "res", name)).map(&.chomp)
     end
 
@@ -36,7 +36,7 @@ class Hangman
     DEFAULT_GUESS_MAX = 12
     PLACEHOLDER  = '␣'
 
-    def initialize @list=DEFAULT_LIST, @guess_max=DEFAULT_GUESS_MAX
+    def initialize(@list=DEFAULT_LIST, @guess_max=DEFAULT_GUESS_MAX)
       @word = pick_word list
       @guess_max = guess_max
       @guesses = [] of Char|String
@@ -68,18 +68,18 @@ class Hangman
       @guesses-@word.map(&.downcase)
     end
 
-    def guess guesses : Array(Char)
+    def guess(guesses : Array(Char))
       guesses.each do |guess|
         guess guess
       end
     end
 
-    def guess guess : Char
+    def guess(guess : Char)
       return if over?
       @guesses << guess.downcase unless guessed? guess
     end
 
-    def guessed? guess
+    def guessed?(guess)
       @guesses.includes? guess.downcase
     end
 
@@ -95,7 +95,7 @@ class Hangman
       lost? || won?
     end
 
-    private def pick_word list
+    private def pick_word(list)
       WORDLISTS[list].sample.chars
     end
   end
@@ -105,7 +105,7 @@ class Hangman
 
   listen :message
 
-  def react_to event
+  def react_to(event)
     msg = event.message
     return unless msg.channel?
     message = msg.message
@@ -129,7 +129,7 @@ class Hangman
     end
   end
 
-  def react_to_guess msg, command
+  def react_to_guess(msg, command)
     return unless LIMITS.pass? msg.sender
     LIMITS.hit msg.sender
 
@@ -141,7 +141,7 @@ class Hangman
     end
   end
 
-  def start_game msg, list, guess_max
+  def start_game(msg, list, guess_max)
     unless GAMES.has_key? msg.channel.name
       if Game::WORDLISTS.has_key? list
         GAMES[msg.channel.name] = Game.new list, guess_max.clamp(1, Game::DEFAULT_GUESS_MAX)
@@ -153,11 +153,11 @@ class Hangman
     msg.reply GAMES[msg.channel.name].status
   end
 
-  def list msg
+  def list(msg)
     msg.reply "#{msg.sender.nick}: The following word lists are available: #{Game::WORDLISTS.keys.join(", ")}"
   end
 
-  def guess msg, guess
+  def guess(msg, guess)
     return unless GAMES.has_key? msg.channel.name
 
     game = GAMES[msg.channel.name]

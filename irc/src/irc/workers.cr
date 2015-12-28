@@ -4,7 +4,7 @@ module IRC
   class Reader
     private getter logger
 
-    def initialize socket, channel, @logger
+    def initialize(socket, channel, @logger)
       spawn do
         loop do
           break if channel.closed?
@@ -45,7 +45,7 @@ module IRC
   class Sender
     private getter logger
 
-    def initialize socket, channel, @logger
+    def initialize(socket, channel, @logger)
       @stop_signal = ::Channel(Symbol).new
       spawn do
         begin
@@ -81,7 +81,7 @@ module IRC
     getter handlers
     private getter logger
 
-    def initialize @logger
+    def initialize(@logger)
       @channel = ::Channel(Message).new(64)
       @handlers = Array(Message ->).new
       @pending_handlers = 0
@@ -95,7 +95,7 @@ module IRC
       handler
     end
 
-    def on *types, &handler : Message ->
+    def on(*types, &handler : Message ->)
       handle do |message|
         handler.call(message) if types.includes? message.type
       end
@@ -132,7 +132,7 @@ module IRC
       end
     end
 
-    private def spawn_handlers message
+    private def spawn_handlers(message)
       @handlers.each do |handler|
         handle_others if @pending_handlers >= 100
         @pending_handlers += 1

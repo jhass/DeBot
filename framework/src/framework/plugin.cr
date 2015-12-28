@@ -7,7 +7,7 @@ require "./timer"
 
 module Framework
   module Plugin
-    macro config properties
+    macro config(properties)
       {% for key, value in properties %}
         {% properties[key] = {type: value} unless value.is_a?(HashLiteral) %}
       {% end %}
@@ -50,37 +50,37 @@ module Framework
         @@events
       end
 
-      def self.config_loaded config
+      def self.config_loaded(config)
       end
     end
 
-    macro match regex
+    macro match(regex)
       matchers << {{regex}}
     end
 
-    macro listen event
+    macro listen(event)
       events << {{event}}
     end
 
     getter context
     getter config
 
-    def initialize @context, @config
+    def initialize(@context, @config)
     end
 
-    def channel name
+    def channel(name)
       Channel.from_name name, context
     end
 
-    def user name
+    def user(name)
       User.from_nick name, context
     end
 
-    def in seconds, &block
+    def in(seconds, &block)
       Timer.new seconds, 1, &block
     end
 
-    def every seconds, limit=nil, &block
+    def every(seconds, limit=nil, &block)
       Timer.new seconds, limit, &block
     end
 

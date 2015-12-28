@@ -45,7 +45,7 @@ module IRC
     delegate user, mask
     delegate host, mask
 
-    def initialize @mask
+    def initialize(@mask)
       @authname = nil
       @realname = nil
       @channels = Repository(String, Membership).new
@@ -56,7 +56,7 @@ module IRC
       nick || user || @realname || @authname || host
     end
 
-    def mode flag, gained
+    def mode(flag, gained)
       if gained
         @modes.set flag
       else

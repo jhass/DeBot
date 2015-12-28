@@ -12,10 +12,10 @@ class Memo
       timestamp: {type: Time, converter: Time::Format.new("%F %T")}
     })
 
-    def initialize @content, @sender : String, @context : String?, @timestamp : Time
+    def initialize(@content, @sender : String, @context : String?, @timestamp : Time)
     end
 
-    def to_s io
+    def to_s(io)
       io << @timestamp.to_s("%D %R") << ' ' << @sender
       io << " (" << context << ")" if context = @context
       io << ": " << @content
@@ -28,7 +28,7 @@ class Memo
     store: {type: String, default: "data/memos.json"}
   })
 
-  def self.config_loaded config
+  def self.config_loaded(config)
     @@memos = Framework::JsonStore(String, Array(Memo)).new config.store
   end
 
@@ -40,13 +40,13 @@ class Memo
   listen :nick
   listen :message
 
-  def react_to event
+  def react_to(event)
     deliver_memos event.sender
   end
 
   match /^!memo\s+([^ ]+?)\s+(.+)/
 
-  def execute msg, match
+  def execute(msg, match)
     nick = match[1]
 
     if nick == msg.sender.nick
@@ -59,7 +59,7 @@ class Memo
     end
   end
 
-  def deliver_memos user
+  def deliver_memos(user)
     chosen_keys = Set(String).new
 
     memos.keys.select {|key|
@@ -88,7 +88,7 @@ class Memo
     end
   end
 
-  def store_memo content, from, to, at=nil
+  def store_memo(content, from, to, at=nil)
     memos.modify(to) do |memos|
       memos ||= [] of Memo
       memos << Memo.new(content, from, at, Time.now)

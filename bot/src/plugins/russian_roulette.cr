@@ -18,7 +18,7 @@ class RussianRoulette
 
   match /^!roul(?:ette)?/
 
-  def execute msg, _match
+  def execute(msg, _match)
     return unless msg.channel?
 
     return unless LIMITS.pass? msg.sender

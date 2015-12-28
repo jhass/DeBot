@@ -11,18 +11,18 @@ module Framework
     getter! channel
     getter! message
 
-    def initialize @context : Bot, @type : Symbol, @message : Message
+    def initialize(@context : Bot, @type : Symbol, @message : Message)
       @sender = message.sender
       @channel = message.channel?
     end
 
-    def initialize @context : Bot, @type : Symbol, @sender : User
+    def initialize(@context : Bot, @type : Symbol, @sender : User)
     end
 
-    def initialize @context : Bot, @type : Symbol, @sender : User, @channel : Channel
+    def initialize(@context : Bot, @type : Symbol, @sender : User, @channel : Channel)
     end
 
-    def initialize @context : Bot, @type : Symbol
+    def initialize(@context : Bot, @type : Symbol)
     end
   end
 end

@@ -48,7 +48,7 @@ END
 
   match /^>>\s*(.+)/
 
-  def execute msg, match
+  def execute(msg, match)
     source = TEMPLATE.sub(TEMPLATE_PLACEHOLDER, match[1])
 
     run = Request.from_json((JSON.parse(
@@ -62,7 +62,7 @@ END
           }
         }.to_json
       ).body
-    ) as Hash(String, JSON::Type))["run_request"].to_json).run
+    ))["run_request"].to_json).run
 
     output = run.stdout
     stderr = run.stderr
@@ -94,11 +94,11 @@ END
     msg.reply "#{msg.sender.nick}: #{reply.chomp} - #{"more at " if success && output.lines.size > 2}#{run.html_url}"
   end
 
-  def separate_playpen stderr
+  def separate_playpen(stderr)
     stderr.lines.reject(&.strip.empty?).partition &.starts_with?("playpen:")
   end
 
-  def find_error_message output
+  def find_error_message(output)
     lines = output.lines.reject(&.strip.empty?)
 
     # Compiler bug
@@ -154,11 +154,11 @@ END
     }.join(" ")
   end
 
-  def strip_ansi_codes text
+  def strip_ansi_codes(text)
     text.gsub(/\e\[(?:\d\d;)?[01]m/, "")
   end
 
-  def prettify_error text
+  def prettify_error(text)
     if text.includes?("Bad system call") || text.includes?(": 31")
       "Sorry, I can't let you do that."
     else
@@ -166,7 +166,7 @@ END
     end
   end
 
-  def limit_size text, limit=350
+  def limit_size(text, limit=350)
     text.size > limit ? "#{text[0, limit]} ..." : text
   end
 end

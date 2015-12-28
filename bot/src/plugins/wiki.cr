@@ -10,7 +10,7 @@ class Wiki
 
   match /^!wiki\s+(.+)/
 
-  def execute msg, match
+  def execute(msg, match)
     return unless msg.channel?
     return unless config.wikis.has_key? msg.channel.name
     title = match[1].squeeze(" ").strip.tr(" ", "_").capitalize

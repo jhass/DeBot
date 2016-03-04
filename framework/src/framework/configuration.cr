@@ -144,18 +144,18 @@ module Framework
     class Store
       JSON.mapping({
         server:          {type: String},
-        port:            {type: Int32,         nilable: true},
+        port:            {type: Int32,                   nilable: true},
         channels:        {type: Array(String)},
         nick:            {type: String},
-        user:            {type: String,        nilable: true},
-        password:        {type: String,        nilable: true, emit_null: true},
-        nickserv_regain: {type: Bool,          nilable: true},
-        realname:        {type: String,        nilable: true},
-        ssl:             {type: Bool,          nilable: true},
-        try_sasl:        {type: Bool,          nilable: true},
-        log_level:       {type: String,        nilable: true},
-        ignores:         {type: Array(String), nilable: true},
-        plugins:         {type: JSON::Any,     nilable: true}
+        user:            {type: String,                  nilable: true},
+        password:        {type: String,                  nilable: true, emit_null: true},
+        nickserv_regain: {type: Bool,                    nilable: true},
+        realname:        {type: String,                  nilable: true},
+        ssl:             {type: Bool,                    nilable: true},
+        try_sasl:        {type: Bool,                    nilable: true},
+        log_level:       {type: String,                  nilable: true},
+        ignores:         {type: Array(String),           nilable: true},
+        plugins:         {type: Hash(String, JSON::Any), nilable: true}
       }, true)
 
       def self.load_plugins(config, json)

@@ -5,16 +5,17 @@ module IRC
         parameters = modes.split(" ")
         modes      = seperate_flags parameters.shift? || ""
 
-        parameters.reverse.each do |parameter|
-          modifier, flag = modes.pop
-
-          yield modifier, flag, parameter
-        end
-
-        modes.each do |mode|
+        (modes.size-parameters.size).times do
+          mode = modes.shift
           modifier, flag = mode
 
           yield modifier, flag, nil
+        end
+
+        parameters.each do |parameter|
+          modifier, flag = modes.shift
+
+          yield modifier, flag, parameter
         end
       end
 

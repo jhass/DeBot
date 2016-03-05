@@ -179,6 +179,10 @@ module IRC
       logger.info "Connecting to #{config.server}:#{config.port}#{" (SSL enabled)" if config.ssl?}"
 
       socket = TCPSocket.new config.server, config.port
+      socket.read_timeout  = 300
+      socket.write_timeout = 5
+      socket.keepalive     = true
+
       socket = OpenSSL::SSL::Socket.new socket if config.ssl?
 
       send Message::CAP, "LS"

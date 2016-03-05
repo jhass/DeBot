@@ -16,10 +16,19 @@ module IRC
               channel.send message if message
             else
               logger.fatal "Socket closed, EOF!"
+              channel.send Message.from(":fake PING :fake").not_nil!
               channel.close
               socket.close unless socket.closed?
-              exit 1
               break
+            end
+          rescue IO::Timeout
+            if socket.closed?
+              logger.fatal "Socket closed while reading!"
+              channel.send Message.from(":fake PING :fake").not_nil!
+              channel.close
+              break
+            else
+              logger.debug "No message within 300 seconds"
             end
           rescue e : InvalidByteSequenceError
             logger.warn "Failed to decode message: #{line.try &.bytes.inspect}"
@@ -53,9 +62,17 @@ module IRC
             break if channel.closed? || @stop_signal.closed?
             message = ::Channel.receive_first(@stop_signal, channel)
             if message.is_a? String
-              logger.debug "w> #{message.chomp}"
-              message.to_s(socket)
-              socket.flush
+              begin
+                logger.debug "w> #{message.chomp}"
+                message.to_s(socket)
+                socket.flush
+              rescue IO::Timeout
+                if socket.closed?
+                  logger.fatal "Socket closed while writing!"
+                  channel.close
+                  break
+                end
+              end
             elsif message == :stop
               logger.debug "Sender received stop signal, shutting down"
               channel.close
@@ -66,6 +83,8 @@ module IRC
         rescue e
           logger.fatal "Failed to send message: #{e.message} (#{e.class})"
         end
+
+        logger.debug "Stopped sender"
       end
     end
 
@@ -129,6 +148,7 @@ module IRC
           end
         end
         logger.debug "Stopped processor"
+        exit 1
       end
     end
 

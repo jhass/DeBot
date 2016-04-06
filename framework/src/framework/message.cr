@@ -12,7 +12,7 @@ module Framework
     getter sender
     getter context
 
-    def initialize(@context : Bot, @target : String, @message : String, @type="PRIVMSG" : Symbol|String)
+    def initialize(@context : Bot, @target : String, @message : String, @type : Symbol|String = "PRIVMSG")
       @type = @type.to_s.upcase
       unless VALID_TYPES.includes? @type
         raise ArgumentError.new("Only valid types are #{VALID_TYPES.join(", ")}")

@@ -54,6 +54,14 @@ module Framework
       end
     end
 
+    def self.config_class
+      raise "Workaround issues mentioned in crystal-lang/crystal#2425"
+    end
+
+    def self.events
+      raise "Workaround issues mentioned in crystal-lang/crystal#2425"
+    end
+
     macro match(regex)
       matchers << {{regex}}
     end

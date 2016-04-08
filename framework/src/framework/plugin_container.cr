@@ -4,6 +4,9 @@ require "./plugin"
 
 module Framework
   class PluginContainer(T)
+    module Workaround; end
+    include Workaround
+
     getter config
     delegate channels, config
     delegate wants?, config

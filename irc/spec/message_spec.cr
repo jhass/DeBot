@@ -1,7 +1,7 @@
 require "spec"
 require "../src/irc/message"
 
-private def parses raw, prefix, type, parameters
+private def parses(raw, prefix, type, parameters)
   it "parses #{raw.inspect}" do
     message = IRC::Message.from raw
     message.should_not be_nil

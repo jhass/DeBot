@@ -60,9 +60,9 @@ class Admin
         disable_plugin msg, channel, plugin
       end
     when "op"
-      op :op, msg, match[2]
+      op :op, msg, match[2]?
     when "deop"
-      op :deop, msg, match[2]
+      op :deop, msg, match[2]?
     when "reload"
       context.config.reload
       msg.reply "#{msg.sender.nick}: Reloaded configuration."
@@ -119,7 +119,7 @@ class Admin
   def op(mode, msg, target)
     return unless msg.channel?
 
-    target = target.empty? ? bot : user(target)
+    target = target ? user(target) : bot
     if !msg.channel.has? target
       msg.reply "#{msg.sender.nick}: #{target.nick} isn't in this channel."
     elsif (msg.channel.opped?(target) ? :op : :deop) == mode

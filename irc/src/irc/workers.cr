@@ -4,7 +4,7 @@ module IRC
   class Reader
     private getter logger
 
-    def initialize(socket, channel, @logger)
+    def initialize(socket, channel, @logger : Logger)
       spawn do
         loop do
           break if channel.closed?
@@ -54,7 +54,7 @@ module IRC
   class Sender
     private getter logger
 
-    def initialize(socket, channel, @logger)
+    def initialize(socket, channel, @logger : Logger)
       @stop_signal = ::Channel(Symbol).new
       spawn do
         begin
@@ -100,7 +100,7 @@ module IRC
     getter handlers
     private getter logger
 
-    def initialize(@logger)
+    def initialize(@logger : Logger)
       @channel = ::Channel(Message).new(64)
       @handlers = Array(Message ->).new
       @pending_handlers = 0

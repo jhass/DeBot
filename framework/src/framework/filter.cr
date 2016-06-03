@@ -9,7 +9,7 @@ module Framework
     class NickFilter
       include Filter
 
-      def initialize(@config)
+      def initialize(@config : Configuration)
       end
 
       def call(event)

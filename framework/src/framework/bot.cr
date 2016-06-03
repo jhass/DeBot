@@ -15,10 +15,10 @@ require "./plugin"
 module Framework
   class Bot
     getter    config
-    getter!   connection
-    property! user
+    getter!   connection : IRC::Connection
+    property! user : User
     delegate  channels, config
-    delegate  logger,   config
+    delegate  logger, config
 
     def self.create
       new.tap do |bot|
@@ -35,7 +35,7 @@ module Framework
     end
 
     macro add_plugin(klass)
-      config.add_plugin Framework::PluginContainer({{klass}}).new
+      config.add_plugin Framework::PluginContainer({{klass}}, {{klass}}::Config).new
     end
 
     def add_filter(filter : Filter::Item)

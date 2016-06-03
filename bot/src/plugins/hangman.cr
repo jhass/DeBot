@@ -36,6 +36,8 @@ class Hangman
     DEFAULT_GUESS_MAX = 12
     PLACEHOLDER  = '␣'
 
+    @word : Array(Char)
+
     def initialize(@list=DEFAULT_LIST, @guess_max=DEFAULT_GUESS_MAX)
       @word = pick_word list
       @guess_max = guess_max

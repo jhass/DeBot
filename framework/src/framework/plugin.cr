@@ -9,12 +9,10 @@ module Framework
   module Plugin
     macro config(properties)
       {% for key, value in properties %}
-        {% properties[key] = {type: value} unless value.is_a?(HashLiteral) %}
+        {% properties[key] = {type: value} unless value.is_a?(HashLiteral) || value.is_a?(NamedTupleLiteral) %}
       {% end %}
 
       class Config
-        include Framework::Configuration::Plugin
-
         JSON.mapping({
           :channels => {type: Framework::Configuration::Plugin::ChannelList, nilable: true, emit_null: true},
           {% for key, value in properties %}
@@ -29,15 +27,23 @@ module Framework
           {% end %}
         end
       end
-
-      def self.config_class
-        Config
-      end
     end
 
     macro included
+      class Config
+        include Framework::Configuration::Plugin
+
+        JSON.mapping({
+          channels: {type: Framework::Configuration::Plugin::ChannelList, nilable: true, emit_null: true},
+        })
+
+        def initialize_empty
+          @channels = ChannelList.default
+        end
+      end
+
       def self.config_class
-        Framework::Configuration::Plugin::Default
+        Config
       end
 
       @@matchers = [] of Regex
@@ -51,6 +57,9 @@ module Framework
       end
 
       def self.config_loaded(config)
+      end
+
+      def initialize(@context : Framework::Bot, @config : Config)
       end
     end
 
@@ -72,9 +81,6 @@ module Framework
 
     getter context
     getter config
-
-    def initialize(@context, @config)
-    end
 
     def channel(name)
       Channel.from_name name, context

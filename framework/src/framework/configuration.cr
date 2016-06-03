@@ -35,6 +35,8 @@ module Framework
           new false
         end
 
+        @channels : Array(String)
+
         def initialize(channels : Array(String)|Bool)
           case channels
           when Bool
@@ -116,21 +118,9 @@ module Framework
         end
       end
 
-      class Default
-        include Plugin
-
-        JSON.mapping({
-          channels: {type: Framework::Configuration::Plugin::ChannelList, nilable: true, emit_null: true}
-        })
-
-        def initialize_empty
-          @channels = ChannelList.default
-        end
-      end
-
-      property! name
+      property! name : String
       delegate listens_to?, channels!
-      delegate wants?,      channels!
+      delegate wants?, channels!
 
       def channels!
         @channels ||= ChannelList.default
@@ -221,20 +211,23 @@ module Framework
       "fatal" => Logger::Severity::FATAL
     }
 
-    property! server
-    property  port
+    property! server : String?
+    property  port : Int32?
     property  channels
     property! nick
-    property! user
-    property  password
-    property? nickserv_regain
-    property! realname
-    property? ssl
-    property? try_sasl
-    property  log_level
-    property! ignores
+    property! user : String?
+    property  password : String?
+    property? nickserv_regain : Bool?
+    property! realname : String?
+    property? ssl : Bool?
+    property? try_sasl : Bool?
+    property  log_level : String?
+    property! ignores : Array(String)?
     getter    logger
     getter    plugins
+
+    @config_file : String?
+    @store : Store?
 
     def initialize
       @plugins  = Hash(String, PluginContainer::Workaround).new

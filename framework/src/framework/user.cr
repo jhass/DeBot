@@ -3,7 +3,7 @@ require "thread/repository"
 require "./bot"
 
 module Framework
-  record User, irc_user, context do
+  record User, irc_user : IRC::User, context : Bot do
     delegate mask,     irc_user
     delegate realname, irc_user
     delegate nick,     irc_user

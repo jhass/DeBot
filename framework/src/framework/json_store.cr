@@ -4,7 +4,7 @@ require "thread/read_write_lock"
 
 module Framework
   class JsonStore(K, V)
-    def initialize(@path)
+    def initialize(@path : String)
       @lock = ReadWriteLock.new
       @data = Hash(K, V).new
       load

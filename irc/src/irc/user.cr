@@ -36,8 +36,8 @@ module IRC
   #     +x     - Gives the user Hidden Hostname (security)
   #     +Z, +z - Is connected via SSL (cannot be set or unset).
   class User
-    property authname
-    property realname
+    property authname : String|Bool?
+    property realname : String?
     getter channels
     getter mask
     getter modes
@@ -45,7 +45,7 @@ module IRC
     delegate user, mask
     delegate host, mask
 
-    def initialize(@mask)
+    def initialize(@mask : Mask)
       @authname = nil
       @realname = nil
       @channels = Repository(String, Membership).new

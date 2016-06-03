@@ -88,11 +88,12 @@ module IRC
       end
 
       connection.on Message::RPL_WHOISUSER do |message|
-        _me, nick, user, host, _unused, realname = message.parameters
+        _me, nick, username, host, _unused, realname = message.parameters
         user = find_user Mask.parse(nick)
-        user.mask.user = user
+
+        user.mask.user = username
         user.mask.host = host
-        user.realname = realname
+        user.realname  = realname
       end
 
       connection.on Message::RPL_WHOISACCOUNT do |message|

@@ -36,7 +36,7 @@ module IRC
       end
     end
 
-    record Flag, flag, parameter
+    record Flag, flag : Char, parameter : String?
 
     include Enumerable(Flag)
 

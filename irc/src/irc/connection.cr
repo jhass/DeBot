@@ -17,25 +17,25 @@ require "./workers"
 module IRC
   class Connection
     class Config
-      property! server
+      property! server : String?
       property  port
       property  nick
       property  user
-      property! password
+      property! password : String?
       property  realname
-      property! ssl
-      property! try_sasl
+      property! ssl : Bool?
+      property! try_sasl : Bool?
       setter    logger
 
       private def initialize
-        @port       = 6667
-        @nick       = "Crystal"
-        @user       = "crystal"
-        @password   = nil
-        @realname   = "Crystal IRC"
-        @ssl        = false
-        @try_sasl   = false
-        @logger     = nil
+        @port     = 6667
+        @nick     = "Crystal"
+        @user     = "crystal"
+        @password = nil
+        @realname = "Crystal IRC"
+        @ssl      = false
+        @try_sasl = false
+        @logger   = nil
       end
 
       def self.new(server : String)
@@ -69,6 +69,8 @@ module IRC
     getter channels
     getter network
     delegate logger, config
+
+    @workers : {Processor, Reader, Sender}?
 
     def self.build(&block : Config ->)
       new Config.build(&block)
@@ -183,7 +185,7 @@ module IRC
       socket.write_timeout = 5
       socket.keepalive     = true
 
-      socket = OpenSSL::SSL::Socket.new socket if config.ssl?
+      socket = OpenSSL::SSL::Socket::Client.new socket if config.ssl?
 
       send Message::CAP, "LS"
 

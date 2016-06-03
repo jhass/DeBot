@@ -28,7 +28,7 @@ module IRC
     getter? active
     getter  modes
 
-    def initialize(@channel)
+    def initialize(@channel : Channel)
       @active = false
       @modes  = Modes.new
     end

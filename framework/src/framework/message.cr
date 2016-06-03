@@ -9,8 +9,10 @@ module Framework
 
     getter target
     getter message
-    getter sender
+    getter sender : User
     getter context
+
+    @channel : Channel?
 
     def initialize(@context : Bot, @target : String, @message : String, @type : Symbol|String = "PRIVMSG")
       @type = @type.to_s.upcase

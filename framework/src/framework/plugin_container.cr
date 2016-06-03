@@ -3,11 +3,11 @@ require "json"
 require "./plugin"
 
 module Framework
-  class PluginContainer(T)
+  class PluginContainer(T, C)
     module Workaround; end
     include Workaround
 
-    getter config
+    getter config : C?
     delegate channels, config
     delegate wants?, config
 

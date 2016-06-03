@@ -64,7 +64,7 @@ module IRC
     getter name
     getter modes
 
-    def initialize(@connection, @name)
+    def initialize(@connection : Connection, @name : String)
       @modes = Modes.new
       @message_handlers = [] of Message ->
 

@@ -7,9 +7,9 @@ module Framework
   class Event
     getter context
     getter type
-    getter! sender
-    getter! channel
-    getter! message
+    getter! sender : User
+    getter! channel : Channel
+    getter! message : Message
 
     def initialize(@context : Bot, @type : Symbol, @message : Message)
       @sender = message.sender

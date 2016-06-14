@@ -41,9 +41,7 @@ module IRC
     getter channels
     getter mask
     getter modes
-    delegate nick, mask
-    delegate user, mask
-    delegate host, mask
+    delegate nick, user, host, to: mask
 
     def initialize(@mask : Mask)
       @authname = nil

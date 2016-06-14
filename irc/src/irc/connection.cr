@@ -68,7 +68,7 @@ module IRC
     getter users
     getter channels
     getter network
-    delegate logger, config
+    delegate logger, to: config
 
     @workers : {Processor, Reader, Sender}?
 

@@ -17,8 +17,7 @@ module Framework
     getter    config
     getter!   connection : IRC::Connection
     property! user : User
-    delegate  channels, config
-    delegate  logger, config
+    delegate  channels, logger, to: config
 
     def self.create
       new.tap do |bot|

@@ -3,9 +3,9 @@ class Synchronized(T)
     @mutex = Mutex.new
   end
 
-  macro method_missing(name, args, block)
+  macro method_missing(call)
     @mutex.synchronize do
-      @target.{{name.id}}({{*args}}) {{block}}
+      @target.{{call}}
     end
   end
 end

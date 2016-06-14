@@ -8,8 +8,7 @@ module Framework
     include Workaround
 
     getter config : C?
-    delegate channels, config
-    delegate wants?, config
+    delegate channels, wants?, to: config
 
     def config
       (@config ||= T.config_class.empty).tap do |config|

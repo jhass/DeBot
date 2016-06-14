@@ -119,8 +119,7 @@ module Framework
       end
 
       property! name : String
-      delegate listens_to?, channels!
-      delegate wants?, channels!
+      delegate listens_to?, wants?, to: channels!
 
       def channels!
         @channels ||= ChannelList.default

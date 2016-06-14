@@ -50,8 +50,8 @@ class Google
     resp = HTTP::Client.get(
       url,
       HTTP::Headers {
-        "User-Agent": "Lynx/2.8.7rel.2 libwww-FM/2.14 SSL-MM/1.4.1 OpenSSL/1.0.0a",
-        "Accept-Language": "en"
+        "User-Agent" => "Lynx/2.8.7rel.2 libwww-FM/2.14 SSL-MM/1.4.1 OpenSSL/1.0.0a",
+        "Accept-Language" => "en"
       }
     )
 

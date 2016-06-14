@@ -4,12 +4,7 @@ require "./bot"
 
 module Framework
   record User, irc_user : IRC::User, context : Bot do
-    delegate mask,     irc_user
-    delegate realname, irc_user
-    delegate nick,     irc_user
-    delegate user,     irc_user
-    delegate host,     irc_user
-    delegate modes,    irc_user
+    delegate mask, realname, nick, user, host, modes, to: irc_user
 
     def self.from_nick(nick : String, context : Bot)
       from_mask nick, context

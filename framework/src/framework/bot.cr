@@ -17,6 +17,7 @@ module Framework
     getter!   connection : IRC::Connection
     property! user : User
     delegate  channels, logger, to: config
+    @filters : Array(Filter::Item)
 
     def self.create
       new.tap do |bot|

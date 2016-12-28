@@ -16,6 +16,7 @@ require "./plugins/memo"
 require "./plugins/wti_status"
 require "./plugins/hangman"
 require "./plugins/programming_excuses"
+require "./plugins/debugging"
 
 bot = Framework::Bot.create do
   config.from_file "settings.json"
@@ -37,6 +38,7 @@ bot = Framework::Bot.create do
   add_plugin WtiStatus
   add_plugin Hangman
   add_plugin ProgrammingExcuses
+  add_plugin Debugging
 end
 
 bot.start

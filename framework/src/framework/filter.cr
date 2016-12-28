@@ -6,7 +6,7 @@ module Framework
       abstract def call(event : Event) #: Bool
     end
 
-    class NickFilter
+    struct NickFilter
       include Filter
 
       def initialize(@config : Configuration)

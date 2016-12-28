@@ -69,5 +69,9 @@ module Framework
     def channel
       channel?.not_nil!
     end
+
+    def to_s(io)
+      io << "<Message From: " << sender.nick << " To: " << target << " Text: " << message << '>'
+    end
   end
 end

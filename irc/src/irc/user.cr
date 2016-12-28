@@ -1,5 +1,3 @@
-require "thread/repository"
-
 require "./modes"
 require "./membership"
 
@@ -46,7 +44,7 @@ module IRC
     def initialize(@mask : Mask)
       @authname = nil
       @realname = nil
-      @channels = Repository(String, Membership).new
+      @channels = {} of String => Membership
       @modes    = Modes.new
     end
 

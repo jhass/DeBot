@@ -1,5 +1,3 @@
-require "thread/repository"
-
 require "./channel"
 require "./mask"
 require "./message"
@@ -10,7 +8,7 @@ require "./user"
 module IRC
   class UserManager
     def initialize
-      @users = Repository(String, User).new
+      @users = {} of String => User
     end
 
     def register_handlers(connection)
@@ -145,7 +143,7 @@ module IRC
 
     def nick(mask, new_nick)
       find_user(mask).tap do |user|
-        @users.rename(mask.nick, new_nick)
+        @users[new_nick] = @users.delete(mask.nick).not_nil!
         user.mask.nick = new_nick
       end
     end

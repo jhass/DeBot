@@ -4,7 +4,7 @@ require "./user"
 require "./channel"
 
 module Framework
-  class Event
+  struct Event
     getter context
     getter type
     getter! sender : User

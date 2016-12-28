@@ -147,8 +147,8 @@ class Admin
       msg.reply "#{msg.sender.nick}: That makes no sense."
     else
       authname = new_admin.authname
-      if authname
-        admins << authname as String # compiler bug (?)
+      if authname.is_a? String
+        admins << authname
         config.save(context.config)
         msg.reply "#{msg.sender.nick}: Added #{nick} to admins."
       else

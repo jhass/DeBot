@@ -5,7 +5,6 @@ require "base64"
 require "logger"
 
 require "core_ext/openssl"
-require "thread/repository"
 
 require "./channel"
 require "./mask"
@@ -61,6 +60,11 @@ module IRC
       def logger
         @logger ||= Logger.new(STDOUT)
       end
+
+      def password?
+        password = @password
+        !password.nil? && !password.empty?
+      end
     end
 
     property? connected
@@ -83,7 +87,7 @@ module IRC
     def initialize(@config : Config)
       @send_queue   = ::Channel(String).new(64)
       @users        = UserManager.new
-      @channels     = Repository(String, Channel).new
+      @channels     = {} of String => Channel
       @processor    = Processor.new(logger)
       @network      = Network.new
       @connected    = false

@@ -1,5 +1,3 @@
-require "thread/repository"
-
 require "./bot"
 
 module Framework

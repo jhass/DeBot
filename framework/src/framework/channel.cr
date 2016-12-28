@@ -1,4 +1,3 @@
-require "thread/repository"
 require "irc/message"
 
 require "./message"
@@ -9,7 +8,7 @@ module Framework
     getter name
     getter context
 
-    @@channels = Repository(String, Channel).new
+    @@channels = {} of String => Channel
 
     def self.from_name(name : String, context)
       @@channels.fetch(name) { new(name, context) }

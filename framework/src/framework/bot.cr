@@ -1,6 +1,5 @@
 require "signal"
 
-require "thread/synchronized"
 require "irc/connection"
 require "irc/message"
 
@@ -14,7 +13,7 @@ require "./plugin"
 
 module Framework
   class Bot
-    getter    config
+    getter    config : Configuration # TODO: compiler bug requiring the annotation
     getter!   connection : IRC::Connection
     property! user : User
     delegate  channels, logger, to: config

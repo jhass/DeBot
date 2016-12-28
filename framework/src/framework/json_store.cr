@@ -1,40 +1,29 @@
 require "json"
 
-require "thread/read_write_lock"
-
 module Framework
   class JsonStore(K, V)
     def initialize(@path : String)
-      @lock = ReadWriteLock.new
       @data = Hash(K, V).new
       load
     end
 
     def fetch(key)
-      @lock.read_lock do
-        yield @data[key]?
-      end
+      yield @data[key]?
     end
 
     def modify(key)
-      @lock.write_lock do
-        value = yield @data[key]?
-        @data[key] = value
-        write
-      end
+      value = yield @data[key]?
+      @data[key] = value
+      write
     end
 
     def set(key, value)
-      @lock.write_lock do
-        @data[key] = value
-        write
-      end
+      @data[key] = value
+      write
     end
 
     def keys
-      @lock.read_lock do
-        @data.keys
-      end
+      @data.keys
     end
 
     private def load

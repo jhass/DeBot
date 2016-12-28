@@ -151,7 +151,12 @@ module Framework
         pull = JSON::PullParser.new json
         pull.on_key("plugins") do
           pull.read_object do |key|
-            config.plugins[key].read_config(pull)
+            plugin_config = config.plugins[key]?
+            if plugin_config
+              plugin_config.read_config(pull)
+            else
+              pull.skip
+            end
           end
         end
       end

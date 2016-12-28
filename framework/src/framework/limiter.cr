@@ -1,5 +1,3 @@
-require "thread/synchronized"
-
 module Framework
   class Limiter
     @time_span : Time::Span
@@ -41,7 +39,7 @@ module Framework
 
   struct LimiterCollection(T)
     def initialize(@limit=5, @time_span=60)
-      @limiters = Repository(T, Synchronized(Limiter)).new
+      @limiters = {} of T => Limiter
     end
 
     def pass?(key : T)
@@ -58,7 +56,7 @@ module Framework
 
     private def fetch(key)
       @limiters.rehash
-      @limiters.fetch(key) { Synchronized.new Limiter.new(@limit, @time_span) }
+      @limiters.fetch(key) { Limiter.new(@limit, @time_span) }
     end
   end
 end

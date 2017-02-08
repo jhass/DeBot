@@ -130,11 +130,12 @@ module IRC
     end
 
     def find_user(mask : Mask)
-      @users.fetch(mask.nick) { User.new(mask) }.tap &.mask.update(mask)
+      @users.fetch(mask.nick) { @users[mask.nick] = User.new(mask) }.tap &.mask.update(mask)
     end
 
     def find_membership(mask, channel : Channel)
-      find_user(mask).channels.fetch(channel.name) { Membership.new(channel) }
+      channels = find_user(mask).channels
+      channels.fetch(channel.name) { channels[channel.name] = Membership.new(channel) }
     end
 
     def track(mask)

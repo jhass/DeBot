@@ -11,7 +11,7 @@ module Framework
     @@channels = {} of String => Channel
 
     def self.from_name(name : String, context)
-      @@channels.fetch(name) { new(name, context) }
+      @@channels.fetch(name) { @@channels[name] = new(name, context) }
     end
 
     private def initialize(@name : String, @context : Bot)

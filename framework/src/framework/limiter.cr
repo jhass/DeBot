@@ -56,7 +56,7 @@ module Framework
 
     private def fetch(key)
       @limiters.rehash
-      @limiters.fetch(key) { Limiter.new(@limit, @time_span) }
+      @limiters.fetch(key) { @limiters[key] = Limiter.new(@limit, @time_span) }
     end
   end
 end

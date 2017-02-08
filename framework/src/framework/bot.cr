@@ -13,9 +13,9 @@ require "./plugin"
 
 module Framework
   class Bot
-    getter    config : Configuration # TODO: compiler bug requiring the annotation
-    getter!   connection : IRC::Connection
-    property! user : User
+    getter  config : Configuration
+    getter! connection : IRC::Connection
+    getter! user : User
     delegate  channels, logger, to: config
     @filters : Array(Filter::Item)
 

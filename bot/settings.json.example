@@ -28,7 +28,7 @@
   //"realname": "CeBot",
 
   "channels": [
-    "#cebot"
+    "##cebot"
   ],
 
   // Valid levels: debug, info, warn, error, fatal
@@ -39,8 +39,8 @@
 
   "plugins": {
     "Admin": {
-      "superadmins": ["jhass"],
-      //"admins": ["asterite"]
+      //"admins": ["asterite"],
+      "superadmins": ["jhass"]
     },
 
     "Memo": {

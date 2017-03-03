@@ -23,12 +23,8 @@ class CrystalEval
   TEMPLATE_PLACEHOLDER = "%body"
   TEMPLATE = <<-END
 macro __wrap_last_expression(exprs)
-  {% i = 0 %}
-  {% for expression in exprs.expressions %}
-    {% i += 1 %}
-    {% if i <= exprs.expressions.size-1 %}
-      {{expression}}
-    {% end %}
+  {% for expression in exprs.expressions[0..-2] %}
+    {{expression}}
   {% end %}
   {% if %w[Def FunDef Macro ClassDef LibDef].includes? exprs.expressions.last.class_name %}
     {{exprs.expressions.last}}

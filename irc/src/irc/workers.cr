@@ -52,10 +52,15 @@ module IRC
   end
 
   class Sender
+    RATE_LIMIT = 3 # number of messages per second
+
     private getter logger
+    @write_interval : Time::Span
 
     def initialize(socket, channel, @logger : Logger)
       @stop_signal = ::Channel(Symbol).new
+      @last_write = 1.second.ago
+      @write_interval = 1.fdiv(RATE_LIMIT).seconds
       spawn do
         begin
           loop do
@@ -63,9 +68,11 @@ module IRC
             message = ::Channel.receive_first(@stop_signal, channel)
             if message.is_a? String
               begin
+                sleep @write_interval if Time.now - @last_write < @write_interval
                 logger.debug "w> #{message.chomp}"
                 message.to_s(socket)
                 socket.flush
+                @last_write = Time.now
               rescue IO::Timeout
                 if socket.closed?
                   logger.fatal "Socket closed while writing!"

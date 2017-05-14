@@ -4,7 +4,7 @@ module IRC
   class Reader
     private getter logger
 
-    def initialize(socket, channel, @logger : Logger)
+    def initialize(socket, channel, ping_channel, @logger : Logger)
       spawn do
         loop do
           break if channel.closed?
@@ -26,9 +26,9 @@ module IRC
               logger.fatal "Socket closed while reading!"
               channel.send Message.from(":fake PING :fake").not_nil!
               channel.close
-              break
             else
-              logger.debug "No message within 300 seconds"
+              logger.debug "No message within 300 seconds, sending PING"
+              ping_channel.send "PING :debot"
             end
           rescue e : InvalidByteSequenceError
             logger.warn "Failed to decode message: #{line.try &.bytes.inspect}"

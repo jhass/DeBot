@@ -285,7 +285,7 @@ module IRC
       @users.register_handlers self
 
       processor = @processor.not_nil!
-      reader = Reader.new socket, processor.channel, logger
+      reader = Reader.new socket, processor.channel, @send_queue, logger
       sender = Sender.new socket, @send_queue, logger
 
       @workers = {processor, reader, sender}

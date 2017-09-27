@@ -21,7 +21,7 @@ module IRC
               socket.close unless socket.closed?
               break
             end
-          rescue IO::Timeout
+          rescue IO::Timeout|OpenSSL::SSL::Error
             if socket.closed?
               logger.fatal "Socket closed while reading!"
               channel.send Message.from(":fake PING :fake").not_nil!
@@ -73,7 +73,7 @@ module IRC
                 message.to_s(socket)
                 socket.flush
                 @last_write = Time.now
-              rescue IO::Timeout
+              rescue IO::Timeout|OpenSSL::SSL::Error
                 if socket.closed?
                   logger.fatal "Socket closed while writing!"
                   channel.close

@@ -1,4 +1,4 @@
-class OpenSSL::SSL::Socket
+class OpenSSL::SSL::Socket < IO
   def closed?
     @bio.io.closed?
   end

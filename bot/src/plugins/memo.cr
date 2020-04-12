@@ -6,10 +6,10 @@ require "framework/json_store"
 class Memo
   class Memo
     JSON.mapping({
-      content: {type: String},
-      sender: {type: String},
-      context: {type: String, nilable: true, emit_null: true},
-      timestamp: {type: Time, converter: Time::Format.new("%F %T")}
+      content:   {type: String},
+      sender:    {type: String},
+      context:   {type: String, nilable: true, emit_null: true},
+      timestamp: {type: Time, converter: Time::Format.new("%F %T")},
     })
 
     def initialize(@content, @sender : String, @context : String?, @timestamp : Time)
@@ -25,7 +25,7 @@ class Memo
   include Framework::Plugin
 
   config({
-    store: {type: String, default: "data/memos.json"}
+    store: {type: String, default: "data/memos.json"},
   })
 
   def self.config_loaded(config)
@@ -62,7 +62,7 @@ class Memo
   def deliver_memos(user)
     chosen_keys = Set(String).new
 
-    memos.keys.select {|key|
+    memos.keys.select { |key|
       key == user.nick || (key.starts_with?('/') && key.ends_with?('/'))
     }.each do |key|
       regex = key.starts_with?('/') ? key[1..-2] : Regex.escape(key)
@@ -88,10 +88,10 @@ class Memo
     end
   end
 
-  def store_memo(content, from, to, at=nil)
+  def store_memo(content, from, to, at = nil)
     memos.modify(to) do |memos|
       memos ||= [] of Memo
-      memos << Memo.new(content, from, at, Time.now)
+      memos << Memo.new(content, from, at, Time.local)
     end
   end
 end

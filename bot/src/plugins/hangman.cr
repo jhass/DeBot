@@ -6,7 +6,7 @@ class Hangman
 
   class Game
     def self.word_list_for(name)
-       File.read_lines(File.join(__DIR__, "..", "..", "res", name)).map(&.chomp)
+      File.read_lines(File.join(__DIR__, "..", "..", "res", name)).map(&.chomp)
     end
 
     WORDLISTS = {
@@ -29,19 +29,19 @@ class Hangman
       "perl"       => word_list_for("perl"),
       "php"        => word_list_for("php"),
       "pokemon"    => word_list_for("pokemon"),
-      "ruby"       => word_list_for("ruby")
+      "ruby"       => word_list_for("ruby"),
     }
 
-    DEFAULT_LIST = "nouns"
+    DEFAULT_LIST      = "nouns"
     DEFAULT_GUESS_MAX = 12
-    PLACEHOLDER  = '␣'
+    PLACEHOLDER       = '␣'
 
     @word : Array(Char)
 
-    def initialize(@list=DEFAULT_LIST, @guess_max=DEFAULT_GUESS_MAX)
+    def initialize(@list = DEFAULT_LIST, @guess_max = DEFAULT_GUESS_MAX)
       @word = pick_word list
       @guess_max = guess_max
-      @guesses = [] of Char|String
+      @guesses = [] of Char | String
     end
 
     def status
@@ -61,13 +61,13 @@ class Hangman
     end
 
     def known_chars
-      @word.map {|char|
+      @word.map { |char|
         @guesses.includes?(char.downcase) ? char : PLACEHOLDER
       }.join
     end
 
     def wrong_guesses
-      @guesses-@word.map(&.downcase)
+      @guesses - @word.map(&.downcase)
     end
 
     def guess(guesses : Array(Char))
@@ -113,7 +113,6 @@ class Hangman
     message = msg.message
     return unless message.starts_with? bot.nick
 
-
     command = message.gsub(/^#{bot.nick}[:,]?\s*/, "")
     case command
     when /^!hangman\s+(?:lists?|help)$/
@@ -140,6 +139,8 @@ class Hangman
       guess msg, ' '
     when /^[a-zA-Z0-9!"#\$%&'\*\+,\-\.\/:;<=>\?@\[\]\\^_`|~ ]+$/
       guess msg, command.downcase.chars
+    else
+      # ignore
     end
   end
 

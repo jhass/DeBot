@@ -2,47 +2,47 @@ require "./message"
 
 module IRC
   class Reader
-    private getter logger
+    Log = IRC::Log.for("reader")
 
-    def initialize(socket, channel, ping_channel, @logger : Logger)
+    def initialize(socket, channel, ping_channel)
       spawn do
         loop do
           break if channel.closed?
           begin
             line = socket.gets
             if line
-              logger.debug "r> #{line.chomp}"
+              Log.debug { "r> #{line.chomp}" }
               message = Message.from(line)
               channel.send message if message
             else
-              logger.fatal "Socket closed, EOF!"
+              Log.fatal { "Socket closed, EOF!" }
               channel.send Message.from(":fake PING :fake").not_nil!
               channel.close
               socket.close unless socket.closed?
               break
             end
-          rescue IO::Timeout|OpenSSL::SSL::Error
+          rescue IO::TimeoutError | OpenSSL::SSL::Error
             if socket.closed?
-              logger.fatal "Socket closed while reading!"
+              Log.fatal { "Socket closed while reading!" }
               channel.send Message.from(":fake PING :fake").not_nil!
               channel.close
             else
-              logger.debug "No message within 300 seconds, sending PING"
+              Log.debug { "No message within 300 seconds, sending PING" }
               ping_channel.send "PING :debot"
             end
           rescue e : InvalidByteSequenceError
-            logger.warn "Failed to decode message: #{line.try &.bytes.inspect}"
-          rescue e : Errno
-            unless e.errno == Errno::EINTR
-              logger.fatal "Failed to read message: #{e.message} (#{e.class})"
+            Log.warn { "Failed to decode message: #{line.try &.bytes.inspect}" }
+          rescue e : IO::Error
+            unless e.os_error == Errno::EINTR
+              Log.fatal { "Failed to read message: #{e.message} (#{e.class})" }
             else
-              logger.debug "Got #{e.class}: #{e.message}"
+              Log.debug { "Got #{e.class}: #{e.message}" }
             end
           rescue e
-            logger.fatal "Failed to read message: #{e.message} (#{e.class})"
+            Log.fatal { "Failed to read message: #{e.message} (#{e.class})" }
           end
         end
-        logger.debug "Stopped reader"
+        Log.debug { "Stopped reader" }
       end
     end
 
@@ -52,12 +52,13 @@ module IRC
   end
 
   class Sender
+    Log        = IRC::Log.for("sender")
     RATE_LIMIT = 3 # number of messages per second
+    @last_write : Time
 
-    private getter logger
     @write_interval : Time::Span
 
-    def initialize(socket, channel, @logger : Logger)
+    def initialize(socket, channel)
       @stop_signal = ::Channel(Symbol).new
       @last_write = 1.second.ago
       @write_interval = 1.fdiv(RATE_LIMIT).seconds
@@ -68,46 +69,47 @@ module IRC
             message = ::Channel.receive_first(@stop_signal, channel)
             if message.is_a? String
               begin
-                sleep @write_interval if Time.now - @last_write < @write_interval
-                logger.debug "w> #{message.chomp}"
+                sleep @write_interval if Time.local - @last_write < @write_interval
+                Log.debug { "w> #{message.chomp}" }
                 message.to_s(socket)
                 socket.flush
-                @last_write = Time.now
-              rescue IO::Timeout|OpenSSL::SSL::Error
+                @last_write = Time.local
+              rescue IO::TimeoutError | OpenSSL::SSL::Error
                 if socket.closed?
-                  logger.fatal "Socket closed while writing!"
+                  Log.fatal { "Socket closed while writing!" }
                   channel.close
                   break
                 end
               end
             elsif message == :stop
-              logger.debug "Sender received stop signal, shutting down"
+              Log.debug { "Sender received stop signal, shutting down" }
               channel.close
               socket.close unless socket.closed?
               break
             end
           end
         rescue e
-          logger.fatal "Failed to send message: #{e.message} (#{e.class})"
+          Log.fatal { "Failed to send message: #{e.message} (#{e.class})" }
         end
 
-        logger.debug "Stopped sender"
+        Log.debug { "Stopped sender" }
       end
     end
 
     def stop
-      logger.debug "Stopping sender"
+      Log.debug { "Stopping sender" }
       @stop_signal.send :stop
       @stop_signal.close
     end
   end
 
   class Processor
+    Log = IRC::Log.for("processor")
+
     getter channel
     getter handlers
-    private getter logger
 
-    def initialize(@logger : Logger)
+    def initialize
       @channel = ::Channel(Message).new(64)
       @handlers = Array(Message ->).new
       @pending_handlers = 0
@@ -128,7 +130,7 @@ module IRC
     end
 
     def stop
-      logger.debug "Stopping processor"
+      Log.debug { "Stopping processor" }
       @stop_signal.send :stop
       @stop_signal.close
     end
@@ -149,12 +151,12 @@ module IRC
           if message.is_a? Message
             spawn_handlers message
           elsif message == :stop
-            logger.debug "Processor received stop signal, shutting down"
+            Log.debug { "Processor received stop signal, shutting down" }
             @channel.close
             break
           end
         end
-        logger.debug "Stopped processor"
+        Log.debug { "Stopped processor" }
         exit 1
       end
     end

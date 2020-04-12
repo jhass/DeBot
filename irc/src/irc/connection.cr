@@ -2,7 +2,7 @@ require "socket"
 require "signal"
 require "base64"
 
-require "logger"
+require "log"
 
 require "core_ext/openssl"
 
@@ -14,27 +14,29 @@ require "./user_manager"
 require "./workers"
 
 module IRC
+  Log = ::Log.for("irc")
+
   class Connection
+    Log = IRC::Log.for("connection")
+
     class Config
       property! server : String?
-      property  port
-      property  nick
-      property  user
+      property port
+      property nick
+      property user
       property! password : String?
-      property  realname
+      property realname
       property! ssl : Bool?
       property! try_sasl : Bool?
-      setter    logger
 
       private def initialize
-        @port     = 6667
-        @nick     = "Crystal"
-        @user     = "crystal"
+        @port = 6667
+        @nick = "Crystal"
+        @user = "crystal"
         @password = nil
         @realname = "Crystal IRC"
-        @ssl      = false
+        @ssl = false
         @try_sasl = false
-        @logger   = nil
       end
 
       def self.new(server : String)
@@ -57,10 +59,6 @@ module IRC
         end
       end
 
-      def logger
-        @logger ||= Logger.new(STDOUT)
-      end
-
       def password?
         password = @password
         !password.nil? && !password.empty?
@@ -72,7 +70,6 @@ module IRC
     getter users
     getter channels
     getter network
-    delegate logger, to: config
 
     @workers : {Processor, Reader, Sender}?
 
@@ -85,12 +82,12 @@ module IRC
     end
 
     def initialize(@config : Config)
-      @send_queue   = ::Channel(String).new(64)
-      @users        = UserManager.new
-      @channels     = {} of String => Channel
-      @processor    = Processor.new(logger)
-      @network      = Network.new
-      @connected    = false
+      @send_queue = ::Channel(String).new(64)
+      @users = UserManager.new
+      @channels = {} of String => Channel
+      @processor = Processor.new
+      @network = Network.new
+      @connected = false
       @exit_channel = ::Channel(Int32).new
 
       @users.track Mask.parse(@config.nick) # Track self with pseudo mask
@@ -182,12 +179,12 @@ module IRC
     end
 
     def connect
-      logger.info "Connecting to #{config.server}:#{config.port}#{" (SSL enabled)" if config.ssl?}"
+      Log.info { "Connecting to #{config.server}:#{config.port}#{" (SSL enabled)" if config.ssl?}" }
 
       socket = TCPSocket.new config.server, config.port
-      socket.read_timeout  = 300
+      socket.read_timeout = 300
       socket.write_timeout = 5
-      socket.keepalive     = true
+      socket.keepalive = true
 
       socket = OpenSSL::SSL::Socket::Client.new socket if config.ssl?
 
@@ -202,14 +199,14 @@ module IRC
           send Message::CAP, "REQ", "extended-join" if capabilities.includes? "extended-join"
 
           if config.try_sasl? && capabilities.includes? "sasl"
-            logger.info "Attempting SASL authentication"
+            Log.info { "Attempting SASL authentication" }
             send Message::CAP, "REQ", "sasl"
           else
             send Message::CAP, "END"
           end
         when "ACK"
           network.account_notify = true if cap.parameters.last == "account-notify"
-          network.extended_join  = true if cap.parameters.last == "extended-join"
+          network.extended_join = true if cap.parameters.last == "extended-join"
 
           if cap.parameters.last == "sasl"
             send Message::AUTHENTICATE, "PLAIN"
@@ -224,14 +221,13 @@ module IRC
         send Message::AUTHENTICATE, Base64.strict_encode("#{config.nick}\0#{config.nick}\0#{config.password}")
       end
 
-      on(Message::RPL_LOGGEDIN,     Message::RPL_LOGGEDOUT, Message::ERR_NICKLOCKED,
-         Message::RPL_SASLSUCCESS,  Message::ERR_SASLFAIL,  Message::ERR_SASLTOOLONG,
-         Message::RPL_SASL_ABORTED, Message::ERR_SASLALREADY) do |message|
-
+      on(Message::RPL_LOGGEDIN, Message::RPL_LOGGEDOUT, Message::ERR_NICKLOCKED,
+        Message::RPL_SASLSUCCESS, Message::ERR_SASLFAIL, Message::ERR_SASLTOOLONG,
+        Message::RPL_SASL_ABORTED, Message::ERR_SASLALREADY) do |message|
         if {Message::RPL_LOGGEDIN, Message::RPL_SASLSUCCESS, Message::ERR_SASLALREADY}.includes? message.type
-          logger.info "SASL authentication succeeded"
+          Log.info { "SASL authentication succeeded" }
         else
-          logger.warn "SASL authentication failed"
+          Log.warn { "SASL authentication failed" }
         end
 
         send Message::CAP, "END"
@@ -254,7 +250,7 @@ module IRC
 
       on Message::ERROR do |error|
         if error.message.starts_with? "Closing Link"
-          logger.warn "Server closed connection (#{error.message}), shutting down"
+          Log.warn { "Server closed connection (#{error.message}), shutting down" }
 
           stop_workers
           exit 1
@@ -285,24 +281,24 @@ module IRC
       @users.register_handlers self
 
       processor = @processor.not_nil!
-      reader = Reader.new socket, processor.channel, @send_queue, logger
-      sender = Sender.new socket, @send_queue, logger
+      reader = Reader.new socket, processor.channel, @send_queue
+      sender = Sender.new socket, @send_queue
 
       @workers = {processor, reader, sender}
 
       await(Message::RPL_WELCOME)
 
-      logger.info "Connected"
+      Log.info { "Connected" }
     end
 
-    def quit(message="Crystal IRC")
+    def quit(message = "Crystal IRC")
       send Message::QUIT, message
       @processor.handle_others
       stop_workers
       exit
     end
 
-    def exit(code=0)
+    def exit(code = 0)
       @exit_channel.send code
       @exit_channel.close
       @processor.handle_others

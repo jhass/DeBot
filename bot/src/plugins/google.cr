@@ -6,14 +6,14 @@ class Google
   include Framework::Plugin
 
   GOOGLEFIGHT_VERBS = [
-      {1000.0, "completely DEMOLISHES"},
-      {100.0, "utterly destroys"},
-      {10.0, "destroys"},
-      {5.0, "demolishes"},
-      {3.0, "crushes"},
-      {2.0, "shames"},
-      {1.2, "beats"},
-      {1.0, "barely beats"},
+    {1000.0, "completely DEMOLISHES"},
+    {100.0, "utterly destroys"},
+    {10.0, "destroys"},
+    {5.0, "demolishes"},
+    {3.0, "crushes"},
+    {2.0, "shames"},
+    {1.2, "beats"},
+    {1.0, "barely beats"},
   ]
 
   match /^!(g)(?:oogle)?\s+(.+)/
@@ -43,21 +43,21 @@ class Google
   end
 
   def query(query)
-    fetch "https://www.google.com/search?q=#{URI.escape(query)}&safe=none&ie=utf-8&oe=utf-8&hl=en"
+    fetch "https://www.google.com/search?q=#{URI.encode(query)}&safe=none&ie=utf-8&oe=utf-8&hl=en"
   end
 
-  def fetch(url, redirect_limit=10)
+  def fetch(url, redirect_limit = 10)
     resp = HTTP::Client.get(
       url,
-      HTTP::Headers {
-        "User-Agent" => "Lynx/2.8.7rel.2 libwww-FM/2.14 SSL-MM/1.4.1 OpenSSL/1.0.0a",
-        "Accept-Language" => "en"
+      HTTP::Headers{
+        "User-Agent"      => "Lynx/2.8.7rel.2 libwww-FM/2.14 SSL-MM/1.4.1 OpenSSL/1.0.0a",
+        "Accept-Language" => "en",
       }
     )
 
     if (300 <= resp.status_code < 400) && resp.headers["Location"]?
       return "" if redirect_limit == 1
-      return fetch(resp.headers["Location"], redirect_limit-1)
+      return fetch(resp.headers["Location"], redirect_limit - 1)
     else
       resp.body
     end
@@ -69,7 +69,7 @@ class Google
     ratio1 = count2 != 0 ? count1.fdiv(count2) : 99
     ratio2 = count1 != 0 ? count2.fdiv(count1) : 99
     ratio = [ratio1, ratio2].max
-    verb = GOOGLEFIGHT_VERBS.find {|x| ratio > x[0] }.not_nil![1]
+    verb = GOOGLEFIGHT_VERBS.find { |x| ratio > x[0] }.not_nil![1]
     c1 = number_with_delimiter count1
     c2 = number_with_delimiter count2
 
@@ -88,7 +88,7 @@ class Google
     html[/About ([\d\.,]+) results/, 1].delete(/[,\.]/).to_u64
   end
 
-  def number_with_delimiter(number, delimiter=',')
-    number.to_s.gsub(/(\d)(?=(\d\d\d)+(?!\d))/) {|_s, match| "#{match[1]}#{delimiter}" }
+  def number_with_delimiter(number, delimiter = ',')
+    number.to_s.gsub(/(\d)(?=(\d\d\d)+(?!\d))/) { |_s, match| "#{match[1]}#{delimiter}" }
   end
 end

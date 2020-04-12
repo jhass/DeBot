@@ -4,8 +4,8 @@ class Admin
   include Framework::Plugin
 
   config({
-    admins: {type: Array(String), nilable: true},
-    superadmins: {type: Array(String), default: [] of String}
+    admins:      {type: Array(String), nilable: true},
+    superadmins: {type: Array(String), default: [] of String},
   })
 
   def admins
@@ -23,10 +23,10 @@ class Admin
     admins.includes? user.authname
   end
 
-  #channel    =  ( "#" / "+" / ( "!" channelid ) / "&" ) chanstring
+  # channel    =  ( "#" / "+" / ( "!" channelid ) / "&" ) chanstring
   #              [ ":" chanstring ]
-  #chanstring = ; any octet except NUL, BELL, CR, LF, " ", "," and ":"
-  #channelid = ; 5( A-Z / 0-9 )
+  # chanstring = ; any octet except NUL, BELL, CR, LF, " ", "," and ":"
+  # channelid = ; 5( A-Z / 0-9 )
 
   match /^!(join|part)\s+(#[^\s,:]+)?/
   match /^!(msg|sayto|doto)\s+([^ ]+)\s+(.+)/
@@ -68,6 +68,8 @@ class Admin
       msg.reply "#{msg.sender.nick}: Reloaded configuration."
     when "quit"
       context.connection.quit
+    else
+      # regexes allow no other values
     end
   end
 
@@ -89,6 +91,8 @@ class Admin
       sayto msg, match[2], match[3]
     when "doto"
       doto msg, match[2], match[3]
+    else
+      # regexes don't allow other
     end
   end
 
@@ -130,6 +134,8 @@ class Admin
         msg.channel.op target
       when :deop
         msg.channel.deop target
+      else
+        # either or above
       end
     else
       user("ChanServ").send "#{mode.to_s.upcase} #{msg.channel.name} #{target.nick}"
@@ -161,7 +167,7 @@ class Admin
     return unless superadmin? msg.sender
 
     authname = user(nick).authname
-    authname = {authname, nick}.find {|name| admins.includes? name }
+    authname = {authname, nick}.find { |name| admins.includes? name }
 
     if authname
       admins.delete authname

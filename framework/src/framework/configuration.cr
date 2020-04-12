@@ -1,4 +1,4 @@
-require "logger"
+require "log"
 require "json"
 
 require "irc/connection"
@@ -37,7 +37,7 @@ module Framework
 
         @channels : Array(String)
 
-        def initialize(channels : Array(String)|Bool)
+        def initialize(channels : Array(String) | Bool)
           case channels
           when Bool
             @wants_channel_messsages = channels
@@ -97,14 +97,14 @@ module Framework
 
         def to_json(io)
           value = if @wants_channel_messsages
-            if @channels.empty?
-              nil
-            else
-              @channels
-            end
-          else
-            false
-          end
+                    if @channels.empty?
+                      nil
+                    else
+                      @channels
+                    end
+                  else
+                    false
+                  end
 
           value.to_json io
         end
@@ -131,20 +131,30 @@ module Framework
     end
 
     class Store
+      LOG_LEVELS = {
+        "debug" => ::Log::Severity::Debug,
+        "info"  => ::Log::Severity::Info,
+        "warn"  => ::Log::Severity::Warning,
+        "error" => ::Log::Severity::Error,
+        "fatal" => ::Log::Severity::Fatal,
+      }
+
+      LOG_LEVEL_NAMES = LOG_LEVELS.map { |k, v| {v, k} }.to_h
+
       JSON.mapping({
         server:          {type: String},
-        port:            {type: Int32,                   nilable: true},
+        port:            {type: Int32, nilable: true},
         channels:        {type: Array(String)},
         nick:            {type: String},
-        user:            {type: String,                  nilable: true},
-        password:        {type: String,                  nilable: true, emit_null: true},
-        nickserv_regain: {type: Bool,                    nilable: true},
-        realname:        {type: String,                  nilable: true},
-        ssl:             {type: Bool,                    nilable: true},
-        try_sasl:        {type: Bool,                    nilable: true},
-        log_level:       {type: String,                  nilable: true},
-        ignores:         {type: Array(String),           nilable: true},
-        plugins:         {type: Hash(String, JSON::Any), nilable: true}
+        user:            {type: String, nilable: true},
+        password:        {type: String, nilable: true, emit_null: true},
+        nickserv_regain: {type: Bool, nilable: true},
+        realname:        {type: String, nilable: true},
+        ssl:             {type: Bool, nilable: true},
+        try_sasl:        {type: Bool, nilable: true},
+        log_level:       {type: String, nilable: true},
+        ignores:         {type: Array(String), nilable: true},
+        plugins:         {type: Hash(String, JSON::Any), nilable: true},
       }, true)
 
       def self.load_plugins(config, json)
@@ -177,78 +187,70 @@ module Framework
       end
 
       def to_json(config : Configuration)
-        self.port            = config.port
-        self.channels        = config.channels
-        self.user            = config.user
-        self.password        = config.password
+        self.port = config.port
+        self.channels = config.channels
+        self.user = config.user
+        self.password = config.password
         self.nickserv_regain = config.nickserv_regain?
-        self.realname        = config.realname
-        self.ssl             = config.ssl?
-        self.try_sasl        = config.try_sasl?
-        self.log_level       = config.log_level
-        self.ignores         = config.ignores
+        self.realname = config.realname
+        self.ssl = config.ssl?
+        self.try_sasl = config.try_sasl?
+        self.log_level = LOG_LEVEL_NAMES[config.log_level]
+        self.ignores = config.ignores
 
         to_pretty_json
       end
 
       def restore(config)
-        config.server          = server
-        config.port            = port            unless port.nil?
-        config.channels        = channels
-        config.nick            = nick
-        config.user            = user            unless user.nil?
-        config.password        = password        unless password.nil?
+        raise Error.new("Unknown log level #{log_level}") unless log_level.nil? || LOG_LEVELS.has_key? log_level
+
+        config.server = server
+        config.port = port unless port.nil?
+        config.channels = channels
+        config.nick = nick
+        config.user = user unless user.nil?
+        config.password = password unless password.nil?
         config.nickserv_regain = nickserv_regain unless nickserv_regain.nil?
-        config.realname        = realname        unless realname.nil?
-        config.ssl             = ssl             unless ssl.nil?
-        config.try_sasl        = try_sasl        unless try_sasl.nil?
-        config.log_level       = log_level       unless log_level.nil?
-        config.ignores         = ignores         unless ignores.nil?
+        config.realname = realname unless realname.nil?
+        config.ssl = ssl unless ssl.nil?
+        config.try_sasl = try_sasl unless try_sasl.nil?
+        config.log_level = LOG_LEVELS[log_level].not_nil! unless log_level.nil?
+        config.ignores = ignores unless ignores.nil?
       end
     end
 
-    LOG_LEVELS = {
-      "debug" => Logger::Severity::DEBUG,
-      "info"  => Logger::Severity::INFO,
-      "warn"  => Logger::Severity::WARN,
-      "error" => Logger::Severity::ERROR,
-      "fatal" => Logger::Severity::FATAL
-    }
-
     property! server : String?
-    property  port : Int32?
-    property  channels
+    property port : Int32?
+    property channels
     property! nick
     property! user : String?
-    property  password : String?
+    property password : String?
     property? nickserv_regain : Bool?
     property! realname : String?
     property? ssl : Bool?
     property? try_sasl : Bool?
-    property  log_level : String?
+    getter log_level : ::Log::Severity
     property! ignores : Array(String)?
-    getter    logger
-    getter    plugins
+    getter plugins
 
     @config_file : String?
     @store : Store?
 
     def initialize
-      @plugins  = Hash(String, PluginContainer::Workaround).new
+      @plugins = Hash(String, PluginContainer::Workaround).new
       @channels = [] of String
-      @logger   = Logger.new(STDOUT)
 
-      @nick            = "CeBot"
-      @user            = "cebot"
-      @password        = nil
+      @nick = "CeBot"
+      @user = "cebot"
+      @password = nil
       @nickserv_regain = false
-      @realname        = "CeBot"
-      @ssl             = false
-      @try_sasl        = false
-      @log_level       = "info"
-      @ignores         = [] of String
+      @realname = "CeBot"
+      @ssl = false
+      @try_sasl = false
+      @log_level = :info
+      @ignores = [] of String
 
-      set_log_level
+      self.log_level = @log_level
     end
 
     def port
@@ -272,6 +274,13 @@ module Framework
       save
     end
 
+    def log_level=(level : ::Log::Severity)
+      @log_level = level
+
+      backend = ::Log::IOBackend.new
+      ::Log.builder.bind "irc.*", log_level, backend
+    end
+
     def save
       store = @store
       path = @config_file
@@ -287,7 +296,6 @@ module Framework
       store.restore(self)
       @store = store
       Store.load_plugins self, json
-      set_log_level
     end
 
     def reload
@@ -298,15 +306,14 @@ module Framework
       load if @config_file
 
       IRC::Connection.build do |config|
-        config.server   = server
-        config.port     = port
-        config.nick     = nick
-        config.user     = user
+        config.server = server
+        config.port = port
+        config.nick = nick
+        config.user = user
         config.password = password
         config.realname = realname
-        config.ssl      = ssl?
+        config.ssl = ssl?
         config.try_sasl = try_sasl?
-        config.logger   = logger
       end
     end
 
@@ -314,12 +321,6 @@ module Framework
       path = @config_file
       raise Error.new("No configuration file defined") unless path
       File.read_lines(path).reject(&.match(/^\s*\/\//)).join
-    end
-
-    private def set_log_level
-      raise Error.new("Unknown log level #{log_level}") unless LOG_LEVELS.has_key? log_level
-
-      logger.level = LOG_LEVELS[log_level]
     end
   end
 end

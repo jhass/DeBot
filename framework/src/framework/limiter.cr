@@ -2,9 +2,9 @@ module Framework
   class Limiter
     @time_span : Time::Span
 
-    def initialize(@limit=5, time_span=60)
-      @time_span = time_span.is_a?(Time::Span) ? time_span : Time::Span.new(0, 0, time_span)
-      @hits      = [] of Time
+    def initialize(@limit = 5, time_span = 60)
+      @time_span = time_span.is_a?(Time::Span) ? time_span : Time::Span.new(seconds: time_span)
+      @hits = [] of Time
     end
 
     # Returns true if the next hit would be allowed
@@ -26,19 +26,19 @@ module Framework
 
     # Tracks a hit and returns true if that hit exceeded the limit
     def hit
-      @hits << Time.now
+      @hits << Time.local
 
       exceeded?
     end
 
     private def cleanup_hits
-      now = Time.now
-      @hits.reject! {|hit| now-hit > @time_span }
+      now = Time.local
+      @hits.reject! { |hit| now - hit > @time_span }
     end
   end
 
   struct LimiterCollection(T)
-    def initialize(@limit=5, @time_span=60)
+    def initialize(@limit = 5, @time_span = 60)
       @limiters = {} of T => Limiter
     end
 

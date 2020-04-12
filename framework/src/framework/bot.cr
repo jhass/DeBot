@@ -12,11 +12,13 @@ require "./plugin_container"
 require "./plugin"
 
 module Framework
+  Log = IRC::Log.for("Framework")
+
   class Bot
-    getter  config : Configuration
+    getter config : Configuration
     getter! connection : IRC::Connection
     getter! user : User
-    delegate  channels, logger, to: config
+    delegate channels, to: config
     @filters : Array(Filter::Item)
 
     def self.create
@@ -26,7 +28,7 @@ module Framework
     end
 
     private def initialize
-      @config  = Configuration.new
+      @config = Configuration.new
       @filters = [] of Filter::Item
       @started = false
 
@@ -53,7 +55,7 @@ module Framework
 
       channel.on_message do |message|
         message = Message.new self, message
-        event   = Event.new(self, :message, message)
+        event = Event.new(self, :message, message)
         config.plugins.each_value &.handle(event)
       end
 

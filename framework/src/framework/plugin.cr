@@ -1,5 +1,3 @@
-require "core_ext/string"
-
 require "./configuration"
 require "./channel"
 require "./user"
@@ -8,20 +6,14 @@ require "./timer"
 module Framework
   module Plugin
     macro config(properties)
-      {% for key, value in properties %}
-        {% properties[key] = {type: value} unless value.is_a?(HashLiteral) || value.is_a?(NamedTupleLiteral) %}
-      {% end %}
-
       class Config
-        JSON.mapping({
-          :channels => {type: Framework::Configuration::Plugin::ChannelList, nilable: true, emit_null: true},
-          {% for key, value in properties %}
-            {{key}} => {{value}},
-          {% end %}
-        }, true)
+        {% for key, value in properties %}
+          property {{key.id}} : {{value[:type]}}
+        {% end %}
 
         def initialize_empty
           @channels = nil
+
           {% for key, value in properties %}
             @{{key.id}} = {{value[:default]}}
           {% end %}
@@ -32,10 +24,11 @@ module Framework
     macro included
       class Config
         include Framework::Configuration::Plugin
+        include JSON::Serializable
+        include JSON::Serializable::Strict
 
-        JSON.mapping({
-          channels: {type: Framework::Configuration::Plugin::ChannelList, nilable: true, emit_null: true},
-        })
+        @[JSON::Field(emit_null: true)]
+        property channels : Framework::Configuration::Plugin::ChannelList?
 
         def initialize_empty
           @channels = ChannelList.default
@@ -90,7 +83,7 @@ module Framework
       User.from_nick name, context
     end
 
-    def in(seconds, &block)
+    def after(seconds, &block)
       Timer.new seconds, 1, &block
     end
 

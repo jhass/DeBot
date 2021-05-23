@@ -12,9 +12,10 @@ class HelloWorld
 end
 
 bot = Framework::Bot.create do
-  config.server = "chat.freenode.net"
+  config.server = "irc.libera.chat"
   config.nick = "CrystalBot"
   config.channels = ["##cebot"]
+  config.log_level = :debug
 
   add_plugin HelloWorld
 end

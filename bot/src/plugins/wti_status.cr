@@ -4,21 +4,21 @@ require "json"
 require "framework/plugin"
 
 class WtiStatus
-  class Stats
-    JSON.mapping({
-      count_strings_done: Int32,
-      count_strings: Int32,
-      count_strings_to_translate: Int32,
-      count_strings_to_proofread: Int32,
-      count_strings_to_verify: Int32
-    })
+  struct Stats
+    include JSON::Serializable
+
+    getter count_strings_done : Int32
+    getter count_strings : Int32
+    getter count_strings_to_translate : Int32
+    getter count_strings_to_proofread : Int32
+    getter count_strings_to_verify : Int32
   end
 
-  class Project
-    JSON.mapping({
-      api_key: String,
-      slug: String
-    })
+  struct Project
+    include JSON::Serializable
+
+    getter api_key : String
+    getter slug : String
   end
 
   include Framework::Plugin
@@ -31,11 +31,11 @@ class WtiStatus
   # command (?:ts|trans(?:lation)?stati?s(?:tics)?)
   # code ([a-zA-Z0-9_-]+)
   match /^!(?:ts|trans(?:lation)?stati?s(?:tics)?)\s+([a-zA-Z0-9_-]+)$/
-  match /^!(?:ts|trans(?:lation)?stati?s(?:tics)?)\s+(\w+)\s+([a-zA-Z0-9_-]+)/
+  match /^!(?:ts|trans(?:lation)?stati?s(?:tics)?)\s+(\w+)\s+([a-zA-Z0-9_-]+)$/
 
   def execute(msg, match)
-    project = match.size == 2 ? match[1] : config.default_project
-    code = match.size == 2 ? match[2] : match[1]
+    project = match.size == 3 ? match[1] : config.default_project
+    code = match.size == 3 ? match[2] : match[1]
     code = code.tr("_", "-")
 
     if code == "en"
@@ -61,7 +61,7 @@ class WtiStatus
       end
       msg.reply " Join the team at https://webtranslateit.com/en/projects/#{config.projects[project].slug} to further improve it!"
     else
-      msg.reply  "There so no translation for #{code} yet. Have a look at https://wiki.diasporafoundation.org/Contribute_translations on how to create it!"
+      msg.reply  "There is no translation for #{code} yet. Have a look at https://wiki.diasporafoundation.org/Contribute_translations on how to create it!"
     end
   end
 end

@@ -5,11 +5,11 @@ require "json"
 class GithubIssues
   include Framework::Plugin
 
-  class Issue
-    JSON.mapping({
-      html_url: String,
-      title: String
-    })
+  struct Issue
+    include JSON::Serializable
+
+    getter html_url : String
+    getter title : String
 
     def to_s(io)
       io << html_url << " (#{title})"

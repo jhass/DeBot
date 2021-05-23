@@ -4,7 +4,7 @@ class Admin
   include Framework::Plugin
 
   config({
-    admins:      {type: Array(String), nilable: true},
+    admins:      {type: Array(String)?},
     superadmins: {type: Array(String), default: [] of String},
   })
 

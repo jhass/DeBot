@@ -1,10 +1,9 @@
 require "socket"
 require "signal"
 require "base64"
+require "openssl"
 
 require "log"
-
-require "core_ext/openssl"
 
 require "./channel"
 require "./mask"

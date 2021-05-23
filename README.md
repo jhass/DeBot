@@ -16,8 +16,6 @@ received messages.
 ### Dependencies
 
 * Crystal
-* thread
-* core_ext
 
 ## framework
 
@@ -28,8 +26,6 @@ for developing IRC bots.
 
 * Crystal
 * irc
-* thread
-* core_ext
 
 ## bot
 
@@ -40,23 +36,3 @@ the bot.
 
 * Crystal
 * framework
-* core_ext
-* sandbox (if crystal_eval plugin is activated)
-
-## core_ext
-
-A collection of monkey patches to stdlib classes that might or might not
-be upstreamed into Crystal
-
-### Dependencies
-
-* Crystal
-
-## thread
-
-A collection of threading primitives such as a Queue and a ReadWriteLock.
-Currently doesn't make much sense for Crystal 0.7.
-
-### Dependencies
-
-* Crystal

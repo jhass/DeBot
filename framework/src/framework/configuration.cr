@@ -12,11 +12,11 @@ module Framework
       class ChannelList
         def self.new(pull : JSON::PullParser)
           case pull.kind
-          when :null
+          when .null?
             default
-          when :begin_array
+          when .begin_array?
             new Array(String).new pull
-          when :bool
+          when .bool?
             if pull.read_bool == false
               none
             else
@@ -131,31 +131,33 @@ module Framework
     end
 
     class Store
+      include JSON::Serializable
+      include JSON::Serializable::Strict
+
       LOG_LEVELS = {
         "debug" => ::Log::Severity::Debug,
         "info"  => ::Log::Severity::Info,
-        "warn"  => ::Log::Severity::Warning,
+        "warn"  => ::Log::Severity::Warn,
         "error" => ::Log::Severity::Error,
         "fatal" => ::Log::Severity::Fatal,
       }
 
       LOG_LEVEL_NAMES = LOG_LEVELS.map { |k, v| {v, k} }.to_h
 
-      JSON.mapping({
-        server:          {type: String},
-        port:            {type: Int32, nilable: true},
-        channels:        {type: Array(String)},
-        nick:            {type: String},
-        user:            {type: String, nilable: true},
-        password:        {type: String, nilable: true, emit_null: true},
-        nickserv_regain: {type: Bool, nilable: true},
-        realname:        {type: String, nilable: true},
-        ssl:             {type: Bool, nilable: true},
-        try_sasl:        {type: Bool, nilable: true},
-        log_level:       {type: String, nilable: true},
-        ignores:         {type: Array(String), nilable: true},
-        plugins:         {type: Hash(String, JSON::Any), nilable: true},
-      }, true)
+      property server : String
+      property port : Int32?
+      property channels : Array(String)
+      property nick : String
+      property user : String?
+      @[JSON::Field(emit_null: true)]
+      property password : String?
+      property nickserv_regain : Bool?
+      property realname : String?
+      property ssl : Bool?
+      property try_sasl : Bool?
+      property log_level : String?
+      property ignores : Array(String)?
+      property plugins : Hash(String, JSON::Any)?
 
       def self.load_plugins(config, json)
         pull = JSON::PullParser.new json

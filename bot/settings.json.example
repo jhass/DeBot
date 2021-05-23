@@ -4,7 +4,7 @@
 // Optional keys are given with their default or an example
 // Note that comments are lost when the config file is written by the bot
 {
-  "server": "chat.freenode.net",
+  "server": "irc.libera.chat",
 
   // Defaults to 6697 if SSL is enabled
   //"port": 6667,

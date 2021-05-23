@@ -1,4 +1,3 @@
-require "core_ext/string"
 require "framework/plugin"
 
 class Wiki

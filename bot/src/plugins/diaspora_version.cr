@@ -5,7 +5,7 @@ require "framework/plugin"
 class DiasporaVersion
   include Framework::Plugin
 
-  API_ENDPOINT = "http://version.diaspora.social/%s/text"
+  API_ENDPOINT = "https://version.diaspora.social/%s/text"
 
   match /^!rev\s+([a-zA-Z0-9]+[a-zA-Z0-9\-\.]*\.[a-zA-Z]+)/
 

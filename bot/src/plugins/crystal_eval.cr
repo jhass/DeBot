@@ -5,19 +5,19 @@ require "framework/plugin"
 class CrystalEval
   include Framework::Plugin
 
-  class Request
-    JSON.mapping({
-      run: Run
-    })
+  struct Request
+    include JSON::Serializable
+
+    getter run : Run
   end
 
-  class Run
-    JSON.mapping({
-      stdout:     String,
-      stderr:     String,
-      exit_code:  Int32,
-      html_url:   String
-    })
+  struct Run
+    include JSON::Serializable
+
+    getter stdout : String
+    getter stderr : String
+    getter exit_code : Int32
+    getter html_url : String
   end
 
   TEMPLATE_PLACEHOLDER = "%body"

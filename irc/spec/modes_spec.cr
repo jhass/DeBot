@@ -4,7 +4,7 @@ require "../src/irc/modes"
 def parse(modes)
   parsed = Array({Char, Char, String?}).new
   IRC::Modes::Parser.parse(modes) do |modifier, flag, parameter|
-    parsed << {modifier, flag, parameter as String?}
+    parsed << {modifier, flag, parameter.as String?}
   end
   parsed
 end

@@ -26,14 +26,14 @@ class RussianRoulette
 
     msg.reply "*spin*..."
     msg.reply "*pull*..."
-    in(3) do
+    after(3) do
       has_bullet = (rand(CHAMBERS) == 0)
 
       if has_bullet
         if msg.channel.opped? bot
           msg.channel.ban msg.sender if ALSO_BAN
           msg.channel.kick msg.sender, "{ *BANG* #{REASONS[rand(REASONS.size)]} }"
-          in(BAN_TIME) { msg.channel.unban msg.sender } if ALSO_BAN
+          after(BAN_TIME) { msg.channel.unban msg.sender } if ALSO_BAN
         else
           msg.reply "#{msg.sender.nick}: #{REASONS[rand(REASONS.size)]}"
         end

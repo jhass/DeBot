@@ -4,15 +4,17 @@ require "framework/plugin"
 require "framework/json_store"
 
 class Memo
-  class Memo
-    JSON.mapping({
-      content:   {type: String},
-      sender:    {type: String},
-      context:   {type: String, nilable: true, emit_null: true},
-      timestamp: {type: Time, converter: Time::Format.new("%F %T")},
-    })
+  struct Memo
+    include JSON::Serializable
 
-    def initialize(@content, @sender : String, @context : String?, @timestamp : Time)
+    getter content : String
+    getter sender : String
+    @[JSON::Field(emit_null: true)]
+    getter context : String?
+    @[JSON::Field(converter: Time::Format.new("%F %T"))]
+    getter timestamp : Time
+
+    def initialize(@content, @sender, @context, @timestamp)
     end
 
     def to_s(io)

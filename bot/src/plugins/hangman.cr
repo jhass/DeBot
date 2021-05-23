@@ -25,6 +25,7 @@ class Hangman
       "irssi"      => word_list_for("irssi"),
       "java"       => word_list_for("java_classes"),
       "javascript" => word_list_for("javascript"),
+      "node"       => word_list_for("node"),
       "nouns"      => word_list_for("wordlist"),
       "perl"       => word_list_for("perl"),
       "php"        => word_list_for("php"),
